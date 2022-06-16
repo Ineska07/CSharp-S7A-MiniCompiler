@@ -24,8 +24,7 @@ namespace AutomataCSharp
 
         private void frmIDE_Load(object sender, EventArgs e)
         {
-            analizador = new Lexico();
-            analizador.Inicializar();
+            
         }
 
         private void btnAbrir_Click(object sender, EventArgs e)
@@ -56,6 +55,7 @@ namespace AutomataCSharp
                 }
                 else
                 {
+                    dgvToken.Rows.Clear();
                     tbxCodigo.Text = template;
                     lblNumLineas.Text = "Lineas: " + tbxCodigo.Lines.Length.ToString();
                     HabilitarGuardar();
@@ -64,6 +64,7 @@ namespace AutomataCSharp
             }
             else
             {
+                dgvToken.Rows.Clear();
                 tbxCodigo.Text = template;
                 lblNumLineas.Text = "Lineas: " + tbxCodigo.Lines.Length.ToString();
                 HabilitarGuardar();
@@ -106,6 +107,10 @@ namespace AutomataCSharp
 
         private void btnRun_Click(object sender, EventArgs e)
         {
+            dgvToken.Rows.Clear();
+            analizador = new Lexico();
+            analizador.Inicializar();
+
             lblError.Visible = true;
 
             using (var excelread = File.Open(archivo, FileMode.Open, FileAccess.Read))

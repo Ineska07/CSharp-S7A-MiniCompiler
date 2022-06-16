@@ -151,6 +151,7 @@ namespace AutomataCSharp
         {
             string tempPalabra = string.Empty;
             string tempEstado;
+            string tempError = string.Empty;
 
             string estadoActual = "q0";
             int lineaCodigo = 1;
@@ -159,6 +160,7 @@ namespace AutomataCSharp
             {
                 char caracterActual = siguienteCaracter(codigo, indice);
 
+                
                 if (caracterActual.Equals('\n'))
                 {
                     estadoActual = BuscarToken(tempPalabra, -1).ToString();
@@ -166,6 +168,7 @@ namespace AutomataCSharp
                     lineaCodigo++;
                     estadoActual = "q0";
                     tempPalabra = string.Empty;
+                    tempError = string.Empty;
                     continue;
                 }
                 else if (caracterActual == ' ' || caracterActual.Equals('\t'))
@@ -174,6 +177,7 @@ namespace AutomataCSharp
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     estadoActual = "q0";
                     tempPalabra = string.Empty;
+                    tempError = string.Empty;
                     continue;
                 }
 
@@ -184,6 +188,7 @@ namespace AutomataCSharp
                     estadoActual = "-501";
                     int temp = Int32.Parse(estadoActual);
                     AddTokenList(temp, caracterActual.ToString(), lineaCodigo);
+                    tempPalabra += caracterActual;
                     continue;
                 }
 
@@ -195,7 +200,8 @@ namespace AutomataCSharp
                     {
                         Errores++;
                         int temp = Int32.Parse(estadoActual);
-                        AddTokenList(temp, tempPalabra, lineaCodigo);
+                        AddTokenList(temp, tempError, lineaCodigo);
+                        tempPalabra += caracterActual;
                         continue;
                     }
                     else
@@ -232,7 +238,7 @@ namespace AutomataCSharp
                 else
                 {
                     int temp = Int32.Parse(estadoActual);
-                    if (tokens.ContainsKey(temp))
+                    if (tokens.ContainsKey(temp) || error.ContainsKey(temp))
                     {
                         AddTokenList(temp, lexema, linea);
                     }
