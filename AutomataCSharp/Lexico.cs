@@ -155,17 +155,20 @@ namespace AutomataCSharp
 
             string estadoActual = "q0";
             int lineaCodigo = 1;
-            bool errorunknown = false;
+            bool escomentario = false;
 
             for (int indice = 0; indice < codigo.Length; indice++)
             {
                 char caracterActual = siguienteCaracter(codigo, indice);
+                char caractersig = siguienteCaracter(codigo, indice + 1);
                 
+
                 if (caracterActual.Equals('\n'))
                 {
                     estadoActual = BuscarToken(tempPalabra, -1).ToString();
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     lineaCodigo++;
+                    escomentario = false;
                     estadoActual = "q0";
                     tempPalabra = string.Empty;
                     tempError = string.Empty;
@@ -173,37 +176,40 @@ namespace AutomataCSharp
                 }
                 else if (caracterActual == ' ' || caracterActual.Equals('\t'))
                 {
-                    if (!errorunknown) estadoActual = BuscarToken(tempPalabra, -1).ToString();
+                    if (escomentario == true) continue;
+                    estadoActual = BuscarToken(tempPalabra, -1).ToString();
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     estadoActual = "q0";
                     tempPalabra = string.Empty;
                     tempError = string.Empty;
-                    errorunknown = false;
                     continue;
                 }
-
-                //CARACTER DESCONOCIDO
-                if (alfabeto.IndexOf(caracterActual) == -1)
+                
+                if (alfabeto.IndexOf(caracterActual) == -1) //CARACTER DESCONOCIDO
                 {
                     Errores++;
                     estadoActual = "-501";
                     int temp = Int32.Parse(estadoActual);
                     AddTokenList(temp, caracterActual.ToString(), lineaCodigo);
-                    tempPalabra += caracterActual;
-                    errorunknown = true;
+                    tempPalabra = string.Empty;
                     continue;
                 }
 
                 estadoActual = transicion(estados.IndexOf(estadoActual), alfabeto.IndexOf(caracterActual));
+                if (estadoActual == "q100" || (caracterActual == '/' && caractersig == '/'))
+                {
+                    escomentario = true;
+                    continue;
+                }
 
                 if (estados.IndexOf(estadoActual) < 0)
                 {
-                    if (estados.IndexOf(estadoActual) <= -500)
+                    if (Int32.Parse(estadoActual) <= -500) //Detección de Errores
                     {
                         Errores++;
-                        int temp = Int32.Parse(estadoActual);
-                        AddTokenList(temp, tempError, lineaCodigo);
-                        tempPalabra += caracterActual;
+                        AddTokenList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
+                        estadoActual = "q0";
+                        tempPalabra = string.Empty;
                         continue;
                     }
                     else
@@ -252,9 +258,6 @@ namespace AutomataCSharp
         {
             string type = string.Empty;
 
-            if (lexema.Length == 1 && lexema.StartsWith("'") && lexema.EndsWith("'")) temp = -5;
-            if (lexema.StartsWith('"'.ToString()) && lexema.EndsWith('"'.ToString())) temp = -4;
-
             if (temp == -1)
             {
                 if (reservadas.ContainsValue(lexema))
@@ -271,7 +274,7 @@ namespace AutomataCSharp
             if (temp <= -17 && temp >= -24) type = "Relacional";
             if (temp <= -25 && temp >= -30) type = "Logico";
             if ((temp <= -31 && temp >= -40) || (temp <= -90 && temp >= -91)) type = "Simbolo";
-            if (temp <= -500 && temp >= -505) type = error[temp];
+            if (temp <= -500 && temp >= -507) type = error[temp];
 
             Tokens tempToken = new Tokens(type, lexema, temp, linea);
             tokensGenerados.Enqueue(tempToken);
