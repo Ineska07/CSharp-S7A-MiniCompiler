@@ -155,11 +155,11 @@ namespace AutomataCSharp
 
             string estadoActual = "q0";
             int lineaCodigo = 1;
+            bool errorunknown = false;
 
             for (int indice = 0; indice < codigo.Length; indice++)
             {
                 char caracterActual = siguienteCaracter(codigo, indice);
-
                 
                 if (caracterActual.Equals('\n'))
                 {
@@ -173,11 +173,12 @@ namespace AutomataCSharp
                 }
                 else if (caracterActual == ' ' || caracterActual.Equals('\t'))
                 {
-                    estadoActual = BuscarToken(tempPalabra, -1).ToString();
+                    if (!errorunknown) estadoActual = BuscarToken(tempPalabra, -1).ToString();
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     estadoActual = "q0";
                     tempPalabra = string.Empty;
                     tempError = string.Empty;
+                    errorunknown = false;
                     continue;
                 }
 
@@ -189,6 +190,7 @@ namespace AutomataCSharp
                     int temp = Int32.Parse(estadoActual);
                     AddTokenList(temp, caracterActual.ToString(), lineaCodigo);
                     tempPalabra += caracterActual;
+                    errorunknown = true;
                     continue;
                 }
 

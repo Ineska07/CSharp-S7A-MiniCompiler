@@ -11,7 +11,7 @@ namespace Nombre
             "e @@ a4c s.)
 
             //comentario /* 2 */
-            string frase = "palabra 2";
+            string frase = "palabra";
             if(suma==7.5) Console.WriteLine("correcto");
             else Console.WriteLine('a');
         }
