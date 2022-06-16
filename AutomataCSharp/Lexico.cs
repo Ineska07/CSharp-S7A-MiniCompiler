@@ -151,37 +151,35 @@ namespace AutomataCSharp
         {
             string tempPalabra = string.Empty;
             string tempEstado;
-            string tempError = string.Empty;
 
             string estadoActual = "q0";
             int lineaCodigo = 1;
             bool escomentario = false;
+            bool comentariomultilinea = false;
 
             for (int indice = 0; indice < codigo.Length; indice++)
             {
                 char caracterActual = siguienteCaracter(codigo, indice);
                 char caractersig = siguienteCaracter(codigo, indice + 1);
-                
 
                 if (caracterActual.Equals('\n'))
                 {
+                    if (comentariomultilinea == true) continue; 
                     estadoActual = BuscarToken(tempPalabra, -1).ToString();
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     lineaCodigo++;
                     escomentario = false;
                     estadoActual = "q0";
                     tempPalabra = string.Empty;
-                    tempError = string.Empty;
                     continue;
                 }
                 else if (caracterActual == ' ' || caracterActual.Equals('\t'))
                 {
-                    if (escomentario == true) continue;
+                    if (escomentario == true || comentariomultilinea == true) continue;
                     estadoActual = BuscarToken(tempPalabra, -1).ToString();
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     estadoActual = "q0";
                     tempPalabra = string.Empty;
-                    tempError = string.Empty;
                     continue;
                 }
                 
@@ -196,11 +194,15 @@ namespace AutomataCSharp
                 }
 
                 estadoActual = transicion(estados.IndexOf(estadoActual), alfabeto.IndexOf(caracterActual));
-                if (estadoActual == "q100" || (caracterActual == '/' && caractersig == '/'))
-                {
-                    escomentario = true;
-                    continue;
-                }
+
+                if (estadoActual == "q100" || (caracterActual == '/' && caractersig == '/')) //Comentario simple
+                { escomentario = true; continue; }
+
+                if ((caracterActual == '/' && caractersig == '*') || estadoActual == "q101") //Comentario Multilinea
+                { comentariomultilinea = true; continue; }
+
+                if (caracterActual == '*' && caractersig == '/' || estadoActual == "q103") // Fin Comentario Multilinea
+                { comentariomultilinea = false; estadoActual = "q0"; indice++; continue; }
 
                 if (estados.IndexOf(estadoActual) < 0)
                 {
