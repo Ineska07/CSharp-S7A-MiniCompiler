@@ -156,6 +156,7 @@ namespace AutomataCSharp
             int lineaCodigo = 1;
             bool escomentario = false;
             bool comentariomultilinea = false;
+            bool esCadena = false;
 
             for (int indice = 0; indice < codigo.Length; indice++)
             {
@@ -165,7 +166,9 @@ namespace AutomataCSharp
                 if (caracterActual.Equals('\n'))
                 {
                     if (comentariomultilinea == true) continue; 
-                    estadoActual = BuscarToken(tempPalabra, -1).ToString();
+                    estadoActual = BuscarToken(estadoActual, tempPalabra, -1, esCadena);
+                    if (esCadena) estadoActual = "-507";
+                    esCadena = false;
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     lineaCodigo++;
                     escomentario = false;
@@ -175,15 +178,15 @@ namespace AutomataCSharp
                 }
                 else if (caracterActual == ' ' || caracterActual.Equals('\t'))
                 {
-                    if (escomentario == true || comentariomultilinea == true) continue;
-                    estadoActual = BuscarToken(tempPalabra, -1).ToString();
+                    if (escomentario == true || comentariomultilinea == true || esCadena) continue;
+                    estadoActual = BuscarToken(estadoActual, tempPalabra, -1, esCadena);
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     estadoActual = "q0";
                     tempPalabra = string.Empty;
                     continue;
                 }
                 
-                if (alfabeto.IndexOf(caracterActual) == -1) //CARACTER DESCONOCIDO
+                if (alfabeto.IndexOf(caracterActual) == -1 && !esCadena) //CARACTER DESCONOCIDO
                 {
                     Errores++;
                     estadoActual = "-501";
@@ -193,7 +196,13 @@ namespace AutomataCSharp
                     continue;
                 }
 
-                estadoActual = transicion(estados.IndexOf(estadoActual), alfabeto.IndexOf(caracterActual));
+                if (caracterActual.Equals('"')) {
+                    esCadena = !esCadena;
+                    estadoActual = "q5";
+                        }
+
+                if (!esCadena)
+                    estadoActual = transicion(estados.IndexOf(estadoActual), alfabeto.IndexOf(caracterActual));
 
                 if (estadoActual == "q100" || (caracterActual == '/' && caractersig == '/')) //Comentario simple
                 { escomentario = true; continue; }
@@ -223,18 +232,24 @@ namespace AutomataCSharp
                     }
                     continue;
                 }
-
                 tempPalabra += caracterActual;
             }
         }
 
-        private int BuscarToken(string tempPalabra, int key)
+        private string BuscarToken(string estadoActual, string tempPalabra, int key, bool esCadena)
         {
-            foreach (var token in tokens)
+            if (!esCadena)
             {
-                if (token.Value == tempPalabra) key = token.Key;
+                foreach (var token in tokens)
+                {
+                    if (token.Value == tempPalabra) key = token.Key;
+                }
+                return key.ToString();
             }
-            return key;
+            else
+            {
+                return estadoActual;
+            }
         }
 
         private void Pretoken(string estadoActual, string lexema, int linea)
