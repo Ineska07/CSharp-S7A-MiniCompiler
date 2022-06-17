@@ -242,17 +242,16 @@ namespace AutomataCSharp
 
         private string BuscarToken(string estadoActual, string tempPalabra, int key, bool esCadena)
         {
-            if (esCadena)
+            if (!esCadena)
             {
-                if (tempPalabra.StartsWith("'") && tempPalabra.EndsWith("'"))key = -5;
+                if (tempPalabra.StartsWith("'") && tempPalabra.EndsWith("'")) key = -5;
                 else if (tempPalabra.StartsWith('"'.ToString()) && tempPalabra.EndsWith('"'.ToString())) key = -4;
-                return key.ToString();
-            }
-            else if (!esCadena)
-            {
-                foreach (var token in tokens)
+                else
                 {
-                    if (token.Value == tempPalabra) key = token.Key;
+                    foreach (var token in tokens)
+                    {
+                        if (token.Value == tempPalabra) key = token.Key;
+                    }
                 }
                 return key.ToString();
             }
