@@ -189,7 +189,7 @@ namespace AutomataCSharp
                 
                 if (alfabeto.IndexOf(caracterActual) == -1 && !esCadena) //CARACTER DESCONOCIDO
                 {
-                    Errores++;
+                    //Errores++;
                     estadoActual = "-501";
                     int temp = Int32.Parse(estadoActual);
                     AddTokenList(temp, caracterActual.ToString(), lineaCodigo);
@@ -221,7 +221,7 @@ namespace AutomataCSharp
                 {
                     if (Int32.Parse(estadoActual) <= -500) //Detección de Errores
                     {
-                        Errores++;
+                        //Errores++;
                         AddTokenList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
                         estadoActual = "q0";
                         tempPalabra = string.Empty;
@@ -301,7 +301,7 @@ namespace AutomataCSharp
             if (temp <= -17 && temp >= -24) type = "Relacional";
             if (temp <= -25 && temp >= -30) type = "Logico";
             if ((temp <= -31 && temp >= -40) || (temp <= -90 && temp >= -91)) type = "Simbolo";
-            if (temp <= -500 && temp >= -507) type = error[temp];
+            if (temp <= -500 && temp >= -507) { Errores++; type = error[temp]; }
 
             Tokens tempToken = new Tokens(type, lexema, temp, linea);
             tokensGenerados.Enqueue(tempToken);

@@ -108,6 +108,7 @@ namespace AutomataCSharp
         private void btnRun_Click(object sender, EventArgs e)
         {
             dgvToken.Rows.Clear();
+            lblError.Text = "Errores: ";
             analizador = new Lexico();
             analizador.Inicializar();
 
