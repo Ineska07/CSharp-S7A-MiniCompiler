@@ -178,7 +178,8 @@ namespace AutomataCSharp
                 }
                 else if (caracterActual == ' ' || caracterActual.Equals('\t'))
                 {
-                    if (escomentario == true || comentariomultilinea == true || esCadena) continue;
+                    if (escomentario == true || comentariomultilinea == true) continue;
+                    if(esCadena == true) { tempPalabra += caracterActual; continue; }
                     estadoActual = BuscarToken(estadoActual, tempPalabra, -1, esCadena);
                     Pretoken(estadoActual, tempPalabra, lineaCodigo);
                     estadoActual = "q0";
@@ -196,14 +197,15 @@ namespace AutomataCSharp
                     continue;
                 }
 
+                #region Coso de Cadenas
                 if (caracterActual.Equals('"')) {
                     esCadena = !esCadena;
                     estadoActual = "q5";
-                        }
+                   }
+                if (!esCadena) estadoActual = transicion(estados.IndexOf(estadoActual), alfabeto.IndexOf(caracterActual));
+                #endregion
 
-                if (!esCadena)
-                    estadoActual = transicion(estados.IndexOf(estadoActual), alfabeto.IndexOf(caracterActual));
-
+                #region Condiciones para Comentarios
                 if (estadoActual == "q100" || (caracterActual == '/' && caractersig == '/')) //Comentario simple
                 { escomentario = true; continue; }
 
@@ -212,6 +214,8 @@ namespace AutomataCSharp
 
                 if (caracterActual == '*' && caractersig == '/' || estadoActual == "q103") // Fin Comentario Multilinea
                 { comentariomultilinea = false; estadoActual = "q0"; indice++; continue; }
+
+                #endregion
 
                 if (estados.IndexOf(estadoActual) < 0)
                 {
@@ -238,7 +242,13 @@ namespace AutomataCSharp
 
         private string BuscarToken(string estadoActual, string tempPalabra, int key, bool esCadena)
         {
-            if (!esCadena)
+            if (esCadena)
+            {
+                if (tempPalabra.StartsWith("'") && tempPalabra.EndsWith("'"))key = -5;
+                else if (tempPalabra.StartsWith('"'.ToString()) && tempPalabra.EndsWith('"'.ToString())) key = -4;
+                return key.ToString();
+            }
+            else if (!esCadena)
             {
                 foreach (var token in tokens)
                 {
