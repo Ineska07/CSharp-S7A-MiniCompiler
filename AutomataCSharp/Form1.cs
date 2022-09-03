@@ -9,8 +9,8 @@ namespace AutomataCSharp
     {
         bool saved;
         string template = Properties.Resources.template;
-        string archivo = "C:\\Users\\Ines B\\Desktop/Matriz.xlsx";
         Lexico analizador;
+        int numerror;
 
         public frmIDE()
         {
@@ -113,26 +113,20 @@ namespace AutomataCSharp
             analizador.Inicializar();
 
             lblError.Visible = true;
+            analizador.Analizar(tbxCodigo.Text + " ");
 
-            using (var excelread = File.Open(archivo, FileMode.Open, FileAccess.Read))
-            {
-                using (var read = ExcelReaderFactory.CreateReader(excelread))
-                {
-                    do 
-                    { 
-                        analizador.cargarMatriz(read); 
-                    } while (read.NextResult());
-                }
-
-                analizador.analizarTexto(tbxCodigo.Text + " ");
-                int numError = analizador.getErrores();
-                lblError.Text = "Errores: " + numError.ToString();
-                ImprimirTablaTokens();
-            }
+            lblError.Text = "Errores: " + numerror.ToString();
+            ImprimirTablaTokens();
+    
         }
 
         private void ImprimirTablaTokens()
         {
+            foreach (Tokens token in analizador.listaErrores)
+            {
+                dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
+                numerror++;
+            }
             foreach (Tokens token in analizador.tokensGenerados)
             {
                 dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);

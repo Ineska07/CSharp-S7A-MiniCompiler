@@ -7,24 +7,20 @@ using System.Threading.Tasks;
 
 namespace AutomataCSharp
 {
-    class Lexico : MatrizTransicion //Analizador
+    class Lexico : MatrizTransicion
     {
         public Queue<Tokens> tokensGenerados = new Queue<Tokens>();
-
+        public Queue<Tokens> listaErrores = new Queue<Tokens>();
         private Dictionary<int, string> tokens = new Dictionary<int, string>();
         private Dictionary<int, string> reservadas = new Dictionary<int, string>();
         private Dictionary<int, string> error = new Dictionary<int, string>();
-        private int Errores = 0;
-        public int getErrores()
-        {
-            return this.Errores;
-        }
+
         public void Inicializar()
         {
-            AddTokens(tokens);
-            AddReservadas(reservadas);
+            Add(tokens, reservadas);
+            Cargar();
         }
-        public void AddTokens(Dictionary<int, string> tokens)
+        private void Add(Dictionary<int, string> tokens, Dictionary<int, string> reservadas)
         {
             tokens.Add(-1, "Identificador");
             tokens.Add(-2, "Entero");
@@ -87,9 +83,7 @@ namespace AutomataCSharp
             error.Add(-505, "Se esperaba D");
             error.Add(-506, "No cierra caracter");
             error.Add(-507, "No cierra cadena");
-        }
-        public void AddReservadas(Dictionary<int, string> reservadas)
-        {
+
             //Clases
             reservadas.Add(-41, "class");
             reservadas.Add(-42, "extends");
@@ -147,6 +141,48 @@ namespace AutomataCSharp
             reservadas.Add(-88, "where");
             reservadas.Add(-89, "while");
         }
+
+        public void Analizar(string codigo)
+        {
+            string tempPalabra = string.Empty;
+            string tempEstado;
+
+            string estadoActual = "q0";
+            int lineaCodigo = 1;
+            int columna;
+            bool esCadena = false;
+            bool inError = false;
+
+            for (int indice = 0; indice < codigo.Length; indice++)
+            {
+                char caracterActual = siguienteCaracter(codigo, indice);
+
+                if (caracterActual.Equals('\n')){inError = false; esCadena = false;}
+
+                if (estados.IndexOf(estadoActual) < 0)
+                {
+                    if (Int32.Parse(estadoActual) <= -500) //Detección de Errores
+                    {
+                        if (inError == true) continue;
+                        AddErrorList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
+                        estadoActual = "q0";
+                        inError = true;
+                        tempPalabra = string.Empty;
+                        continue;
+                    }
+                    else
+                    {
+                        Pretoken(estadoActual, tempPalabra, lineaCodigo);
+                        estadoActual = "q0";
+                        tempPalabra = string.Empty;
+                        indice--;
+                    }
+                    continue;
+                }
+                tempPalabra += caracterActual;
+            }
+        }
+
         public void analizarTexto(string codigo)
         {
             string tempPalabra = string.Empty;
@@ -157,6 +193,7 @@ namespace AutomataCSharp
             bool escomentario = false;
             bool comentariomultilinea = false;
             bool esCadena = false;
+            bool inError = false; 
 
             for (int indice = 0; indice < codigo.Length; indice++)
             {
@@ -189,10 +226,9 @@ namespace AutomataCSharp
                 
                 if (alfabeto.IndexOf(caracterActual) == -1 && !esCadena) //CARACTER DESCONOCIDO
                 {
-                    //Errores++;
                     estadoActual = "-501";
                     int temp = Int32.Parse(estadoActual);
-                    AddTokenList(temp, caracterActual.ToString(), lineaCodigo);
+                    AddErrorList(temp, caracterActual.ToString(), lineaCodigo);
                     tempPalabra = string.Empty;
                     continue;
                 }
@@ -221,9 +257,10 @@ namespace AutomataCSharp
                 {
                     if (Int32.Parse(estadoActual) <= -500) //Detección de Errores
                     {
-                        //Errores++;
-                        AddTokenList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
+                        if (inError == true) continue;
+                        AddErrorList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
                         estadoActual = "q0";
+                        inError = true;
                         tempPalabra = string.Empty;
                         continue;
                     }
@@ -239,13 +276,13 @@ namespace AutomataCSharp
                 tempPalabra += caracterActual;
             }
         }
-
         private string BuscarToken(string estadoActual, string tempPalabra, int key, bool esCadena)
         {
             if (!esCadena)
             {
                 if (tempPalabra.StartsWith("'") && tempPalabra.EndsWith("'")) key = -5;
                 else if (tempPalabra.StartsWith('"'.ToString()) && tempPalabra.EndsWith('"'.ToString())) key = -4;
+                else if (tempPalabra.StartsWith("'") && !tempPalabra.EndsWith("'")) key = -506;
                 else
                 {
                     foreach (var token in tokens)
@@ -272,36 +309,98 @@ namespace AutomataCSharp
                 else
                 {
                     int temp = Int32.Parse(estadoActual);
-                    if (tokens.ContainsKey(temp) || error.ContainsKey(temp))
+                    if (tokens.ContainsKey(temp))
                     {
                         AddTokenList(temp, lexema, linea);
                     }
+                    else if (error.ContainsKey(temp))
+                    {
+                        AddErrorList(temp, lexema, linea);
+                    }
                 }
             }
+        }
+
+        private void AddErrorList(int temp, string lexema, int linea)
+        {
+            string type = string.Empty;
+
+            switch (temp)
+            {
+                case -500: type = "S. Desconocido"; break;
+                case -501: type = "Inválido"; break;
+                case -502: type = "Se esperaba Número"; break;
+                case -503: type = "Se esperaba Decimal"; break;
+                case -504: type = "Cadena no cerrada"; break;
+                case -505: type = "Caracter no cerrado"; break;
+                case -506: type = "Caracter inválido"; break;
+                default: type = "ERROR DESCONOCICO"; break;
+            }
+            Tokens tempError = new Tokens(type, lexema, temp, linea);
+            listaErrores.Enqueue(tempError);
         }
 
         private void AddTokenList(int temp, string lexema, int linea)
         {
             string type = string.Empty;
 
-            if (temp == -1)
-            {
-                if (reservadas.ContainsValue(lexema))
-                {
-                    temp = EncontrarReservada(lexema, temp);
-                    type = "Reservada";
-                }
-                else type = "Identificador";
+            switch (temp) {
+                case -1:
+                    if (reservadas.ContainsValue(lexema))
+                    {
+                        temp = EncontrarReservada(lexema, temp);
+                        type = "Reservada";
+                    } else type = "Identificador"; break;
+
+                case -2: type = tokens[temp]; break;
+                case -3: type = tokens[temp]; break;
+                case -4: type = tokens[temp]; break;
+                case -5: type = tokens[temp]; break;
+
+                case -6: type = type = "Aritmético"; break;
+                case -7: type = type = "Aritmético"; break;
+                case -8: type = type = "Aritmético"; break;
+                case -9: type = type = "Aritmético"; break;
+                case -10: type = type = "Aritmético"; break;
+
+                case -11: type = type = "Asignativo"; break;
+                case -12: type = type = "Asignativo"; break;
+                case -13: type = type = "Asignativo"; break;
+                case -14: type = type = "Asignativo"; break;
+                case -15: type = type = "Asignativo"; break;
+                case -16: type = type = "Asignativo"; break;
+
+                case -17: type = type = "Relacional"; break;
+                case -18: type = type = "Relacional"; break;
+                case -19: type = type = "Relacional"; break;
+                case -20: type = type = "Relacional"; break;
+                case -21: type = type = "Relacional"; break;
+                case -22: type = type = "Relacional"; break;
+                case -23: type = type = "Relacional"; break;
+                case -24: type = type = "Relacional"; break;
+
+                case -25: type = type = "Lógico"; break;
+                case -26: type = type = "Lógico"; break;
+                case -27: type = type = "Lógico"; break;
+                case -28: type = type = "Lógico"; break;
+                case -29: type = type = "Lógico"; break;
+                case -30: type = type = "Lógico"; break;
+
+                case -31: type = type = "Simbolo"; break;
+                case -32: type = type = "Simbolo"; break;
+                case -33: type = type = "Simbolo"; break;
+                case -34: type = type = "Simbolo"; break;
+                case -35: type = type = "Simbolo"; break;
+                case -36: type = type = "Simbolo"; break;
+                case -37: type = type = "Simbolo"; break;
+                case -38: type = type = "Simbolo"; break;
+                case -39: type = type = "Simbolo"; break;
+                case -40: type = type = "Simbolo"; break;
+                case -90: type = type = "Simbolo"; break;
+                case -91: type = type = "Simbolo"; break;
+                case -92: type = type = "Simbolo"; break;
+
             }
-
-            if (temp <= -2 && temp >= -5) type = tokens[temp];
-            if (temp <= -6 && temp >= -10) type = "Aritmético";
-            if (temp <= -11 && temp >= -16) type = "Asignativo";
-            if (temp <= -17 && temp >= -24) type = "Relacional";
-            if (temp <= -25 && temp >= -30) type = "Logico";
-            if ((temp <= -31 && temp >= -40) || (temp <= -90 && temp >= -91)) type = "Simbolo";
-            if (temp <= -500 && temp >= -507) { Errores++; type = error[temp]; }
-
             Tokens tempToken = new Tokens(type, lexema, temp, linea);
             tokensGenerados.Enqueue(tempToken);
         }
