@@ -357,48 +357,48 @@ namespace AutomataCSharp
                 case -4: type = tokens[temp]; break;
                 case -5: type = tokens[temp]; break;
 
-                case -6: type = type = "Aritmético"; break;
-                case -7: type = type = "Aritmético"; break;
-                case -8: type = type = "Aritmético"; break;
-                case -9: type = type = "Aritmético"; break;
-                case -10: type = type = "Aritmético"; break;
+                case -6: type = "Aritmético"; break;
+                case -7: type = "Aritmético"; break;
+                case -8: type = "Aritmético"; break;
+                case -9: type = "Aritmético"; break;
+                case -10:type = "Aritmético"; break;
 
-                case -11: type = type = "Asignativo"; break;
-                case -12: type = type = "Asignativo"; break;
-                case -13: type = type = "Asignativo"; break;
-                case -14: type = type = "Asignativo"; break;
-                case -15: type = type = "Asignativo"; break;
-                case -16: type = type = "Asignativo"; break;
+                case -11: type = "Asignativo"; break;
+                case -12: type = "Asignativo"; break;
+                case -13: type = "Asignativo"; break;
+                case -14: type = "Asignativo"; break;
+                case -15: type = "Asignativo"; break;
+                case -16: type = "Asignativo"; break;
 
-                case -17: type = type = "Relacional"; break;
-                case -18: type = type = "Relacional"; break;
-                case -19: type = type = "Relacional"; break;
-                case -20: type = type = "Relacional"; break;
-                case -21: type = type = "Relacional"; break;
-                case -22: type = type = "Relacional"; break;
-                case -23: type = type = "Relacional"; break;
-                case -24: type = type = "Relacional"; break;
+                case -17: type = "Relacional"; break;
+                case -18: type = "Relacional"; break;
+                case -19: type = "Relacional"; break;
+                case -20: type = "Relacional"; break;
+                case -21: type = "Relacional"; break;
+                case -22: type = "Relacional"; break;
 
-                case -25: type = type = "Lógico"; break;
-                case -26: type = type = "Lógico"; break;
-                case -27: type = type = "Lógico"; break;
-                case -28: type = type = "Lógico"; break;
-                case -29: type = type = "Lógico"; break;
-                case -30: type = type = "Lógico"; break;
+                case -23: type = "Lógico"; break;
+                case -24: type = "Lógico"; break;
+                case -25: type = "Lógico"; break;
+                case -26: type = "Lógico"; break;
+                case -27: type = "Lógico"; break;
+                case -28: type = "Lógico"; break;
+                case -29: type = "Lógico"; break;
+                case -30: type = "Lógico"; break;
 
-                case -31: type = type = "Simbolo"; break;
-                case -32: type = type = "Simbolo"; break;
-                case -33: type = type = "Simbolo"; break;
-                case -34: type = type = "Simbolo"; break;
-                case -35: type = type = "Simbolo"; break;
-                case -36: type = type = "Simbolo"; break;
-                case -37: type = type = "Simbolo"; break;
-                case -38: type = type = "Simbolo"; break;
-                case -39: type = type = "Simbolo"; break;
-                case -40: type = type = "Simbolo"; break;
-                case -90: type = type = "Simbolo"; break;
-                case -91: type = type = "Simbolo"; break;
-                case -92: type = type = "Simbolo"; break;
+                case -31: type = "Simbolo"; break;
+                case -32: type = "Simbolo"; break;
+                case -33: type = "Simbolo"; break;
+                case -34: type = "Simbolo"; break;
+                case -35: type = "Simbolo"; break;
+                case -36: type = "Simbolo"; break;
+                case -37: type = "Simbolo"; break;
+                case -38: type = "Simbolo"; break;
+                case -39: type = "Simbolo"; break;
+                case -40: type = "Simbolo"; break;
+                case -90: type = "Simbolo"; break;
+                case -91: type = "Simbolo"; break;
+                case -92: type = "Simbolo"; break;
 
             }
             Tokens tempToken = new Tokens(type, lexema, temp, linea);
