@@ -14,22 +14,54 @@ namespace AutomataCSharp
         private Dictionary<int, string> tokens = new Dictionary<int, string>();
         private Dictionary<int, string> reservadas = new Dictionary<int, string>();
         private Dictionary<int, string> error = new Dictionary<int, string>();
+        private Dictionary<int, string> alfabetoindex = new Dictionary<int, string>(); //Detección de columnas
 
         public void Inicializar()
         {
-            Add(tokens, reservadas);
+            Add(tokens, reservadas, alfabetoindex);
             Cargar();
         }
-        private void Add(Dictionary<int, string> tokens, Dictionary<int, string> reservadas)
+        private void Add(Dictionary<int, string> tokens, Dictionary<int, string> reservadas, Dictionary<int, string> alfabeto)
         {
-            tokens.Add(-1, "Identificador");
-            tokens.Add(-2, "Entero");
-            tokens.Add(-3, "Decimal");
-            tokens.Add(-4, "Cadena");
-            tokens.Add(-5, "Caracter");
+            alfabeto.Add(2, "+");
+            alfabeto.Add(3, "-");
+            alfabeto.Add(4, "*");
+            alfabeto.Add(5, "/");
+            alfabeto.Add(6, "%");
+            alfabeto.Add(7, "<");
+            alfabeto.Add(8, ">");
+            alfabeto.Add(9, "=");
+            alfabeto.Add(10, "!");
+            alfabeto.Add(11, "&");
+            alfabeto.Add(12, "|");
+            alfabeto.Add(13, "?");
+            alfabeto.Add(14, "^");
+            alfabeto.Add(15, "(");
+            alfabeto.Add(16, ")");
+            alfabeto.Add(17, "{");
+            alfabeto.Add(18, "}");
+            alfabeto.Add(19, "[");
+            alfabeto.Add(20, "]");
+            alfabeto.Add(21, ";");
+            alfabeto.Add(22, ":");
+            alfabeto.Add(23, ".");
+            alfabeto.Add(24, ",");
+            alfabeto.Add(25, ('"').ToString()); //._.XD
+            alfabeto.Add(26, "'");
+            alfabeto.Add(27, "_");
+            alfabeto.Add(28, "\\");
+            alfabeto.Add(29, "@");
+            alfabeto.Add(30, "#");
+            alfabeto.Add(31, " ");
+            alfabeto.Add(32, "\t");
+            alfabeto.Add(33, "\n");
+
+            #region listaTokens
+            tokens.Add(-1, "Identificador"); tokens.Add(-2, "Entero"); tokens.Add(-3, "Decimal");
+            tokens.Add(-4, "Cadena"); tokens.Add(-5, "Caracter");
 
             //Aritmético
-            tokens.Add(-6, "+");
+            tokens.Add(-6, "+"); 
             tokens.Add(-7, "-");
             tokens.Add(-8, "*");
             tokens.Add(-9, "/");
@@ -74,6 +106,9 @@ namespace AutomataCSharp
             tokens.Add(-40, ",");
             tokens.Add(-90, "_");
             tokens.Add(-91, "\\");
+            tokens.Add(-92, "@");
+
+            #endregion
 
             error.Add(-500, "Error");
             error.Add(-501, "Desconocido");
@@ -84,6 +119,7 @@ namespace AutomataCSharp
             error.Add(-506, "No cierra caracter");
             error.Add(-507, "No cierra cadena");
 
+            #region listaReservadas
             //Clases
             reservadas.Add(-41, "class");
             reservadas.Add(-42, "extends");
@@ -140,9 +176,11 @@ namespace AutomataCSharp
             reservadas.Add(-87, "void");
             reservadas.Add(-88, "where");
             reservadas.Add(-89, "while");
+
+            #endregion
         }
 
-        public void Analizar(string codigo)
+        public void AnalisisLexico(string codigo)
         {
             string tempPalabra = string.Empty;
             string tempEstado;
@@ -150,14 +188,14 @@ namespace AutomataCSharp
             string estadoActual = "q0";
             int lineaCodigo = 1;
             int columna;
-            bool esCadena = false;
             bool inError = false;
 
             for (int indice = 0; indice < codigo.Length; indice++)
             {
                 char caracterActual = siguienteCaracter(codigo, indice);
 
-                if (caracterActual.Equals('\n')){inError = false; esCadena = false;}
+                estadoActual = transicion(estados.IndexOf(estadoActual), ColumnaAlfabeto(caracterActual, alfabetoindex)) ;
+                //Convertir pa la matriz actual
 
                 if (estados.IndexOf(estadoActual) < 0)
                 {
@@ -183,121 +221,26 @@ namespace AutomataCSharp
             }
         }
 
-        public void analizarTexto(string codigo)
+        private int ColumnaAlfabeto(char caracterActual, Dictionary<int, string> alfabeto)
         {
-            string tempPalabra = string.Empty;
-            string tempEstado;
+            int columna = 0;
 
-            string estadoActual = "q0";
-            int lineaCodigo = 1;
-            bool escomentario = false;
-            bool comentariomultilinea = false;
-            bool esCadena = false;
-            bool inError = false; 
-
-            for (int indice = 0; indice < codigo.Length; indice++)
+            if (char.IsLetter(caracterActual))
             {
-                char caracterActual = siguienteCaracter(codigo, indice);
-                char caractersig = siguienteCaracter(codigo, indice + 1);
-
-                if (caracterActual.Equals('\n'))
-                {
-                    if (comentariomultilinea == true) continue; 
-                    estadoActual = BuscarToken(estadoActual, tempPalabra, -1, esCadena);
-                    if (esCadena) estadoActual = "-507";
-                    esCadena = false;
-                    Pretoken(estadoActual, tempPalabra, lineaCodigo);
-                    lineaCodigo++;
-                    escomentario = false;
-                    estadoActual = "q0";
-                    tempPalabra = string.Empty;
-                    continue;
-                }
-                else if (caracterActual == ' ' || caracterActual.Equals('\t'))
-                {
-                    if (escomentario == true || comentariomultilinea == true) continue;
-                    if(esCadena == true) { tempPalabra += caracterActual; continue; }
-                    estadoActual = BuscarToken(estadoActual, tempPalabra, -1, esCadena);
-                    Pretoken(estadoActual, tempPalabra, lineaCodigo);
-                    estadoActual = "q0";
-                    tempPalabra = string.Empty;
-                    continue;
-                }
-                
-                if (alfabeto.IndexOf(caracterActual) == -1 && !esCadena) //CARACTER DESCONOCIDO
-                {
-                    estadoActual = "-501";
-                    int temp = Int32.Parse(estadoActual);
-                    AddErrorList(temp, caracterActual.ToString(), lineaCodigo);
-                    tempPalabra = string.Empty;
-                    continue;
-                }
-
-                #region Coso de Cadenas
-                if (caracterActual.Equals('"')) {
-                    esCadena = !esCadena;
-                    estadoActual = "q5";
-                   }
-                if (!esCadena) estadoActual = transicion(estados.IndexOf(estadoActual), alfabeto.IndexOf(caracterActual));
-                #endregion
-
-                #region Condiciones para Comentarios
-                if (estadoActual == "q100" || (caracterActual == '/' && caractersig == '/')) //Comentario simple
-                { escomentario = true; continue; }
-
-                if ((caracterActual == '/' && caractersig == '*') || estadoActual == "q101") //Comentario Multilinea
-                { comentariomultilinea = true; continue; }
-
-                if (caracterActual == '*' && caractersig == '/' || estadoActual == "q103") // Fin Comentario Multilinea
-                { comentariomultilinea = false; estadoActual = "q0"; indice++; continue; }
-
-                #endregion
-
-                if (estados.IndexOf(estadoActual) < 0)
-                {
-                    if (Int32.Parse(estadoActual) <= -500) //Detección de Errores
-                    {
-                        if (inError == true) continue;
-                        AddErrorList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
-                        estadoActual = "q0";
-                        inError = true;
-                        tempPalabra = string.Empty;
-                        continue;
-                    }
-                    else
-                    {
-                        Pretoken(estadoActual, tempPalabra, lineaCodigo);
-                        estadoActual = "q0";
-                        tempPalabra = string.Empty;
-                        indice--;
-                    }
-                    continue;
-                }
-                tempPalabra += caracterActual;
+                columna = 0;
             }
+            else if (char.IsDigit(caracterActual))
+            {
+                columna = 1;
+            }
+            else if (alfabetoindex.ContainsValue(caracterActual.ToString()))
+            {
+                foreach (var simbolo in alfabeto)
+                {if (simbolo.Value == caracterActual.ToString()) columna = simbolo.Key;}
+            } else columna = 34;
+
+            return columna;
         }
-        private string BuscarToken(string estadoActual, string tempPalabra, int key, bool esCadena)
-        {
-            if (!esCadena)
-            {
-                if (tempPalabra.StartsWith("'") && tempPalabra.EndsWith("'")) key = -5;
-                else if (tempPalabra.StartsWith('"'.ToString()) && tempPalabra.EndsWith('"'.ToString())) key = -4;
-                else if (tempPalabra.StartsWith("'") && !tempPalabra.EndsWith("'")) key = -506;
-                else
-                {
-                    foreach (var token in tokens)
-                    {
-                        if (token.Value == tempPalabra) key = token.Key;
-                    }
-                }
-                return key.ToString();
-            }
-            else
-            {
-                return estadoActual;
-            }
-        }
-
         private void Pretoken(string estadoActual, string lexema, int linea)
         {
             if (!string.IsNullOrEmpty(lexema))

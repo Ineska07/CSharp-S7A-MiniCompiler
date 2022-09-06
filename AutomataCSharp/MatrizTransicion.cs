@@ -10,7 +10,6 @@ namespace AutomataCSharp
     class MatrizTransicion
     {
         public List<string> estados = new List<string>();
-        public List<char> alfabeto = new List<char>();
         
         #region MatrizdeTransición
         public string[,] matrizTr = {
@@ -73,24 +72,9 @@ namespace AutomataCSharp
 
         public void Cargar()
         {
-            AddAlfabeto();
             AddEstado();
         }
 
-
-        private void AddAlfabeto() //No sé si sea lo correcto pero ok ._.XD
-        {
-            alfabeto.Add('+'); alfabeto.Add('-'); alfabeto.Add('*'); alfabeto.Add('/'); alfabeto.Add('%');
-            alfabeto.Add('<'); alfabeto.Add('>');alfabeto.Add('='); alfabeto.Add('!'); alfabeto.Add('&');
-            alfabeto.Add('|'); alfabeto.Add('?'); alfabeto.Add('^'); 
-
-            alfabeto.Add('('); alfabeto.Add(')'); alfabeto.Add('{'); alfabeto.Add('}'); alfabeto.Add('['); alfabeto.Add(']');
-
-            alfabeto.Add(';'); alfabeto.Add(':'); alfabeto.Add('.'); alfabeto.Add(','); alfabeto.Add('"'); 
-            alfabeto.Add('\''); alfabeto.Add('_'); alfabeto.Add('\\');
-
-            alfabeto.Add('@'); alfabeto.Add('#'); alfabeto.Add(' '); alfabeto.Add('\t'); alfabeto.Add('\n');
-        }
         private void AddEstado()
         {
             string estado;
