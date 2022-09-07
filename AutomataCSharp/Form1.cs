@@ -115,9 +115,9 @@ namespace AutomataCSharp
             lblError.Visible = true;
             analizador.AnalisisLexico(tbxCodigo.Text + " ");
 
-            lblError.Text = "Errores: " + numerror.ToString();
             ImprimirTablaTokens();
-    
+            lblError.Text = "Errores: " + numerror.ToString();
+
         }
 
         private void ImprimirTablaTokens()
