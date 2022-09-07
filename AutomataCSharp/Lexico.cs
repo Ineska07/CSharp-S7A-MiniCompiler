@@ -183,43 +183,40 @@ namespace AutomataCSharp
         public void AnalisisLexico(string codigo)
         {
             string tempPalabra = string.Empty;
-            string tempEstado;
 
             string estadoActual = "q0";
             int lineaCodigo = 1;
             int columna;
-            bool inError = false;
 
             for (int indice = 0; indice < codigo.Length; indice++)
             {
                 char caracterActual = siguienteCaracter(codigo, indice);
+                if (caracterActual.Equals('\n'))lineaCodigo++; //Petó ._.XD
+                    estadoActual = transicion(estados.IndexOf(estadoActual), ColumnaAlfabeto(caracterActual, alfabetoindex));
 
-                estadoActual = transicion(estados.IndexOf(estadoActual), ColumnaAlfabeto(caracterActual, alfabetoindex)) ;
-                //Convertir pa la matriz actual
+                    //Convertir pa la matriz actual
 
-                if (estados.IndexOf(estadoActual) < 0)
-                {
-                    if (Int32.Parse(estadoActual) <= -500) //Detección de Errores
+                    if (estados.IndexOf(estadoActual) < 0)
                     {
-                        if (inError == true) continue;
-                        AddErrorList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
-                        estadoActual = "q0";
-                        inError = true;
-                        tempPalabra = string.Empty;
+                        if (Int32.Parse(estadoActual) <= -500) //Detección de Errores
+                        {
+                            AddErrorList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
+                            estadoActual = "q0";
+                            tempPalabra = string.Empty;
+                            continue;
+                        }
+                        else
+                        {
+                            Pretoken(estadoActual, tempPalabra, lineaCodigo);
+                            estadoActual = "q0";
+                            tempPalabra = string.Empty;
+                            indice--;
+                        }
                         continue;
                     }
-                    else
-                    {
-                        Pretoken(estadoActual, tempPalabra, lineaCodigo);
-                        estadoActual = "q0";
-                        tempPalabra = string.Empty;
-                        indice--;
-                    }
-                    continue;
+                    tempPalabra += caracterActual;
                 }
-                tempPalabra += caracterActual;
             }
-        }
 
         private int ColumnaAlfabeto(char caracterActual, Dictionary<int, string> alfabeto)
         {
