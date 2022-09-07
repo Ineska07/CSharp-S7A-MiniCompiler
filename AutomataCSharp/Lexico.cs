@@ -191,14 +191,11 @@ namespace AutomataCSharp
             for (int indice = 0; indice < codigo.Length; indice++)
             {
                 char caracterActual = siguienteCaracter(codigo, indice);
-                if (caracterActual.Equals('\n'))lineaCodigo++; //Petó ._.XD
                     estadoActual = transicion(estados.IndexOf(estadoActual), ColumnaAlfabeto(caracterActual, alfabetoindex));
-
-                    //Convertir pa la matriz actual
 
                     if (estados.IndexOf(estadoActual) < 0)
                     {
-                        if (Int32.Parse(estadoActual) <= -500) //Detección de Errores
+                        if (Int32.Parse(estadoActual) <= -500)
                         {
                             AddErrorList(Int32.Parse(estadoActual), tempPalabra += caracterActual, lineaCodigo);
                             estadoActual = "q0";
@@ -214,7 +211,8 @@ namespace AutomataCSharp
                         }
                         continue;
                     }
-                    tempPalabra += caracterActual;
+                if (caracterActual.Equals('\n')) lineaCodigo++;
+                tempPalabra += caracterActual;
                 }
             }
 
