@@ -87,9 +87,5 @@ namespace AutomataCSharp
                 estados.Add(estado);
             }
         }
-        private void AddTransicion(string transicion, int estado, int alfabeto)
-        {
-            matrizTr[estado, alfabeto] = transicion;
-        }
     }
 }

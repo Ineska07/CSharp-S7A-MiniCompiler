@@ -196,9 +196,9 @@ namespace AutomataCSharp
                     estadoActual = transicion(estados.IndexOf(estadoActual), ColumnaAlfabeto(caracterActual, alfabetoindex));
                 
                 //Detecta el * del comentario multilinea después de cerrar
-                if (estadoActual == "q13") {comentariol = true; tempPalabra = ""; continue; }
-                if (estadoActual == "q14") {comentariovl = true; tempPalabra = ""; continue; }
-                if (tempPalabra.EndsWith("*/") && comentariovl) {comentariovl = false; tempPalabra = ""; estadoActual = "q0"; continue; }
+                if (estadoActual == "q13") {comentariol = true; tempPalabra = "";}
+                if (estadoActual == "q14" || estadoActual == "q15") {comentariovl = true; tempPalabra = "";}
+                if (estadoActual == "q0" && comentariovl) { tempPalabra = ""; comentariovl = false; continue;}
                 if (comentariol || comentariovl) continue; 
 
                 if (estados.IndexOf(estadoActual) < 0)
