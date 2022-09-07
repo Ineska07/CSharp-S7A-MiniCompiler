@@ -14,47 +14,47 @@ namespace AutomataCSharp
         private Dictionary<int, string> tokens = new Dictionary<int, string>();
         private Dictionary<int, string> reservadas = new Dictionary<int, string>();
         private Dictionary<int, string> error = new Dictionary<int, string>();
-        private Dictionary<int, string> alfabetoindex = new Dictionary<int, string>(); //Detección de columnas
+        private Dictionary<int, char> alfabetoindex = new Dictionary<int, char>(); //Detección de columnas
 
         public void Inicializar()
         {
             Add(tokens, reservadas, alfabetoindex);
             Cargar();
         }
-        private void Add(Dictionary<int, string> tokens, Dictionary<int, string> reservadas, Dictionary<int, string> alfabeto)
+        private void Add(Dictionary<int, string> tokens, Dictionary<int, string> reservadas, Dictionary<int, char> alfabeto)
         {
-            alfabeto.Add(2, "+");
-            alfabeto.Add(3, "-");
-            alfabeto.Add(4, "*");
-            alfabeto.Add(5, "/");
-            alfabeto.Add(6, "%");
-            alfabeto.Add(7, "<");
-            alfabeto.Add(8, ">");
-            alfabeto.Add(9, "=");
-            alfabeto.Add(10, "!");
-            alfabeto.Add(11, "&");
-            alfabeto.Add(12, "|");
-            alfabeto.Add(13, "?");
-            alfabeto.Add(14, "^");
-            alfabeto.Add(15, "(");
-            alfabeto.Add(16, ")");
-            alfabeto.Add(17, "{");
-            alfabeto.Add(18, "}");
-            alfabeto.Add(19, "[");
-            alfabeto.Add(20, "]");
-            alfabeto.Add(21, ";");
-            alfabeto.Add(22, ":");
-            alfabeto.Add(23, ".");
-            alfabeto.Add(24, ",");
-            alfabeto.Add(25, ('"').ToString()); //._.XD
-            alfabeto.Add(26, "'");
-            alfabeto.Add(27, "_");
-            alfabeto.Add(28, "\\");
-            alfabeto.Add(29, "@");
-            alfabeto.Add(30, "#");
-            alfabeto.Add(31, " ");
-            alfabeto.Add(32, "\t");
-            alfabeto.Add(33, "\n");
+            alfabeto.Add(2, '+');
+            alfabeto.Add(3, '-');
+            alfabeto.Add(4, '*');
+            alfabeto.Add(5, '/');
+            alfabeto.Add(6, '%');
+            alfabeto.Add(7, '<');
+            alfabeto.Add(8, '>');
+            alfabeto.Add(9, '=');
+            alfabeto.Add(10, '!');
+            alfabeto.Add(11, '&');
+            alfabeto.Add(12, '|');
+            alfabeto.Add(13, '?');
+            alfabeto.Add(14, '^');
+            alfabeto.Add(15, '(');
+            alfabeto.Add(16, ')');
+            alfabeto.Add(17, '{');
+            alfabeto.Add(18, '}');
+            alfabeto.Add(19, '[');
+            alfabeto.Add(20, ']');
+            alfabeto.Add(21, ';');
+            alfabeto.Add(22, ':');
+            alfabeto.Add(23, '.');
+            alfabeto.Add(24, ',');
+            alfabeto.Add(25, '"');
+            alfabeto.Add(26, '\'');
+            alfabeto.Add(27, '_');
+            alfabeto.Add(28, '\\');
+            alfabeto.Add(29, '@');
+            alfabeto.Add(30, '#');
+            alfabeto.Add(31, ' ');
+            alfabeto.Add(32, '\t');
+            alfabeto.Add(33, '\n');
 
             #region listaTokens
             tokens.Add(-1, "Identificador"); tokens.Add(-2, "Entero"); tokens.Add(-3, "Decimal");
@@ -187,13 +187,21 @@ namespace AutomataCSharp
             string estadoActual = "q0";
             int lineaCodigo = 1;
             int columna;
+            
 
             for (int indice = 0; indice < codigo.Length; indice++)
             {
+                bool comentariol = false, comentariovl = false;
                 char caracterActual = siguienteCaracter(codigo, indice);
                     estadoActual = transicion(estados.IndexOf(estadoActual), ColumnaAlfabeto(caracterActual, alfabetoindex));
+                
+                //Detecta el * del comentario multilinea después de cerrar
+                if (estadoActual == "q13") {comentariol = true; tempPalabra = ""; continue; }
+                if (estadoActual == "q14") {comentariovl = true; tempPalabra = ""; continue; }
+                if (tempPalabra.EndsWith("*/") && comentariovl) {comentariovl = false; tempPalabra = ""; estadoActual = "q0"; continue; }
+                if (comentariol || comentariovl) continue; 
 
-                    if (estados.IndexOf(estadoActual) < 0)
+                if (estados.IndexOf(estadoActual) < 0)
                     {
                         if (Int32.Parse(estadoActual) <= -500)
                         {
@@ -211,12 +219,12 @@ namespace AutomataCSharp
                         }
                         continue;
                     }
-                if (caracterActual.Equals('\n')) lineaCodigo++;
-                tempPalabra += caracterActual;
+                if (caracterActual.Equals('\n')) {lineaCodigo++;}
+                if (estadoActual != "q0") tempPalabra += caracterActual;
                 }
             }
 
-        private int ColumnaAlfabeto(char caracterActual, Dictionary<int, string> alfabeto)
+        private int ColumnaAlfabeto(char caracterActual, Dictionary<int, char> alfabeto)
         {
             int columna = 0;
 
@@ -228,10 +236,10 @@ namespace AutomataCSharp
             {
                 columna = 1;
             }
-            else if (alfabetoindex.ContainsValue(caracterActual.ToString()))
+            else if (alfabetoindex.ContainsValue(caracterActual))
             {
                 foreach (var simbolo in alfabeto)
-                {if (simbolo.Value == caracterActual.ToString()) columna = simbolo.Key;}
+                { if (simbolo.Value == caracterActual) { columna = simbolo.Key; break; } }
             } else columna = 34;
 
             return columna;
