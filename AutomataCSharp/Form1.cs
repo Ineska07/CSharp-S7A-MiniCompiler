@@ -109,7 +109,7 @@ namespace AutomataCSharp
         {
             numerror = 0;
             dgvToken.Rows.Clear();
-            lblError.Text = "Errores: ";
+            lblError.Text = "Errores Léxicos: ";
             analizador = new Lexico();
             analizador.Inicializar();
 
@@ -117,7 +117,7 @@ namespace AutomataCSharp
             analizador.AnalisisLexico(tbxCodigo.Text + " ");
 
             ImprimirTablaTokens();
-            lblError.Text = "Errores: " + numerror.ToString();
+            lblError.Text = "Errores Léxicos: " + numerror.ToString();
 
         }
 
