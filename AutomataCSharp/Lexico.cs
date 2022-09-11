@@ -104,9 +104,9 @@ namespace AutomataCSharp
             tokens.Add(-38, ":");
             tokens.Add(-39, ".");
             tokens.Add(-40, ",");
-            tokens.Add(-90, "_");
-            tokens.Add(-91, "\\");
-            tokens.Add(-92, "@");
+            tokens.Add(-92, "_");
+            tokens.Add(-93, "\\");
+            tokens.Add(-94, "@");
 
             #endregion
 
@@ -176,6 +176,8 @@ namespace AutomataCSharp
             reservadas.Add(-87, "void");
             reservadas.Add(-88, "where");
             reservadas.Add(-89, "while");
+            reservadas.Add(-90, "true");
+            reservadas.Add(-91, "false");
 
             #endregion
         }
@@ -186,16 +188,13 @@ namespace AutomataCSharp
 
             string estadoActual = "q0";
             int lineaCodigo = 1;
-            int columna;
             
-
             for (int indice = 0; indice < codigo.Length; indice++)
             {
                 bool comentariol = false, comentariovl = false;
                 char caracterActual = siguienteCaracter(codigo, indice);
-                    estadoActual = transicion(estados.IndexOf(estadoActual), ColumnaAlfabeto(caracterActual, alfabetoindex));
+                estadoActual = transicion(estados.IndexOf(estadoActual), ColumnaAlfabeto(caracterActual, alfabetoindex));
                 
-                //Detecta el * del comentario multilinea después de cerrar
                 if (estadoActual == "q13") {comentariol = true; tempPalabra = "";}
                 if (estadoActual == "q14" || estadoActual == "q15") {comentariovl = true; tempPalabra = "";}
                 if (estadoActual == "q0" && comentariovl) { tempPalabra = ""; comentariovl = false; continue;}

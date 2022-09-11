@@ -9,8 +9,10 @@ namespace AutomataCSharp
     {
         bool saved;
         string template = Properties.Resources.template;
-        Lexico analizador;
-        int numerror;
+        Lexico lex;
+        Sintaxis syn;
+        int errorlexico;
+        int linecount;
 
         public frmIDE()
         {
@@ -85,7 +87,8 @@ namespace AutomataCSharp
         {
             HabilitarGuardar();
             btnGuardar.Text = "Guardar*";
-            lblNumLineas.Text = "Lineas: " + tbxCodigo.Lines.Length.ToString();
+            linecount = tbxCodigo.Lines.Length;
+            lblNumLineas.Text = "Lineas: " + linecount.ToString();
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
@@ -107,31 +110,48 @@ namespace AutomataCSharp
 
         private void btnRun_Click(object sender, EventArgs e)
         {
-            numerror = 0;
+            errorlexico = 0;
             dgvToken.Rows.Clear();
             lblError.Text = "Errores Léxicos: ";
-            analizador = new Lexico();
-            analizador.Inicializar();
+            lex = new Lexico();
+            lex.Inicializar();
 
             lblError.Visible = true;
-            analizador.AnalisisLexico(tbxCodigo.Text + " ");
+            lex.AnalisisLexico(tbxCodigo.Text + " ");
 
             ImprimirTablaTokens();
-            lblError.Text = "Errores Léxicos: " + numerror.ToString();
+            lblError.Text = "Errores Léxicos: " + errorlexico.ToString();
+
+            //Inicia análisis sintáctico
+            if (lex.listaErrores == null)
+            {
+                syn = new Sintaxis();
+                syn.StartSyntax();
+                syn.AnalizadorSintactico(linecount);
+                ImprimirTablaSintactico();
+            }
+            else
+            {
+                lblErrorSintaxis.Text = "ERROR: Resuelva los problemas léxicos";
+            }
 
         }
-
         private void ImprimirTablaTokens()
         {
-            foreach (Tokens token in analizador.listaErrores)
+            foreach (Tokens token in lex.listaErrores)
             {
                 dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
-                numerror++;
+                errorlexico++;
             }
-            foreach (Tokens token in analizador.tokensGenerados)
+            foreach (Tokens token in lex.tokensGenerados)
             {
                 dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
             }
+        }
+
+        private void ImprimirTablaSintactico()
+        {
+
         }
     }
 }
