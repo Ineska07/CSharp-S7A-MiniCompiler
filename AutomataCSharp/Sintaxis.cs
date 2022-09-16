@@ -105,14 +105,12 @@ namespace AutomataCSharp
             //< id >::= id | < id >.< id >
             if (item.Valor != -1) AddError(item, -601);
         }
-
         private void Value(Tokens item) //Valor de variables
         {
             //<value>::= value
             if (!(item.Valor < 0 && item.Valor >= -5)) AddError(item, -602);
 
         }
-        
         private void VariableType(Tokens item)
         {
 
@@ -181,7 +179,6 @@ namespace AutomataCSharp
         {
             //<parameter>::=<vartype><id>{,<vartype><id>}
         }
-
         private void Libraries(Tokens item)
         {
             //<libraries>::=using System {.<id>} ;
@@ -200,6 +197,7 @@ namespace AutomataCSharp
             //<interface>::= interface <id><block>
         }
 
+        #region SentenciasCiclos
         private void For(Tokens item)
         {
             //<for>::=  for ((<variabledec>|<id>); <condicional>; <id>++) <block>
@@ -230,6 +228,8 @@ namespace AutomataCSharp
         {
             //< trycatch >::= try < block > catch (Exception<id>) < block >
         }
+        #endregion
+
         #endregion
     }
 }
