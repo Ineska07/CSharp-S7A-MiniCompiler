@@ -91,6 +91,8 @@ namespace AutomataCSharp
                 case -603: type = "Se esperaba un booleano"; break;
                 case -604: type = "Se esperaba un operando"; break;
                 case -605: type = "Se esperaba "; break;
+                case -606: type = "Variable no especificada"; break;
+                case -607: type = "Acceso no especificado"; break;
             }
 
             Tokens tempError = new Tokens(type, item.Lexema, error, item.Linea);
@@ -113,7 +115,7 @@ namespace AutomataCSharp
         }
         private void VariableType(Tokens item)
         {
-
+            if (!(item.Valor < -53 && item.Valor >= -63)) AddError(item, -606);
         }
         private void AccessType(Tokens item)
         {
@@ -168,6 +170,7 @@ namespace AutomataCSharp
         {
             // <variabledec>::= <variabletype> <id> {,<id>} {=<value>} ;
             int valortoken = item.Valor;
+            
         }
 
         private void Function(Tokens item)
