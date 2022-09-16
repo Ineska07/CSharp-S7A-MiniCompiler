@@ -75,7 +75,7 @@ namespace AutomataCSharp
                         Libraries(item); continue;
                     default: //ERROR: que vergas es esto
                         AddError(item, -600);
-                        break;
+                        continue;
                 }
             }
         }
