@@ -6,41 +6,16 @@ using System.Threading.Tasks;
 
 namespace AutomataCSharp
 {
-    //AQUI ESTÁN LAS REGLAS GENERALES
+    //AQUI ESTÁN LAS REGLAS FALTANTES
     /*
-    <returning>:= <variabletype> | void
-    <id>::= id | <id>.<id>
-    <value>::= value
-
-    <parameter>::=<vartype><id>{,<vartype><id>}
-    <block>::= { (<variabledec> | <statement> | <function>)* }
-
-    <variabledec>::= <variabletype> <id> {,<id>} {=<value>} ;
-    <class>::= <accesstype> {static} class >id> { : <id>} <block>
-    <namespace>::=  namespace <id><block>
-    <interface>::= interface <id><block>
-    <function>::= <accesstype> <returning> <id> ( {<parameter>} )<block>
-
-    <for>::=  for ((<variabledec>|<id>); <condicional>; <id>++) <block>
-    <do>::= do <block> while (<conditional>);
-    <while>::= while (<conditional> | <boolvalue> ) <block>
-    <if>::= if <condicional> <block> {else if <conditional> <block>}* {else <block>}*
-    <switch>::= switch ( <conditionL> ) <caseblock>
-    <caseblock>::= {(case <value> | default) : {(<variabledec> | <statement> | <function>)*} break ;}* 
-    <foreach>::= foreach ( <id> in <id> ) <block>
-    <trycatch>::= try <block> catch (Exception <id>) <block>
-
     <return>::= return (<id> | <value> | <operation> | <boolvalue>) ;
     <operation>::= (<id> | <value>) <arisymbol> (<id> | <value>) {<operation>}*
     <conditional> ::= ( <id> <logicop> <id> { && | || <id> <logicop> <id>*} )
-
-    <libraries>::=using System {.<id>} ;
     <accvariable>::= <accesstype><variabledec>
 
     <objectdec> <id> = new <objectid> ( ) ;
     <objectid>::= <id> | object
     <objectmet>::= <objectid> . <function>
-
      */
 
     class Sintaxis : Lexico
@@ -113,7 +88,9 @@ namespace AutomataCSharp
                 case -600: type = "Error de Sintaxis"; break;
                 case -601: type = "Se esperaba Identificador"; break;
                 case -602: type = "Se esperaba un valor"; break;
-                case -603: type = "Se esperaba ;"; break;
+                case -603: type = "Se esperaba un booleano"; break;
+                case -604: type = "Se esperaba un operando"; break;
+                case -605: type = "Se esperaba "; break;
             }
 
             Tokens tempError = new Tokens(type, item.Lexema, error, item.Linea);
@@ -121,43 +98,24 @@ namespace AutomataCSharp
         }
 
         #region ReglasTokens
+
+        #region Predefinidos
         private void ID(Tokens item) //Nombre de variable
         {
+            //< id >::= id | < id >.< id >
             if (item.Valor != -1) AddError(item, -601);
         }
 
         private void Value(Tokens item) //Valor de variables
         {
-             //Si no es identificador, tronasion
-            
-        }
-        private void Block(Tokens item) //Bloques {}
-        {
-            do
-            {
-                switch (item.Valor)
-                {
-                    case 1: //sentencias
-                        break;
-                    case 2: //funciones
-                        break;
-                    case 3: //}
-                        break;
-                    default: // tronasion
-                        break;
-                }
-
-            } while (!(item.Valor == 18)); //cierre de bloque
+            //<value>::= value
+            if (!(item.Valor < 0 && item.Valor >= -5)) AddError(item, -602);
 
         }
-
+        
         private void VariableType(Tokens item)
         {
-            //Inicia con tipo de variable
-            ID(item);
-            //siguiente token , ID
-            // = value
-            //; fin de instrucción
+
         }
         private void AccessType(Tokens item)
         {
@@ -169,69 +127,108 @@ namespace AutomataCSharp
         }
         private void BoolValue(Tokens item)
         {
-
+            if (!(item.Lexema == "true" || item.Lexema == "false")) AddError(item, -603);
         }
         private void LogicOperando(Tokens item)
         {
 
         }
+        #endregion
 
+        private void Block(Tokens item) //Bloques {}
+        {
+            //< block >::= { (< variabledec > | < statement > | < function >) * }
+            do
+            {
+                switch (item.Valor)
+                {
+                    case -1: //Identificador
+                        Statement(item); continue;
+
+                    //POR TIPO DE VARIABLE----------
+                    case -54: //int
+                        Statement(item); continue;
+                    case -55: //bool
+                        Statement(item); continue;
+                    case -56: //string
+                        Statement(item); continue;
+                    case -57: //double
+                        Statement(item); continue;
+                    case -58: //float
+                        Statement(item); continue;
+                    case -59: //char
+
+                    default: //ERROR: que vergas es esto
+                        AddError(item, -600);
+                        break;
+                }
+
+            } while (!(item.Valor == 18)); //cierre de bloque
+
+        }
         private void Statement(Tokens item)
         {
+            // <variabledec>::= <variabletype> <id> {,<id>} {=<value>} ;
+            int valortoken = item.Valor;
+        }
 
+        private void Function(Tokens item)
+        {
+            //<function>::= <accesstype> <returning> <id> ( {<parameter>} )<block>
+            //<returning>:= <variabletype> | void
         }
         private void Parameters(Tokens item)
         {
-
+            //<parameter>::=<vartype><id>{,<vartype><id>}
         }
 
         private void Libraries(Tokens item)
         {
-            //Using
-            //Va por siguiente token
-            //Funcion Identificador
-            //No c
+            //<libraries>::=using System {.<id>} ;
         }
 
         private void Class(Tokens item)
         {
-            //Using
-            //Va por siguiente token
-            //Funcion Identificador
-            //No c
+            //<class>::= <accesstype> {static} class >id> { : <id>} <block>
         }
         private void Namespace(Tokens item)
         {
-            //Using
-            //Va por siguiente token
-            //Funcion Identificador
-            //No c
+            //<namespace>::=  namespace <id><block>
         }
         private void Interface(Tokens item)
         {
-            //Using
-            //Va por siguiente token
-            //Funcion Identificador
-            //No c
+            //<interface>::= interface <id><block>
         }
 
         private void For(Tokens item)
         {
+            //<for>::=  for ((<variabledec>|<id>); <condicional>; <id>++) <block>
         }
         private void DoWhile(Tokens item)
         {
+            //<do>::= do <block> while (<conditional>);
         }
         private void While(Tokens item)
         {
+            //<while>::= while (<conditional> | <boolvalue> ) <block>
         }
         private void If(Tokens item)
         {
+            //<if>::= if <condicional> <block> {else if <conditional> <block>}* {else <block>}*
+        }
+        private void Switch(Tokens item)
+        {
+            //<switch>::= switch ( < conditionL > ) < caseblock >
+            //<caseblock>::= {(case <value> | default) : {(<variabledec> | <statement> | <function>)*} break ;}*
         }
         private void ForEach(Tokens item)
         {
+            //<foreach>::= foreach (<vartype> <id> in <id> ) <block>
+
         }
         private void TryCatch(Tokens item)
         {
+            //< trycatch >::= try < block > catch (Exception<id>) < block >
         }
         #endregion
     }
