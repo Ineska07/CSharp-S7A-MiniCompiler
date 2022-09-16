@@ -178,6 +178,11 @@ namespace AutomataCSharp
         private void Parameters(Tokens item)
         {
             //<parameter>::=<vartype><id>{,<vartype><id>}
+            switch (item.Valor)
+            {
+                case -1:
+                    ID(item); break;
+            }
         }
         private void Libraries(Tokens item)
         {
