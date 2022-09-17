@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AutomataCSharp
 {
-    class Tokens //Lista después de analizar texto
+    class Tokens
     {
         protected string tipo;
         protected string lexema;

@@ -63,6 +63,7 @@
     <Compile Include="Sintaxis.cs" />
     <Compile Include="Tokens.cs" />
     <Compile Include="MatrizTransicion.cs" />
+    <Compile Include="Variable.cs" />
     <None Include="packages.config" />
     <None Include="Resources\Matriz.xlsx" />
     <None Include="Resources\template.cs" />

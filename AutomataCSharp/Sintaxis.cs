@@ -21,64 +21,133 @@ namespace AutomataCSharp
     class Sintaxis : Lexico
     {
         public Queue<Tokens> listasyntaxErrores = new Queue<Tokens>();
-       
+        //public LinkedList<Variable> listaVariables = new LinkedList<Variable>();
+        private Dictionary<int, string> vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval;
+
+        int currenttoken, nexttoken;
+
+        public void StartSyntax()
+        {
+            AddSyntax(vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval);
+            AnalizadorSintactico();
+        }
+
+        public void AddSyntax(Dictionary<int, string> var, Dictionary<int, string> acc, Dictionary<int, string> ar, Dictionary<int, string> asign, Dictionary<int, string> lo, Dictionary<int, string> rel, Dictionary<int, string> bools)
+        {
+            //Aritmético
+            ar.Add(-6, "+");
+            ar.Add(-7, "-");
+            ar.Add(-8, "*");
+            ar.Add(-9, "/");
+            ar.Add(-10, "%");
+
+            //Asignativos
+            asign.Add(-11, "+=");
+            asign.Add(-12, "-=");
+            asign.Add(-13, "*=");
+            asign.Add(-14, "/=");
+            asign.Add(-15, "++");
+            asign.Add(-16, "--");
+
+            //Relacional
+            rel.Add(-17, "<");
+            rel.Add(-18, ">");
+            rel.Add(-19, "=");
+            rel.Add(-20, ">=");
+            rel.Add(-21, "<=");
+            rel.Add(-22, "==");
+            rel.Add(-23, "!");
+            rel.Add(-24, "!=");
+
+            //Logico
+            lo.Add(-25, "&");
+            lo.Add(-26, "&&");
+            lo.Add(-27, "|");
+            lo.Add(-28, "||");
+            lo.Add(-29, "??");
+            lo.Add(-30, "^");
+
+            //Alcance
+            acc.Add(-45, "public");
+            acc.Add(-46, "protected");
+            acc.Add(-47, "internal");
+            acc.Add(-48, "private");
+            acc.Add(-49, "abstract");
+            acc.Add(-50, "sealed");
+            acc.Add(-51, "static");
+            acc.Add(-52, "partial");
+            acc.Add(-53, "override");
+
+            //Tipos de Variables
+            var.Add(-54, "int");
+            var.Add(-55, "bool");
+            var.Add(-56, "string");
+            var.Add(-57, "double");
+            var.Add(-58, "float");
+            var.Add(-59, "char");
+            var.Add(-60, "var");
+            var.Add(-61, "object");
+            var.Add(-62, "enum");
+            var.Add(-63, "struct");
+
+            bools.Add(-90, "true");
+            bools.Add(-91, "false");
+        }
+
         public void AnalizadorSintactico()
         {
             foreach (Tokens item in tokensGenerados)
             {
-                int currenttoken = item.Valor;
+                currenttoken = item.Valor;
+                Tokens nextitem = GetNextItem(item);
+                nexttoken = nextitem.Valor;
+
+                //Toca el ResetToken cada cuanto pero eso pa luego
 
                 switch (currenttoken)
                 {
-                    case -1: //Identificador
-                        Statement(item); continue;
-
-                    //POR TIPO----------------------
-                    case -41: Class(item); continue;
-                    case -43: Interface(item); continue;
-                    case -44: Namespace(item); continue;
-
-                    //POR ACCESO--------------------
-                    case -45: //public
-                        AccessType(item);  continue;
-                    case -46: //protected
-                        AccessType(item); continue;
-                    case -47: //internal
-                        AccessType(item); continue;
-                    case -48: //private
-                        AccessType(item); continue;
-                    case -49: //abstract
-                        AccessType(item); continue;
-                    case -50: //sealed
-                        AccessType(item); continue;
-                    case -51: //static
-                        AccessType(item); continue;
-                    case -52: //partial
-                        AccessType(item); continue;
-                    case -53: //override
-                        AccessType(item); continue;
-
-                    //POR TIPO DE VARIABLE----------
-                    case -54: //int
-                        Statement(item); continue;
-                    case -55: //bool
-                        Statement(item); continue;
-                    case -56: //string
-                        Statement(item); continue;
-                    case -57: //double
-                        Statement(item); continue;
-                    case -58: //float
-                        Statement(item); continue;
-                    case -59: //char
-
-                    case -86: //Librerias
-                        Libraries(item); continue;
-                    default: //ERROR: que vergas es esto
-                        AddError(item, -600);
+                    case -41: Class(1, item, nextitem); continue;
+                    case -43: Interface(item, nextitem); continue;
+                    case -44: Namespace(item, nextitem); continue;
+                    case -86: Libraries(item, nextitem); continue;
+                    default: 
+                        if (vartype.ContainsKey(currenttoken) || currenttoken == 1)
+                        {
+                            Statement(item, nextitem);
+                        }
+                        else if(accesstype.ContainsKey(currenttoken))
+                        {
+                            if (vartype.ContainsKey(nexttoken) || nextitem.Lexema == "void" || nextitem.Lexema == "static")
+                            {
+                                //private {static} void
+                                Function(item, nextitem);
+                            }
+                            else if (nexttoken == -41)
+                            {
+                                //private class
+                                Class(2, item, nextitem);
+                            }
+                        }
+                        else AddError(item, -600); //ERROR: que vergas es esto
                         continue;
                 }
             }
         }
+
+        private void ResetCurrentItem(Tokens item, Tokens next)
+        {
+            item = next;
+            next = GetNextItem(item);
+        }
+
+        private Tokens GetNextItem(Tokens item)
+        {
+            int index = tokensGenerados.ToArray().ToList().IndexOf(item);
+            Tokens[] listaTokens = tokensGenerados.ToArray();
+
+            Tokens next = listaTokens[index + 1];
+            return next;
+        } 
 
         private void AddError(Tokens item, int error)
         {
@@ -90,117 +159,88 @@ namespace AutomataCSharp
                 case -602: type = "Se esperaba un valor"; break;
                 case -603: type = "Se esperaba un booleano"; break;
                 case -604: type = "Se esperaba un operando"; break;
-                case -605: type = "Se esperaba "; break;
+                case -605: type = "Se esperaba " + item.Lexema; break;
                 case -606: type = "Variable no especificada"; break;
                 case -607: type = "Acceso no especificado"; break;
+                case -608: type = "Se esperaba un operador"; break;
+                case -609: type = "Se esperaba un operador relacional"; break;
             }
 
             Tokens tempError = new Tokens(type, item.Lexema, error, item.Linea);
             listasyntaxErrores.Enqueue(tempError);
         }
 
-        #region ReglasTokens
-
-        #region Predefinidos
+        #region Reglas
         private void ID(Tokens item) //Nombre de variable
         {
             //< id >::= id | < id >.< id >
             if (item.Valor != -1) AddError(item, -601);
         }
+
         private void Value(Tokens item) //Valor de variables
         {
             //<value>::= value
             if (!(item.Valor < 0 && item.Valor >= -5)) AddError(item, -602);
-
         }
-        private void VariableType(Tokens item)
-        {
-            if (!(item.Valor < -53 && item.Valor >= -63)) AddError(item, -606);
-        }
-        private void AccessType(Tokens item)
-        {
-
-        }
-        private void ArithmeticSymbol(Tokens item)
-        {
-
-        }
-        private void BoolValue(Tokens item)
-        {
-            if (!(item.Lexema == "true" || item.Lexema == "false")) AddError(item, -603);
-        }
-        private void LogicOperando(Tokens item)
-        {
-
-        }
-        #endregion
-
+       
         private void Block(Tokens item) //Bloques {}
         {
-            //< block >::= { (< variabledec > | < statement > | < function >) * }
+            //< block >::= {cualqier cosa que no sea clase o espacio del tipo* }
             do
             {
-                switch (item.Valor)
-                {
-                    case -1: //Identificador
-                        Statement(item); continue;
-
-                    //POR TIPO DE VARIABLE----------
-                    case -54: //int
-                        Statement(item); continue;
-                    case -55: //bool
-                        Statement(item); continue;
-                    case -56: //string
-                        Statement(item); continue;
-                    case -57: //double
-                        Statement(item); continue;
-                    case -58: //float
-                        Statement(item); continue;
-                    case -59: //char
-
-                    default: //ERROR: que vergas es esto
-                        AddError(item, -600);
-                        break;
-                }
 
             } while (!(item.Valor == 18)); //cierre de bloque
 
         }
-        private void Statement(Tokens item)
+        private void Statement(Tokens item, Tokens next)
         {
-            // <variabledec>::= <variabletype> <id> {,<id>} {=<value>} ;
-            int valortoken = item.Valor;
-            
+            // <variabledec>::= <variabletype> <id> {,<id>} {=<value>};
+            ResetCurrentItem(item, next);
+
+            if (item.Valor == -1) //x =...
+            {
+                
+            }
+            else //int x =...
+            {
+                
+            }
         }
 
-        private void Function(Tokens item)
+        private void Function(Tokens item, Tokens next)
         {
             //<function>::= <accesstype> <returning> <id> ( {<parameter>} )<block>
-            //<returning>:= <variabletype> | void
+            ResetCurrentItem(item, next);
         }
         private void Parameters(Tokens item)
         {
             //<parameter>::=<vartype><id>{,<vartype><id>}
-            switch (item.Valor)
-            {
-                case -1:
-                    ID(item); break;
-            }
         }
-        private void Libraries(Tokens item)
+        private void Libraries(Tokens item, Tokens next)
         {
             //<libraries>::=using System {.<id>} ;
         }
 
-        private void Class(Tokens item)
+        private void Class(int type, Tokens item, Tokens next)
         {
             //<class>::= <accesstype> {static} class >id> { : <id>} <block>
+
+            if (type == 1) //class Nombre
+            {
+
+            }
+            else //public class Nombre
+            {
+
+
+            }
+
         }
-        private void Namespace(Tokens item)
+        private void Namespace(Tokens item, Tokens next)
         {
             //<namespace>::=  namespace <id><block>
         }
-        private void Interface(Tokens item)
+        private void Interface(Tokens item, Tokens next)
         {
             //<interface>::= interface <id><block>
         }

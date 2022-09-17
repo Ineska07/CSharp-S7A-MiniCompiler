@@ -126,6 +126,7 @@ namespace AutomataCSharp
             if (lex.listaErrores == null)
             {
                 syn = new Sintaxis();
+                syn.StartSyntax();
                 syn.AnalizadorSintactico();
                 ImprimirTablaSintactico();
             }

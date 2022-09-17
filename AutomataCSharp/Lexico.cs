@@ -268,8 +268,7 @@ namespace AutomataCSharp
 
         private void AddErrorList(int temp, string lexema, int linea)
         {
-            string type = string.Empty;
-
+            string type;
             switch (temp)
             {
                 case -500: type = "S. Desconocido"; break;
