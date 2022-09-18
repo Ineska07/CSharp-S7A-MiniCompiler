@@ -22,17 +22,17 @@ namespace AutomataCSharp
     {
         public Queue<Tokens> listasyntaxErrores = new Queue<Tokens>();
         //public LinkedList<Variable> listaVariables = new LinkedList<Variable>();
-        private Dictionary<int, string> vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval;
+        private Dictionary<int, string> vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval, ciclo;
 
         int currenttoken, nexttoken;
 
         public void StartSyntax()
         {
-            AddSyntax(vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval);
+            AddSyntax(vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval, ciclo);
             AnalizadorSintactico();
         }
 
-        public void AddSyntax(Dictionary<int, string> var, Dictionary<int, string> acc, Dictionary<int, string> ar, Dictionary<int, string> asign, Dictionary<int, string> lo, Dictionary<int, string> rel, Dictionary<int, string> bools)
+        public void AddSyntax(Dictionary<int, string> var, Dictionary<int, string> acc, Dictionary<int, string> ar, Dictionary<int, string> asign, Dictionary<int, string> lo, Dictionary<int, string> rel, Dictionary<int, string> bools, Dictionary<int, string> cy)
         {
             //Aritmético
             ar.Add(-6, "+");
@@ -92,6 +92,14 @@ namespace AutomataCSharp
 
             bools.Add(-90, "true");
             bools.Add(-91, "false");
+            
+            cy.Add(-69, "do");
+            cy.Add(-73, "for");
+            cy.Add(-74, "foreach");
+            cy.Add(-75, "if");
+            cy.Add(-82, "switch");
+            cy.Add(-85, "try");
+            cy.Add(-89, "while");
         }
 
         public void AnalizadorSintactico()
@@ -171,29 +179,91 @@ namespace AutomataCSharp
         }
 
         #region Reglas
-        private void ID(Tokens item) //Nombre de variable
-        {
-            //< id >::= id | < id >.< id >
-            if (item.Valor != -1) AddError(item, -601);
-        }
-
         private void Value(Tokens item) //Valor de variables
         {
             //<value>::= value
             if (!(item.Valor < 0 && item.Valor >= -5)) AddError(item, -602);
+            return;
         }
        
-        private void Block(Tokens item) //Bloques {}
+        private void Block(int type, Tokens item, Tokens next) //Bloques {}
         {
-            //< block >::= {cualqier cosa que no sea clase o espacio del tipo* }
+            //ENTRADA: { 
             do
             {
+                switch (type)
+                {
+                    case 1: //Clases / namespaces / interfaces
+                        if (vartype.ContainsKey(currenttoken) || currenttoken == 1)
+                        {
+                            Statement(item, next);
+                        }
+                        else if (accesstype.ContainsKey(currenttoken))
+                        {
+                            if (vartype.ContainsKey(nexttoken) || next.Lexema == "void" || next.Lexema == "static")
+                            {
+                                //private {static} void()
+                                //public static int x = 12;
+                            }
+                            else if (nexttoken == -41)
+                            {
+                                //private class
+                                Class(2, item, next);
+                            }
+                        }
+                        else AddError(item, -600);
+                        break;
+
+                    case 2: //Funciones y ciclos
+                        if (vartype.ContainsKey(currenttoken) || currenttoken == 1)
+                        {
+                            Statement(item, next);
+                        }
+                        else if (accesstype.ContainsKey(currenttoken))
+                        {
+                            if (ciclo.ContainsKey(nexttoken))
+                            {
+                                ResetCurrentItem(item, next);
+                                switch (item.Lexema)
+                                {
+                                    case "do":
+                                        DoWhile(item, next);
+                                        break;
+                                    case "for":
+                                        For(item, next);
+                                        break;
+                                    case "foreach":
+                                        ForEach(item, next);
+                                        break;
+                                    case "if":
+                                        If(item, next);
+                                        break;
+                                    case "switch":
+                                        Switch(item, next);
+                                        break;
+                                    case "try":
+                                        TryCatch(item, next);
+                                        break;
+                                    case "while":
+                                        While(item, next);
+                                        break;
+                                }
+                            } else AddError(item, -600);
+                        }
+                        else AddError(item, -600);
+                        break;
+
+                    case 3: //Cases y otras weas
+                        SwitchCases(item, next);
+                        break;
+                }
 
             } while (!(item.Valor == 18)); //cierre de bloque
 
         }
         private void Statement(Tokens item, Tokens next)
         {
+            //ENTRADA: x || <variabletype
             // <variabledec>::= <variabletype> <id> {,<id>} {=<value>};
             ResetCurrentItem(item, next);
 
@@ -218,7 +288,25 @@ namespace AutomataCSharp
         }
         private void Libraries(Tokens item, Tokens next)
         {
+            string libreria = string.Empty;
+            //ENTRADA: using
             //<libraries>::=using System {.<id>} ;
+
+            if (next.Valor == -1 && next.Lexema == "System")
+            {
+                while (true)
+                {
+                    libreria += item.Lexema;
+                    ResetCurrentItem(item, next);
+                    if (next.Lexema == ";")
+                    {
+                        //AddLibrary - Añadir en semántico
+                        break;
+                    }
+                }
+                
+            }
+            else AddError(item, -601);
         }
 
         private void Class(int type, Tokens item, Tokens next)
@@ -227,53 +315,114 @@ namespace AutomataCSharp
 
             if (type == 1) //class Nombre
             {
-
+                if (next.Valor == -1)
+                {
+                    ResetCurrentItem(item, next); //Actual: ID
+                    if (next.Valor == -17) //Inicio de Bloque
+                    {
+                        ResetCurrentItem(item, next); //Actual: {
+                        Block(1, item, next);
+                    }
+                    else AddError(item, -605);
+                }
+                else AddError(item, -601);
             }
             else //public class Nombre
             {
 
 
             }
-
         }
         private void Namespace(Tokens item, Tokens next)
         {
+            //ENTRADA: namespace
             //<namespace>::=  namespace <id><block>
+            if (next.Valor == -1)
+            {
+                ResetCurrentItem(item, next); //Actual: ID
+                if (next.Valor == -17) //Inicio de Bloque
+                {
+                    ResetCurrentItem(item, next); //Actual: {
+                    Block(1, item, next);
+                }
+                else AddError(item, -605);
+            }
+            else AddError(item, -601);
         }
         private void Interface(Tokens item, Tokens next)
         {
-            //<interface>::= interface <id><block>
+            if (next.Valor == -1)
+            {
+                ResetCurrentItem(item, next); //Actual: ID
+                if (next.Valor == -17) //Inicio de Bloque
+                {
+                    ResetCurrentItem(item, next); //Actual: {
+                    Block(1, item, next);
+                }
+                else AddError(item, -605);
+            }
+            else AddError(item, -601);
         }
 
         #region SentenciasCiclos
-        private void For(Tokens item)
+        private void For(Tokens item, Tokens next)
         {
             //<for>::=  for ((<variabledec>|<id>); <condicional>; <id>++) <block>
         }
-        private void DoWhile(Tokens item)
+        private void DoWhile(Tokens item, Tokens next)
         {
             //<do>::= do <block> while (<conditional>);
         }
-        private void While(Tokens item)
+        private void While(Tokens item, Tokens next)
         {
             //<while>::= while (<conditional> | <boolvalue> ) <block>
         }
-        private void If(Tokens item)
+        private void If(Tokens item, Tokens next)
         {
             //<if>::= if <condicional> <block> {else if <conditional> <block>}* {else <block>}*
         }
-        private void Switch(Tokens item)
+        private void Switch(Tokens item, Tokens next)
         {
-            //<switch>::= switch ( < conditionL > ) < caseblock >
+            //<switch>::= switch ( <id> ) < caseblock >
             //<caseblock>::= {(case <value> | default) : {(<variabledec> | <statement> | <function>)*} break ;}*
+            ResetCurrentItem(item, next);
+            if (item.Lexema == "(") 
+            {
+                if (item.Lexema == "(" && next.Lexema == ")") AddError(item, -601);
+                else
+                {
+                    ResetCurrentItem(item, next);
+                    if (item.Valor == -1)
+                    {
+                        ResetCurrentItem(item, next);
+                        if (item.Lexema != ")") AddError(item, -600);
+                        else
+                        {
+                            ResetCurrentItem(item, next);
+                            if (item.Lexema != "{") AddError(item, -605);
+                            else Block(3, item, next);
+                        }
+                    }
+                    else AddError(item, -601);
+                }
+            }
         }
-        private void ForEach(Tokens item)
+        private void SwitchCases(Tokens item, Tokens next)
+        {
+            //<caseblock>::= {(case <value> | default) : {(<variabledec> | <statement> | <function>)*} break ;}*
+            while (true)
+            {
+                if (item.Lexema == "default") break;
+            }
+        }
+        private void ForEach(Tokens item, Tokens next)
         {
             //<foreach>::= foreach (<vartype> <id> in <id> ) <block>
 
         }
-        private void TryCatch(Tokens item)
+        private void TryCatch(Tokens item, Tokens next)
         {
+            //ENTRADA: try
             //< trycatch >::= try < block > catch (Exception<id>) < block >
         }
         #endregion
