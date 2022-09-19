@@ -179,11 +179,14 @@ namespace AutomataCSharp
         }
 
         #region Reglas
-        private void Value(Tokens item) //Valor de variables
+        private bool Value(Tokens item) //Valor de variables
         {
             //<value>::= value
-            if (!(item.Valor < 0 && item.Valor >= -5)) AddError(item, -602);
-            return;
+            if (!(item.Valor < 0 && item.Valor >= -5)) 
+            {
+                AddError(item, -602);
+                return false;
+            } else return true;
         }
        
         private void Block(int type, Tokens item, Tokens next) //Bloques {}
@@ -263,9 +266,8 @@ namespace AutomataCSharp
         }
         private void Statement(Tokens item, Tokens next)
         {
-            //ENTRADA: x || <variabletype
+            //ENTRADA: x || <variabletype>
             // <variabledec>::= <variabletype> <id> {,<id>} {=<value>};
-            ResetCurrentItem(item, next);
 
             if (item.Valor == -1) //x =...
             {
@@ -285,6 +287,8 @@ namespace AutomataCSharp
         private void Parameters(Tokens item)
         {
             //<parameter>::=<vartype><id>{,<vartype><id>}
+            //Entrada: (
+
         }
         private void Libraries(Tokens item, Tokens next)
         {
@@ -372,10 +376,82 @@ namespace AutomataCSharp
         private void DoWhile(Tokens item, Tokens next)
         {
             //<do>::= do <block> while (<conditional>);
+            ResetCurrentItem(item, next);
+            if (item.Lexema == "{")
+            {
+                Block(2, item, next);
+            }
+            if (item.Lexema == "}")
+            {
+                ResetCurrentItem(item, next);
+                if (item.Lexema == "while")
+                {
+                    ResetCurrentItem(item, next);
+                    if (item.Lexema == "(")
+                    {
+                        ResetCurrentItem(item, next);
+                        if(boolval.ContainsKey(item.Valor))
+                        {
+                            ResetCurrentItem(item, next);
+                            if (item.Lexema == ")")
+                            {
+                                ResetCurrentItem(item, next);
+                                if (item.Lexema == ";") return;
+                                else AddError(item, -605);
+                            }
+                        }
+                        else if(item.Valor == -1)
+                        {
+                            //Conditional(item, next);
+                            ResetCurrentItem(item, next);
+                            if (item.Lexema == ")")
+                            {
+                                ResetCurrentItem(item, next);
+                                if (item.Lexema == ";") return;
+                                else AddError(item, -605);
+                            }
+                        }
+                    } else AddError(item, -605);
+                } else AddError(item, -600);
+            } else AddError(item, -605);
         }
         private void While(Tokens item, Tokens next)
         {
             //<while>::= while (<conditional> | <boolvalue> ) <block>
+            ResetCurrentItem(item, next);
+            if(item.Lexema == "(")
+            {
+                ResetCurrentItem(item, next);
+                if (item.Valor == -1)
+                {
+                    //Conditional
+                    ResetCurrentItem(item, next);
+                    if (item.Lexema == ")")
+                    {
+                        ResetCurrentItem(item, next);
+                        if (item.Lexema == "{")
+                        {
+                            ResetCurrentItem(item, next);
+                            if (item.Lexema == "}") return;
+                            else AddError(item, -605);
+                        }
+                    }
+                }
+                else if (boolval.ContainsKey(item.Valor))
+                {
+                    ResetCurrentItem(item, next);
+                    if (item.Lexema == ")")
+                    {
+                        ResetCurrentItem(item, next);
+                        if (item.Lexema == "{")
+                        {
+                            ResetCurrentItem(item, next);
+                            if (item.Lexema == "}") return;
+                            else AddError(item, -605);
+                        }
+                    }
+                } else AddError(item, -605);
+            }
         }
         private void If(Tokens item, Tokens next)
         {
@@ -400,7 +476,11 @@ namespace AutomataCSharp
                         {
                             ResetCurrentItem(item, next);
                             if (item.Lexema != "{") AddError(item, -605);
-                            else Block(3, item, next);
+                            else
+                            {
+                                ResetCurrentItem(item, next);
+                                Block(3, item, next);
+                            }
                         }
                     }
                     else AddError(item, -601);
@@ -412,20 +492,161 @@ namespace AutomataCSharp
             //<caseblock>::= {(case <value> | default) : {(<variabledec> | <statement> | <function>)*} break ;}*
             while (true)
             {
-                if (item.Lexema == "default") break;
+                ResetCurrentItem(item, next);
+                if (item.Lexema != "case") AddError(item, -600);
+                else
+                {
+                    ResetCurrentItem(item, next);
+                    if (item.Lexema != ":") AddError(item, -600);
+                    else
+                    {
+                        CaseBlock(item, next);
+                        if (item.Lexema == "default") break;
+                    }
+                }
+            }
+        }
+        private void CaseBlock(Tokens item, Tokens next)
+        {
+            ResetCurrentItem(item, next);
+            switch (item.Valor)
+            {
+
+                default:
+                    if (next.Lexema == "break")
+                    {
+                        ResetCurrentItem(item, next);
+                        return;
+                    }
+                    else AddError(item, -600);
+                    break;
+            }
+
+            if (next.Lexema == "break") 
+            {
+                ResetCurrentItem(item, next);
+                return; 
             }
         }
         private void ForEach(Tokens item, Tokens next)
         {
             //<foreach>::= foreach (<vartype> <id> in <id> ) <block>
+            ResetCurrentItem(item, next);
+            if (item.Lexema == "(")
+            {
+                if (vartype.ContainsKey(item.Valor))
+                {
+                    if(item.Valor == -1)
+                    {
+                        ResetCurrentItem(item, next);
+                        if (item.Lexema == "in")
+                        {
+                            ResetCurrentItem(item, next);
+                            if (item.Valor == -1)
+                            {
+                                ResetCurrentItem(item, next);
+                                if (item.Lexema == ")")
+                                {
+                                    ResetCurrentItem(item, next);
+                                    if (item.Lexema == "{")
+                                    {
+                                        Block(2, item, next);
+                                    } else AddError(item, -605);
+                                } else AddError(item, -605);
+                            } else AddError(item, -601);
+                        } else AddError(item, -600);
+                    } else AddError(item, -601);
+                } else AddError(item, -606);
+            }
 
         }
         private void TryCatch(Tokens item, Tokens next)
         {
             //ENTRADA: try
+            ResetCurrentItem(item, next);
+            if (item.Lexema == "{")
+            {
+                Block(2, item, next);
+            }
+            if(item.Lexema == "}")
+            {
+                ResetCurrentItem(item, next);
+                if (item.Lexema == "catch")
+                {
+                    ResetCurrentItem(item, next);
+                    if (item.Lexema == "(")
+                    {
+                        ResetCurrentItem(item, next);
+                        if (item.Valor == -1)
+                        {
+                            if (item.Valor == -1)
+                            {
+                                ResetCurrentItem(item, next);
+                                if (item.Lexema == ")")
+                                {
+                                    ResetCurrentItem(item, next);
+                                    if (item.Lexema == "{")
+                                    {
+                                        Block(2, item, next);
+                                    }
+                                    else AddError(item, -605);
+                                }else AddError(item, -605);
+                            }
+                            else if (item.Lexema == ")")
+                            {
+                                ResetCurrentItem(item, next);
+                                if (item.Lexema == "{")
+                                {
+                                    Block(2, item, next);
+                                } else AddError(item, -605);
+                            } else AddError(item, -605);
+                        } else AddError(item, -601);
+                    } else AddError(item, -605);
+                } else AddError(item, -600);
+            } else AddError(item, -605);
             //< trycatch >::= try < block > catch (Exception<id>) < block >
         }
         #endregion
+
+        private void Conditional(Tokens item, Tokens next)
+        {
+            //ENTRADA: ID
+            ResetCurrentItem(item, next);
+            if (relsymbol.ContainsKey(item.Valor)) // ==
+            {
+                ResetCurrentItem(item, next); // == id
+                if (item.Valor == -1)
+                {
+                    ResetCurrentItem(item, next); // == id &&
+                    if (logicsymbol.ContainsKey(item.Valor))
+                    {
+                        ResetCurrentItem(item, next); // == id && id
+                        Conditional(item, next);
+                    }
+                    else return;
+                } else AddError(item, -601);
+            } else AddError(item, -604);
+        }
+        private void Operation(Tokens item, Tokens next)
+        {
+            //ENTRADA: ID
+            ResetCurrentItem(item, next);
+            if (arisymbol.ContainsKey(item.Valor)) //id +
+            {
+                ResetCurrentItem(item, next); // id + id
+                if (item.Valor == -1)
+                {
+                    ResetCurrentItem(item, next); // id + id +
+                    if (arisymbol.ContainsKey(item.Valor))
+                    {
+                        ResetCurrentItem(item, next); // id + id + id
+                        Operation(item, next);
+                    }
+                    else return;
+                } else AddError(item, -601);
+            }
+            else AddError(item, -604);
+        }
 
         #endregion
     }
