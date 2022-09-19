@@ -65,7 +65,6 @@
     <Compile Include="MatrizTransicion.cs" />
     <Compile Include="Variable.cs" />
     <None Include="packages.config" />
-    <None Include="Resources\Matriz.xlsx" />
     <None Include="Resources\template.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

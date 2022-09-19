@@ -294,6 +294,7 @@ namespace AutomataCSharp
             this.dgvSintactico.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvSintactico.Size = new System.Drawing.Size(350, 245);
             this.dgvSintactico.TabIndex = 8;
+            this.dgvSintactico.Visible = false;
             // 
             // dataGridViewTextBoxColumn1
             // 

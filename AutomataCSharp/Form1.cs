@@ -111,10 +111,14 @@ namespace AutomataCSharp
         private void btnRun_Click(object sender, EventArgs e)
         {
             errorlexico = 0;
-            dgvToken.Rows.Clear();
+            dgvToken.Rows.Clear(); dgvSintactico.Rows.Clear();
             lblError.Text = "Errores Léxicos: ";
+            
             lex = new Lexico();
             lex.Inicializar();
+
+            syn = new Sintaxis();
+            syn.StartSyntax();
 
             lblError.Visible = true;
             lex.AnalisisLexico(tbxCodigo.Text + " ");
@@ -123,10 +127,8 @@ namespace AutomataCSharp
             lblError.Text = "Errores Léxicos: " + errorlexico.ToString();
 
             //Inicia análisis sintáctico
-            if (lex.listaErrores == null)
+            if (errorlexico == 0)
             {
-                syn = new Sintaxis();
-                syn.StartSyntax();
                 syn.AnalizadorSintactico();
                 ImprimirTablaSintactico();
             }
@@ -151,7 +153,17 @@ namespace AutomataCSharp
 
         private void ImprimirTablaSintactico()
         {
+            lblErrorSintaxis.Visible = true;
 
+            if (syn.listasyntaxErrores.Count == 0)
+            {
+                lblErrorSintaxis.Text = "Felicidades! No hay errores de sintaxis :)";
+            }
+            else
+            {
+                lblErrorSintaxis.Text = "Errores de Sintaxis: " + syn.listasyntaxErrores.Count.ToString();
+                dgvSintactico.Visible = true;
+            }
         }
     }
 }
