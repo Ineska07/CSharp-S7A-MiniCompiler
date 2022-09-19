@@ -22,17 +22,17 @@ namespace AutomataCSharp
     {
         public Queue<Tokens> listasyntaxErrores = new Queue<Tokens>();
         //public LinkedList<Variable> listaVariables = new LinkedList<Variable>();
-        private Dictionary<int, string> vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval, ciclo;
+        private Dictionary<int, string> vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval, ciclo, valuetypes;
 
         int currenttoken, nexttoken;
 
         public void StartSyntax()
         {
-            AddSyntax(vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval, ciclo);
+            AddSyntax(vartype, accesstype, arisymbol, assignsymbol, logicsymbol, relsymbol, boolval, ciclo, valuetypes);
             AnalizadorSintactico();
         }
 
-        public void AddSyntax(Dictionary<int, string> var, Dictionary<int, string> acc, Dictionary<int, string> ar, Dictionary<int, string> asign, Dictionary<int, string> lo, Dictionary<int, string> rel, Dictionary<int, string> bools, Dictionary<int, string> cy)
+        public void AddSyntax(Dictionary<int, string> var, Dictionary<int, string> acc, Dictionary<int, string> ar, Dictionary<int, string> asign, Dictionary<int, string> lo, Dictionary<int, string> rel, Dictionary<int, string> bools, Dictionary<int, string> cy, Dictionary<int, string> values)
         {
             //Aritmético
             ar.Add(-6, "+");
@@ -100,6 +100,12 @@ namespace AutomataCSharp
             cy.Add(-82, "switch");
             cy.Add(-85, "try");
             cy.Add(-89, "while");
+
+            values.Add(-1, "Identificador");
+            values.Add(-2, "Entero");
+            values.Add(-3, "Decimal");
+            values.Add(-4, "Cadena");
+            values.Add(-5, "Caracter");
         }
 
         public void AnalizadorSintactico()
@@ -179,16 +185,6 @@ namespace AutomataCSharp
         }
 
         #region Reglas
-        private bool Value(Tokens item) //Valor de variables
-        {
-            //<value>::= value
-            if (!(item.Valor < 0 && item.Valor >= -5)) 
-            {
-                AddError(item, -602);
-                return false;
-            } else return true;
-        }
-       
         private void Block(int type, Tokens item, Tokens next) //Bloques {}
         {
             //ENTRADA: { 
@@ -197,11 +193,11 @@ namespace AutomataCSharp
                 switch (type)
                 {
                     case 1: //Clases / namespaces / interfaces
-                        if (vartype.ContainsKey(currenttoken) || currenttoken == 1)
+                        if (vartype.ContainsKey(currenttoken) || currenttoken == 1) //int
                         {
                             Statement(item, next);
                         }
-                        else if (accesstype.ContainsKey(currenttoken))
+                        else if (accesstype.ContainsKey(currenttoken)) //Private int
                         {
                             if (vartype.ContainsKey(nexttoken) || next.Lexema == "void" || next.Lexema == "static")
                             {
@@ -218,11 +214,11 @@ namespace AutomataCSharp
                         break;
 
                     case 2: //Funciones y ciclos
-                        if (vartype.ContainsKey(currenttoken) || currenttoken == 1)
+                        if (vartype.ContainsKey(currenttoken) || currenttoken == 1) //int
                         {
                             Statement(item, next);
                         }
-                        else if (accesstype.ContainsKey(currenttoken))
+                        else if (accesstype.ContainsKey(currenttoken)) //private void
                         {
                             if (ciclo.ContainsKey(nexttoken))
                             {
@@ -271,7 +267,25 @@ namespace AutomataCSharp
 
             if (item.Valor == -1) //x =...
             {
-                
+                if (assignsymbol.ContainsKey(item.Valor))
+                {
+                    if (assignsymbol.ContainsKey(item.Valor)) //++
+                    {
+
+                    }
+                    else //+= id
+                    {
+                        //id += id;
+                        //operation
+                        //Funcion
+                    }
+                }
+                else if (item.Lexema == "=")
+                {
+                    //id = id;
+                    //operation
+                    //Funcion
+                }
             }
             else //int x =...
             {
@@ -284,11 +298,32 @@ namespace AutomataCSharp
             //<function>::= <accesstype> <returning> <id> ( {<parameter>} )<block>
             ResetCurrentItem(item, next);
         }
-        private void Parameters(Tokens item)
+        private void Parameters(Tokens item, Tokens next)
         {
             //<parameter>::=<vartype><id>{,<vartype><id>}
             //Entrada: (
+            ResetCurrentItem(item, next);
+            if (vartype.ContainsKey(item.Valor))
+            {
+                if (item.Valor == -1)
+                {
+                    if (vartype.ContainsKey(item.Valor)) // int arg, ...
+                    {
+                        if (item.Lexema == ",") // (int token)
+                        {
 
+                        }
+                    }
+                    else if (item.Lexema == ")") // (int token)
+                    {
+
+                    }
+                }
+            }
+            else if(item.Lexema == ")") //Funcion()
+            {
+
+            }
         }
         private void Libraries(Tokens item, Tokens next)
         {
@@ -461,6 +496,7 @@ namespace AutomataCSharp
         {
             //<switch>::= switch ( <id> ) < caseblock >
             //<caseblock>::= {(case <value> | default) : {(<variabledec> | <statement> | <function>)*} break ;}*
+            //ENTRADA: switch
             ResetCurrentItem(item, next);
             if (item.Lexema == "(") 
             {
@@ -497,12 +533,6 @@ namespace AutomataCSharp
                 else
                 {
                     ResetCurrentItem(item, next);
-                    if (item.Lexema != ":") AddError(item, -600);
-                    else
-                    {
-                        CaseBlock(item, next);
-                        if (item.Lexema == "default") break;
-                    }
                 }
             }
         }
@@ -646,6 +676,17 @@ namespace AutomataCSharp
                 } else AddError(item, -601);
             }
             else AddError(item, -604);
+        }
+        private void Varios(int type, Tokens item, Tokens next)
+        {
+            //Entrada: ,
+            switch (type)
+            {
+                case 1: //Variables: x, y, z...
+                    break;
+                case 2: //Parámetros: int y, string z, bool x...
+                    break;
+            }
         }
 
         #endregion
