@@ -52,11 +52,11 @@ namespace AutomataCSharp
             this.lblError = new System.Windows.Forms.Label();
             this.lblNumLineas = new System.Windows.Forms.Label();
             this.dgvSintactico = new System.Windows.Forms.DataGridView();
+            this.lblErrorSintaxis = new System.Windows.Forms.Label();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lblErrorSintaxis = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvToken)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSintactico)).BeginInit();
             this.SuspendLayout();
@@ -296,33 +296,6 @@ namespace AutomataCSharp
             this.dgvSintactico.TabIndex = 8;
             this.dgvSintactico.Visible = false;
             // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.Frozen = true;
-            this.dataGridViewTextBoxColumn1.HeaderText = "Tipo";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.Width = 51;
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            this.dataGridViewTextBoxColumn2.Frozen = true;
-            this.dataGridViewTextBoxColumn2.HeaderText = "Palabra";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            this.dataGridViewTextBoxColumn2.Width = 66;
-            // 
-            // dataGridViewTextBoxColumn3
-            // 
-            this.dataGridViewTextBoxColumn3.Frozen = true;
-            this.dataGridViewTextBoxColumn3.HeaderText = "Token";
-            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            this.dataGridViewTextBoxColumn3.Width = 61;
-            // 
-            // dataGridViewTextBoxColumn4
-            // 
-            this.dataGridViewTextBoxColumn4.HeaderText = "Linea";
-            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
-            this.dataGridViewTextBoxColumn4.Width = 56;
-            // 
             // lblErrorSintaxis
             // 
             this.lblErrorSintaxis.AutoSize = true;
@@ -335,6 +308,33 @@ namespace AutomataCSharp
             this.lblErrorSintaxis.Text = "Errores de Sintaxis:";
             this.lblErrorSintaxis.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblErrorSintaxis.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.Frozen = true;
+            this.dataGridViewTextBoxColumn1.HeaderText = "Descripción";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.Width = 86;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.Frozen = true;
+            this.dataGridViewTextBoxColumn2.HeaderText = "Error en:";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            this.dataGridViewTextBoxColumn2.Width = 70;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            this.dataGridViewTextBoxColumn3.Frozen = true;
+            this.dataGridViewTextBoxColumn3.HeaderText = "Código";
+            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.Width = 63;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            this.dataGridViewTextBoxColumn4.HeaderText = "Linea";
+            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.Width = 56;
             // 
             // frmIDE
             // 
@@ -381,11 +381,11 @@ namespace AutomataCSharp
         private System.Windows.Forms.DataGridViewTextBoxColumn Valor;
         private System.Windows.Forms.DataGridViewTextBoxColumn Linea;
         private System.Windows.Forms.DataGridView dgvSintactico;
+        private System.Windows.Forms.Label lblErrorSintaxis;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private System.Windows.Forms.Label lblErrorSintaxis;
     }
 }
 

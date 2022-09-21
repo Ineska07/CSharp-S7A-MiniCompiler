@@ -32,7 +32,7 @@ namespace AutomataCSharp
         private Dictionary<int, string> ciclo = new Dictionary<int, string>();
         private Dictionary<int, string> valuetypes = new Dictionary<int, string>();
 
-        int currenttoken, nexttoken;
+        int currenttoken;
 
         public void StartSyntax()
         {
@@ -124,7 +124,7 @@ namespace AutomataCSharp
 
                 switch (currenttoken)
                 {
-                    case -41: Class(1, item); continue;
+                    case -41: Class(item); continue;
                     case -44: Namespace(item); continue;
                     case -86: Libraries(item); continue;
                     default: 
@@ -200,37 +200,54 @@ namespace AutomataCSharp
             //ENTRADA: x || <variabletype>
             // <variabledec>::= <variabletype> <id> {,<id>} {=<value>};
 
-            if (item.Valor == -1) //x =...
+            if (item.Valor == -1) //x = a
             {
+                //x++
                 if (assignsymbol.ContainsKey(item.Valor))
                 {
-                    if (assignsymbol.ContainsKey(item.Valor)) //++
+                    if (item.Lexema == "++" || item.Lexema == "--") //x++;
+                    {
+                        if (item.Lexema == ";")
+                        {
+
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else if (item.Lexema == "=")
                     {
 
                     }
-                    else //+= id
+                    else //x *= 2;
                     {
-                        //id += id;
-                        //operation
+
                     }
                 }
-                else if (item.Lexema == "=")
-                {
-                    //id = id;
-                    //operation
-                }
             }
-            else //int x =...
+            else if(vartype.ContainsKey(item.Valor)) //int x
             {
-                
+                if (item.Valor == -1) // int x
+                {
+                    if (assignsymbol.ContainsKey(item.Valor)) // int x =
+                    {
+                        //int x = a
+                        //int x = 4
+                    }
+                    else if(item.Lexema == ",")
+                    {
+                        Varios(item);
+                    }
+                    else if (item.Lexema == ";")
+                    {
+                        return;
+                    }
+                }
             }
+
         }
 
-        private void MainMethod(Tokens item)
-        {
-            //Entrada: static
-            item = GetNextItem(item);
-        }
         private void Libraries(Tokens item)
         {
             //ENTRADA: using
@@ -243,14 +260,14 @@ namespace AutomataCSharp
                 while (item.Linea == lineaactual)
                 {
                     item = GetNextItem(item);
-                    if (item.Lexema == ";") break;
+                    if (item.Lexema == ";") return;
                 }
                 
             }
             else AddError(item, -601);
         }
 
-        private void Class(int type, Tokens item)
+        private void Class(Tokens item)
         {
             //<class>::= <accesstype> {static} class >id> { : <id>} <block>
             //Entrada: class
@@ -260,24 +277,19 @@ namespace AutomataCSharp
         private void Namespace(Tokens item)
         {
             //ENTRADA: namespace
-            //<namespace>::=  namespace <id><block>
             item = GetNextItem(item);
             if (item.Valor == -1)
             {
-                item = GetNextItem(item); //Actual: ID
-                if (item.Valor == -17) //Inicio de Bloque
-                {
-                    item = GetNextItem(item); //Actual: {
-                    Block(1, item);
-                }
+                item = GetNextItem(item);
+                if (item.Lexema == "{") Block(1, item);
                 else AddError(item, -605);
+
             } else AddError(item, -601);
         }
 
-        private void MainMethod(Tokens item, Tokens next)
+        private void MainMethod(Tokens item)
         {
             //ENTRADA: static
-            //static void Main(string[] args)
             item = GetNextItem(item);
 
             if(item.Lexema == "void")
@@ -487,9 +499,28 @@ namespace AutomataCSharp
             }
             else AddError(item, -604);
         }
-        private void Varios(int type, Tokens item)
+        private void Varios(Tokens item)
         {
             //Entrada: ,
+
+            item = GetNextItem(item);
+            if (item.Valor == -1)
+            {
+                if (item.Lexema == ",")
+                {
+                    Varios(item);
+                }
+                else if (item.Lexema == ";" || assignsymbol.ContainsKey(item.Valor)) //int x , y = 0;
+                {
+                    return;
+                }
+            }
+            else
+            {
+
+            }
+
+            //int x , y;
         }
 
         private void InOut(int type, Tokens item)

@@ -111,23 +111,23 @@ namespace AutomataCSharp
         private void btnRun_Click(object sender, EventArgs e)
         {
             errorlexico = 0;
-            dgvToken.Rows.Clear(); dgvSintactico.Rows.Clear();
+            dgvToken.Rows.Clear(); 
+            dgvSintactico.Rows.Clear();
             lblError.Text = "Errores Léxicos: ";
             
-            lex = new Lexico();
-            lex.Inicializar();
-
             syn = new Sintaxis();
-            syn.StartSyntax();
+
+            syn.Inicializar();
 
             lblError.Visible = true;
-            lex.AnalisisLexico(tbxCodigo.Text + " ");
+            syn.AnalisisLexico(tbxCodigo.Text + " ");
+            syn.StartSyntax();
 
             ImprimirTablaTokens();
             lblError.Text = "Errores Léxicos: " + errorlexico.ToString();
 
             //Inicia análisis sintáctico
-            if (errorlexico == 0)
+            if (syn.listaErrores.Count == 0)
             {
                 syn.AnalizadorSintactico();
                 ImprimirTablaSintactico();
@@ -140,12 +140,12 @@ namespace AutomataCSharp
         }
         private void ImprimirTablaTokens()
         {
-            foreach (Tokens token in lex.listaErrores)
+            foreach (Tokens token in syn.listaErrores)
             {
                 dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
                 errorlexico++;
             }
-            foreach (Tokens token in lex.tokensGenerados)
+            foreach (Tokens token in syn.tokensGenerados)
             {
                 dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
             }
@@ -163,6 +163,11 @@ namespace AutomataCSharp
             {
                 lblErrorSintaxis.Text = "Errores de Sintaxis: " + syn.listasyntaxErrores.Count.ToString();
                 dgvSintactico.Visible = true;
+
+                foreach (Tokens synE in syn.listasyntaxErrores)
+                {
+                    dgvSintactico.Rows.Add(synE.Tipo, synE.Lexema, synE.Valor, synE.Linea);
+                }
             }
         }
     }
