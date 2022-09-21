@@ -121,33 +121,29 @@ namespace AutomataCSharp
             foreach (Tokens item in tokensGenerados)
             {
                 currenttoken = item.Valor;
-                Tokens nextitem = GetNextItem(item);
-                nexttoken = nextitem.Valor;
 
                 switch (currenttoken)
                 {
-                    case -41: Class(1, item, nextitem); continue;
-                    case -44: Namespace(item, nextitem); continue;
-                    case -86: Libraries(item, nextitem); continue;
+                    case -41: Class(1, item); continue;
+                    case -44: Namespace(item); continue;
+                    case -86: Libraries(item); continue;
                     default: 
                         if (vartype.ContainsKey(currenttoken) || currenttoken == 1)
                         {
-                            Statement(item, nextitem);
+                            Statement(item);
                         }
                         else if (accesstype.ContainsKey(currenttoken))
                         {
-
+                            if (item.Lexema == "static")
+                            {
+                                MainMethod(item);
+                            }
+                            else AddError(item, -600);
                         }
                         else AddError(item, -600); //ERROR: que vergas es esto
                         continue;
                 }
             }
-        }
-
-        private void ResetCurrentItem(Tokens item, Tokens next)
-        {
-            item = next;
-            next = GetNextItem(item);
         }
 
         private Tokens GetNextItem(Tokens item)
@@ -181,16 +177,25 @@ namespace AutomataCSharp
         }
 
         #region Reglas
-        private void Block(int type, Tokens item, Tokens next) //Bloques {}
+        private void Block(int type, Tokens item) //Bloques {}
         {
             //ENTRADA: { 
             do
             {
+                switch (type)
+                {
+                    case 1: //Block dentro de funciones
+                        break;
+                    case 2: // block de clases
+                        break;
+                    case 3: // block de Namespace
+                        break;
+                }
 
-            } while (!(item.Valor == 18)); //cierre de bloque
+            } while (!(item.Lexema == "}"));
 
         }
-        private void Statement(Tokens item, Tokens next)
+        private void Statement(Tokens item)
         {
             //ENTRADA: x || <variabletype>
             // <variabledec>::= <variabletype> <id> {,<id>} {=<value>};
@@ -221,70 +226,101 @@ namespace AutomataCSharp
             }
         }
 
-        private void Libraries(Tokens item, Tokens next)
+        private void MainMethod(Tokens item)
         {
-            string libreria = string.Empty;
+            //Entrada: static
+            item = GetNextItem(item);
+        }
+        private void Libraries(Tokens item)
+        {
             //ENTRADA: using
             //<libraries>::=using System {.<id>} ;
 
-            if (next.Valor == -1 && next.Lexema == "System")
+            int lineaactual = item.Linea;
+            item = GetNextItem(item);
+            if (item.Lexema == "System")
             {
-                while (true)
+                while (item.Linea == lineaactual)
                 {
-                    libreria += item.Lexema;
-                    ResetCurrentItem(item, next);
-                    if (next.Lexema == ";")
-                    {
-                        //AddLibrary - Añadir en semántico
-                        break;
-                    }
+                    item = GetNextItem(item);
+                    if (item.Lexema == ";") break;
                 }
                 
             }
             else AddError(item, -601);
         }
 
-        private void Class(int type, Tokens item, Tokens next)
+        private void Class(int type, Tokens item)
         {
             //<class>::= <accesstype> {static} class >id> { : <id>} <block>
-
-            if (type == 1) //class Nombre
-            {
-                if (next.Valor == -1)
-                {
-                    ResetCurrentItem(item, next); //Actual: ID
-                    if (next.Valor == -17) //Inicio de Bloque
-                    {
-                        ResetCurrentItem(item, next); //Actual: {
-                        Block(1, item, next);
-                    }
-                    else AddError(item, -605);
-                }
-                else AddError(item, -601);
-            }
-            else //public class Nombre
-            {
-
-
-            }
+            //Entrada: class
+            item = GetNextItem(item);
+            
         }
-        private void Namespace(Tokens item, Tokens next)
+        private void Namespace(Tokens item)
         {
             //ENTRADA: namespace
             //<namespace>::=  namespace <id><block>
-            if (next.Valor == -1)
+            item = GetNextItem(item);
+            if (item.Valor == -1)
             {
-                ResetCurrentItem(item, next); //Actual: ID
-                if (next.Valor == -17) //Inicio de Bloque
+                item = GetNextItem(item); //Actual: ID
+                if (item.Valor == -17) //Inicio de Bloque
                 {
-                    ResetCurrentItem(item, next); //Actual: {
-                    Block(1, item, next);
+                    item = GetNextItem(item); //Actual: {
+                    Block(1, item);
                 }
                 else AddError(item, -605);
-            }
-            else AddError(item, -601);
+            } else AddError(item, -601);
         }
-        
+
+        private void MainMethod(Tokens item, Tokens next)
+        {
+            //ENTRADA: static
+            //static void Main(string[] args)
+            item = GetNextItem(item);
+
+            if(item.Lexema == "void")
+            {
+                if (item.Lexema == "Main")
+                {
+                    item = GetNextItem(item);
+                    if (item.Lexema == "(")
+                    {
+                        item = GetNextItem(item);
+                        if (item.Lexema == "string")
+                        {
+                            item = GetNextItem(item);
+                            if (item.Lexema == "[")
+                            {
+                                item = GetNextItem(item);
+                                if (item.Lexema == "]")
+                                {
+                                    item = GetNextItem(item);
+                                    if (item.Lexema == "args")
+                                    {
+                                        item = GetNextItem(item);
+                                        if (item.Lexema == ")")
+                                        {
+                                            item = GetNextItem(item);
+                                            if (item.Lexema == "{")
+                                            {
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+
+            }
+        }
+
         #region SentenciasCiclos
         private void For(Tokens item, Tokens next)
         {
@@ -293,20 +329,20 @@ namespace AutomataCSharp
         private void While(Tokens item, Tokens next)
         {
             //<while>::= while (<conditional> | <boolvalue> ) <block>
-            ResetCurrentItem(item, next);
-            if(item.Lexema == "(")
+            item = GetNextItem(item);
+            if (item.Lexema == "(")
             {
-                ResetCurrentItem(item, next);
+                item = GetNextItem(item);
                 if (item.Valor == -1)
                 {
                     //Conditional
-                    ResetCurrentItem(item, next);
+                    item = GetNextItem(item);
                     if (item.Lexema == ")")
                     {
-                        ResetCurrentItem(item, next);
+                        item = GetNextItem(item);
                         if (item.Lexema == "{")
                         {
-                            ResetCurrentItem(item, next);
+                            item = GetNextItem(item);
                             if (item.Lexema == "}") return;
                             else AddError(item, -605);
                         }
@@ -314,13 +350,13 @@ namespace AutomataCSharp
                 }
                 else if (boolval.ContainsKey(item.Valor))
                 {
-                    ResetCurrentItem(item, next);
+                    item = GetNextItem(item);
                     if (item.Lexema == ")")
                     {
-                        ResetCurrentItem(item, next);
+                        item = GetNextItem(item);
                         if (item.Lexema == "{")
                         {
-                            ResetCurrentItem(item, next);
+                            item = GetNextItem(item);
                             if (item.Lexema == "}") return;
                             else AddError(item, -605);
                         }
@@ -335,26 +371,26 @@ namespace AutomataCSharp
         private void ForEach(Tokens item, Tokens next)
         {
             //<foreach>::= foreach (<vartype> <id> in <id> ) <block>
-            ResetCurrentItem(item, next);
+            item = GetNextItem(item);
             if (item.Lexema == "(")
             {
                 if (vartype.ContainsKey(item.Valor))
                 {
                     if(item.Valor == -1)
                     {
-                        ResetCurrentItem(item, next);
+                        item = GetNextItem(item);
                         if (item.Lexema == "in")
                         {
-                            ResetCurrentItem(item, next);
+                            item = GetNextItem(item);
                             if (item.Valor == -1)
                             {
-                                ResetCurrentItem(item, next);
+                                item = GetNextItem(item);
                                 if (item.Lexema == ")")
                                 {
-                                    ResetCurrentItem(item, next);
+                                    item = GetNextItem(item);
                                     if (item.Lexema == "{")
                                     {
-                                        Block(2, item, next);
+                                        Block(2, item);
                                     } else AddError(item, -605);
                                 } else AddError(item, -605);
                             } else AddError(item, -601);
@@ -367,41 +403,41 @@ namespace AutomataCSharp
         private void TryCatch(Tokens item, Tokens next)
         {
             //ENTRADA: try
-            ResetCurrentItem(item, next);
+            item = GetNextItem(item);
             if (item.Lexema == "{")
             {
-                Block(2, item, next);
+                Block(2, item);
             }
             if(item.Lexema == "}")
             {
-                ResetCurrentItem(item, next);
+                item = GetNextItem(item);
                 if (item.Lexema == "catch")
                 {
-                    ResetCurrentItem(item, next);
+                    item = GetNextItem(item);
                     if (item.Lexema == "(")
                     {
-                        ResetCurrentItem(item, next);
+                        item = GetNextItem(item);
                         if (item.Valor == -1)
                         {
                             if (item.Valor == -1)
                             {
-                                ResetCurrentItem(item, next);
+                                item = GetNextItem(item);
                                 if (item.Lexema == ")")
                                 {
-                                    ResetCurrentItem(item, next);
+                                    item = GetNextItem(item);
                                     if (item.Lexema == "{")
                                     {
-                                        Block(2, item, next);
+                                        Block(2, item);
                                     }
                                     else AddError(item, -605);
                                 }else AddError(item, -605);
                             }
                             else if (item.Lexema == ")")
                             {
-                                ResetCurrentItem(item, next);
+                                item = GetNextItem(item);
                                 if (item.Lexema == "{")
                                 {
-                                    Block(2, item, next);
+                                    Block(2, item);
                                 } else AddError(item, -605);
                             } else AddError(item, -605);
                         } else AddError(item, -601);
@@ -412,51 +448,51 @@ namespace AutomataCSharp
         }
         #endregion
 
-        private void Conditional(Tokens item, Tokens next)
+        private void Conditional(Tokens item)
         {
             //ENTRADA: ID
-            ResetCurrentItem(item, next);
+            item = GetNextItem(item);
             if (relsymbol.ContainsKey(item.Valor)) // ==
             {
-                ResetCurrentItem(item, next); // == id
+                item = GetNextItem(item); ; // == id
                 if (item.Valor == -1)
                 {
-                    ResetCurrentItem(item, next); // == id &&
+                    item = GetNextItem(item); ; // == id &&
                     if (logicsymbol.ContainsKey(item.Valor))
                     {
-                        ResetCurrentItem(item, next); // == id && id
-                        Conditional(item, next);
+                        item = GetNextItem(item); // == id && id
+                        Conditional(item);
                     }
                     else return;
                 } else AddError(item, -601);
             } else AddError(item, -604);
         }
-        private void Operation(Tokens item, Tokens next)
+        private void Operation(Tokens item)
         {
             //ENTRADA: ID
-            ResetCurrentItem(item, next);
+            item = GetNextItem(item);
             if (arisymbol.ContainsKey(item.Valor)) //id +
             {
-                ResetCurrentItem(item, next); // id + id
+                item = GetNextItem(item); // id + id
                 if (item.Valor == -1)
                 {
-                    ResetCurrentItem(item, next); // id + id +
+                    item = GetNextItem(item); // id + id +
                     if (arisymbol.ContainsKey(item.Valor))
                     {
-                        ResetCurrentItem(item, next); // id + id + id
-                        Operation(item, next);
+                        item = GetNextItem(item); // id + id + id
+                        Operation(item);
                     }
                     else return;
                 } else AddError(item, -601);
             }
             else AddError(item, -604);
         }
-        private void Varios(int type, Tokens item, Tokens next)
+        private void Varios(int type, Tokens item)
         {
             //Entrada: ,
         }
 
-        private void InOut(int type, Tokens item, Tokens next)
+        private void InOut(int type, Tokens item)
         {
             //Entrada: 
             switch (type)
