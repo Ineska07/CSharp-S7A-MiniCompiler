@@ -353,7 +353,11 @@ namespace AutomataCSharp
         {
             foreach (var palabrareservada in reservadas)
             {
-                if (palabrareservada.Value == lexema) key = palabrareservada.Key;
+                if (palabrareservada.Value == lexema) 
+                { 
+                    key = palabrareservada.Key;
+                    break;
+                }
             }
             return key;
         }
