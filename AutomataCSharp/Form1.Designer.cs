@@ -356,7 +356,6 @@ namespace AutomataCSharp
             this.Name = "frmIDE";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "C# IDE";
-            this.Load += new System.EventHandler(this.frmIDE_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvToken)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSintactico)).EndInit();
             this.ResumeLayout(false);

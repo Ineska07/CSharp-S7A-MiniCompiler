@@ -24,11 +24,6 @@ namespace AutomataCSharp
             saved = false;
         }
 
-        private void frmIDE_Load(object sender, EventArgs e)
-        {
-            
-        }
-
         private void btnAbrir_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("¿Deseas Guardar el archivo actual?", "Salir", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)

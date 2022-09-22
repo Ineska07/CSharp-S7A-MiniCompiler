@@ -6,22 +6,17 @@ using System.Threading.Tasks;
 
 namespace AutomataCSharp
 {
-    //AQUI ESTÁN LAS REGLAS FALTANTES
     /*
-    <return>::= return (<id> | <value> | <operation> | <boolvalue>) ;
-    <operation>::= (<id> | <value>) <arisymbol> (<id> | <value>) {<operation>}*
-    <conditional> ::= ( <id> <logicop> <id> { && | || <id> <logicop> <id>*} )
-    <accvariable>::= <accesstype><variabledec>
-
-    <objectdec> <id> = new <objectid> ( ) ;
-    <objectid>::= <id> | object
-    <objectmet>::= <objectid> . <function>
+    Statement para x = input
+    Condiciones if y for
+    Input y Output general
+    Analisis semántico
+    No evaluar cada token en el principal ._.XD
      */
 
     class Sintaxis : Lexico
     {
         public Queue<Tokens> listasyntaxErrores = new Queue<Tokens>();
-        //public LinkedList<Variable> listaVariables = new LinkedList<Variable>();
         private Dictionary<int, string> vartype = new Dictionary<int, string>();
         private Dictionary<int, string> accesstype = new Dictionary<int, string>();
         private Dictionary<int, string> arisymbol = new Dictionary<int, string>();
@@ -31,8 +26,6 @@ namespace AutomataCSharp
         private Dictionary<int, string> boolval = new Dictionary<int, string>();
         private Dictionary<int, string> ciclo = new Dictionary<int, string>();
         private Dictionary<int, string> valuetypes = new Dictionary<int, string>();
-
-        int currenttoken;
 
         public void StartSyntax()
         {
@@ -121,19 +114,18 @@ namespace AutomataCSharp
             Tokens item = tokensGenerados.Peek();
             do
             {
-                currenttoken = item.Valor;
-
-                switch (currenttoken)
+                switch (item.Valor)
                 {
                     case -41: Class(item); break;
                     case -44: Namespace(item); break;
                     case -86: Libraries(item); break;
                     default:
-                        if (vartype.ContainsKey(currenttoken) || currenttoken == 1)
+                        if (vartype.ContainsKey(item.Valor) || item.Valor == -1)
                         {
                             Statement(item);
+                            if (item.Lexema == ";") continue;
                         }
-                        else if (accesstype.ContainsKey(currenttoken))
+                        else if (accesstype.ContainsKey(item.Valor))
                         {
                             if (item.Lexema == "static")
                             {
@@ -187,9 +179,13 @@ namespace AutomataCSharp
                 switch (type)
                 {
                     case 1: //Funciones
-                        if (vartype.ContainsKey(item.Valor) || item.Valor == 1) Statement(item);
-                        else 
+                        if (vartype.ContainsKey(item.Valor) || item.Valor == 1) 
                         { 
+                            Statement(item);
+                            if (item.Lexema == ";") break;
+                        }
+                        else
+                        {
                             switch (item.Lexema)
                             {
                                 case "if":
@@ -208,7 +204,7 @@ namespace AutomataCSharp
 
                     case 2: //Clases
                         if (vartype.ContainsKey(item.Valor) || item.Valor == 1) Statement(item);
-                        else if (accesstype.ContainsKey(currenttoken))
+                        else if (accesstype.ContainsKey(item.Valor))
                         {
                             if (item.Lexema == "static") MainMethod(item);
                             else AddError(item, -600);
@@ -231,13 +227,17 @@ namespace AutomataCSharp
         private void Statement(Tokens item)
         {
             //ENTRADA: x || <variabletype>
+            item = GetNextItem(item);
             if (item.Valor == -1) //x = a
             {
                 //x++
+                item = GetNextItem(item);
                 if (assignsymbol.ContainsKey(item.Valor))
                 {
+                    item = GetNextItem(item);
                     if (item.Lexema == "++" || item.Lexema == "--") //x++;
                     {
+                        item = GetNextItem(item);
                         if (item.Lexema == ";")
                         {
                             return;
@@ -247,38 +247,57 @@ namespace AutomataCSharp
                     {
                         if (item.Valor == -1) //int x = a
                         {
+                            item = GetNextItem(item);
                             if (item.Lexema == ";") return; //x = a;
                             else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //x = a +...
-                            else AddError(item, -600);
+                            else AddError(item, -605);
                         }
                         else if (valuetypes.ContainsKey(item.Valor)) //x = 4
                         {
+                            item = GetNextItem(item);
                             if (item.Lexema == ";") return; //int x = a;
                             else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //int x = a +...
-                            else AddError(item, -600);
+                            else AddError(item, -605);
                         }
                     }
                     else //x *= 2;
                     {
-
+                        item = GetNextItem(item);
+                        if (item.Valor == -2 || item.Valor == -2) //Numeros
+                        {
+                            item = GetNextItem(item);
+                            if (item.Lexema == ";") return; //x += 2;
+                            else AddError(item, -605);
+                        }
+                        else if (item.Valor == -1) //Variable
+                        {
+                            item = GetNextItem(item);
+                            if (item.Lexema == ";") return; //x += a;
+                            else AddError(item, -605);
+                        }
+                        else AddError(item, -602);
                     }
                 }
             }
             else if(vartype.ContainsKey(item.Valor)) //int
             {
+                item = GetNextItem(item);
                 if (item.Valor == -1) // int x
                 {
+                    item = GetNextItem(item);
                     if (assignsymbol.ContainsKey(item.Valor)) // int x =
                     {
-                        
+                        item = GetNextItem(item);
                         if (item.Valor == -1) //int x = a
                         {
+                            item = GetNextItem(item);
                             if (item.Lexema == ";") return; //x = a;
                             else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //x = a +...
                             else AddError(item, -600);
                         }
                         else if (valuetypes.ContainsKey(item.Valor)) //x = 4
                         {
+                            item = GetNextItem(item);
                             if (item.Lexema == ";") return; //int x = a;
                             else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //int x = a +...
                             else AddError(item, -600);
@@ -287,6 +306,7 @@ namespace AutomataCSharp
                     else if(item.Lexema == ",")
                     {
                         Varios(item);
+                        if (item.Lexema == ";") return;
                     }
                     else if (item.Lexema == ";") return;
                 }
@@ -320,6 +340,7 @@ namespace AutomataCSharp
                 if (item.Lexema == "{")
                 {
                     Block(2, item);
+                    if (item.Lexema == "}") return;
                 }
                 else AddError(item, -605);
             } else AddError(item, -601);
@@ -332,9 +353,12 @@ namespace AutomataCSharp
             if (item.Valor == -1)
             {
                 item = GetNextItem(item);
-                if (item.Lexema == "{") Block(3, item);
-                else AddError(item, -605);
-
+                if (item.Lexema == "{")
+                {
+                    Block(2, item);
+                    if (item.Lexema == "}") return;
+                    else AddError(item, -605);
+                } else AddError(item, -605);
             } else AddError(item, -601);
         }
 
@@ -343,8 +367,9 @@ namespace AutomataCSharp
             //ENTRADA: static
             item = GetNextItem(item);
 
-            if(item.Lexema == "void")
+            if (item.Lexema == "void")
             {
+                item = GetNextItem(item);
                 if (item.Lexema == "Main")
                 {
                     item = GetNextItem(item);
@@ -368,23 +393,29 @@ namespace AutomataCSharp
                                             item = GetNextItem(item);
                                             if (item.Lexema == "{")
                                             {
-
+                                                Block(1, item);
+                                                if (item.Lexema == "}") return; else AddError(item, -605);
                                             }
+                                            else AddError(item, -605);
                                         }
+                                        else AddError(item, -605);
                                     }
+                                    else AddError(item, -600);
                                 }
+                                else AddError(item, -605);
                             }
+                            else AddError(item, -605);
                         }
+                        else AddError(item, -606);
                     }
+                    else AddError(item, -605);
                 }
+                else AddError(item, -601);
             }
-            else
-            {
-
-            }
+            else AddError(item, -600);
         }
 
-        #region SentenciasCiclos
+     #region SentenciasCiclos
         private void For(Tokens item)
         {
             //<for>::=  for ((<variabledec>|<id>); <condicional>; <id>++) <block>
@@ -476,20 +507,59 @@ namespace AutomataCSharp
         {
             //Entrada: ,
             item = GetNextItem(item);
-            if (item.Valor == -1)
+            if (item.Valor == -1) // a, b
             {
+                item = GetNextItem(item);
                 if (item.Lexema == ",")
                 {
                     Varios(item);
                 }
-                else if (item.Lexema == ";" || assignsymbol.ContainsKey(item.Valor)) //int x , y = 0;
+                else if (item.Lexema == ";") //int x , y;
                 {
                     return;
                 }
-            }
-            else
-            {
-
+                else if (assignsymbol.ContainsKey(item.Valor))
+                {
+                    if (item.Lexema == "=")
+                    {
+                        item = GetNextItem(item);
+                        if (item.Valor == -1) //int x = a
+                        {
+                            item = GetNextItem(item);
+                            if (item.Lexema == ";") return; //x = a;
+                            else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //x = a +...
+                            else AddError(item, -605);
+                        }
+                        else if (valuetypes.ContainsKey(item.Valor)) //x = 4
+                        {
+                            item = GetNextItem(item);
+                            if (item.Lexema == ";") return; //int x = a;
+                            else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //int x = a +...
+                            else AddError(item, -605);
+                        }
+                    }
+                    else //x *= 2;
+                    {
+                        item = GetNextItem(item);
+                        if (item.Valor == -2 || item.Valor == -2) //Numeros
+                        {
+                            item = GetNextItem(item);
+                            if (item.Lexema == ";") return; //x += 2;
+                            else AddError(item, -605);
+                        }
+                        else if (item.Valor == -1) //Variable
+                        {
+                            item = GetNextItem(item);
+                            if (item.Lexema == ";") return; //x += a;
+                            else AddError(item, -605);
+                        }
+                        else AddError(item, -602);
+                    }
+                }
+                else
+                {
+                    AddError(item, -600);
+                }
             }
         }
 
