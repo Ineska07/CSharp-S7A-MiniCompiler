@@ -125,7 +125,7 @@ namespace AutomataCSharp
                         if (vartype.ContainsKey(item.Valor) || item.Valor == -1)
                         {
                             Statement(item);
-                            if (item.Lexema == ";") continue;
+                            if (item.Lexema == ";") break;
                         }
                         else if (item.Lexema == "Console")
                         {
