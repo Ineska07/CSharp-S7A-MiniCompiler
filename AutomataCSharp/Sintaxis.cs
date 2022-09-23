@@ -12,6 +12,8 @@ namespace AutomataCSharp
     Input y Output general
     Analisis semántico
     No evaluar cada token en el principal ._.XD
+    Conversiones a string e int;
+    Paréntesis para operaciones y condicionales
      */
 
     class Sintaxis : Lexico
@@ -184,6 +186,11 @@ namespace AutomataCSharp
                             Statement(item);
                             if (item.Lexema == ";") break;
                         }
+                        else if (item.Lexema == "Console")
+                        {
+                            InOut(3, item);
+                            return;
+                        }
                         else
                         {
                             switch (item.Lexema)
@@ -245,6 +252,7 @@ namespace AutomataCSharp
                     }
                     else if (item.Lexema == "=")
                     {
+                        item = GetNextItem(item);
                         if (item.Valor == -1) //int x = a
                         {
                             item = GetNextItem(item);
@@ -258,6 +266,11 @@ namespace AutomataCSharp
                             if (item.Lexema == ";") return; //int x = a;
                             else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //int x = a +...
                             else AddError(item, -605);
+                        }
+                        else if(item.Lexema == "Console")
+                        {
+                            InOut(1, item);
+                            return;
                         }
                     }
                     else //x *= 2;
@@ -418,7 +431,65 @@ namespace AutomataCSharp
      #region SentenciasCiclos
         private void For(Tokens item)
         {
-            //<for>::=  for ((<variabledec>|<id>); <condicional>; <id>++) <block>
+            //Entrada: for
+            item = GetNextItem(item);
+            if (item.Lexema == "(")
+            {
+                item = GetNextItem(item);
+                if (item.Lexema == "int")
+                {
+                    item = GetNextItem(item);
+                    if (item.Valor == -1)
+                    {
+                        item = GetNextItem(item);
+                        if (item.Lexema == "=")
+                        {
+                            item = GetNextItem(item);
+                            if (item.Valor == -2)
+                            {
+                                item = GetNextItem(item);
+                                if (item.Lexema == ";")
+                                {
+                                    item = GetNextItem(item);
+                                    if (item.Valor == -1)
+                                    {
+                                        item = GetNextItem(item);
+                                        if (item.Lexema == "<" || item.Lexema == ">" || item.Lexema == "<=" || item.Lexema == ">=")
+                                        {
+                                            item = GetNextItem(item);
+                                            if (item.Valor == -2)
+                                            {
+                                                item = GetNextItem(item);
+                                                if (item.Lexema == ";")
+                                                {
+                                                    item = GetNextItem(item);
+                                                    if (item.Valor == -1)
+                                                    {
+                                                        item = GetNextItem(item);
+                                                        if (item.Lexema == "++" || item.Lexema == "--")
+                                                        {
+                                                            item = GetNextItem(item);
+                                                            if (item.Lexema == ")")
+                                                            {
+                                                                item = GetNextItem(item);
+                                                                if (item.Lexema == "{")
+                                                                {
+                                                                    Block(1, item);
+                                                                    if (item.Lexema == "}") return;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         private void While(Tokens item)
         {
@@ -460,7 +531,63 @@ namespace AutomataCSharp
         }
         private void If(Tokens item)
         {
-            //<if>::= if <condicional> <block> {else if <conditional> <block>}* {else <block>}*
+            item = GetNextItem(item);
+                if (item.Lexema == "(")
+                {
+                    item = GetNextItem(item);
+                    if (item.Valor == -1)
+                    {
+                        Conditional(item);
+                        if (item.Lexema == ")")
+                        {
+                            item = GetNextItem(item);
+                            if (item.Lexema == "{")
+                            {
+                                Block(1, item);
+                                if (item.Lexema == "}")
+                                {
+                                    item = GetNextItem(item);
+                                    if (item.Lexema == "else")
+                                    {
+                                        item = GetNextItem(item);
+                                        if (item.Lexema == "if")
+                                        {
+                                            if (item.Lexema == "(")
+                                            {
+                                                item = GetNextItem(item);
+                                                if (item.Valor == -1)
+                                                {
+                                                    Conditional(item);
+                                                    if (item.Lexema == ")")
+                                                    {
+                                                        item = GetNextItem(item);
+                                                        if (item.Lexema == "{")
+                                                        {
+                                                            Block(1, item);
+                                                            if (item.Lexema == "}")
+                                                            {
+                                                                item = GetNextItem(item);
+                                                                if (item.Lexema == "else")
+                                                                {
+                                                                    item = GetNextItem(item);
+                                                                    if (item.Lexema == "{")
+                                                                    {
+                                                                        Block(1, item);
+                                                                        if (item.Lexema == "}") return;
+                                                                    }
+                                                                } else return;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else return;
+                                }
+                            }
+                        }
+                    }
+                }
         }
         #endregion
 
@@ -473,11 +600,12 @@ namespace AutomataCSharp
                 item = GetNextItem(item); ; // == id
                 if (item.Valor == -1)
                 {
-                    item = GetNextItem(item); ; // == id &&
+                    item = GetNextItem(item); // == id &&
                     if (logicsymbol.ContainsKey(item.Valor))
                     {
                         item = GetNextItem(item); // == id && id
                         Conditional(item);
+                        if (item.Lexema == ")") return;
                     }
                     else return;
                 } else AddError(item, -601);
@@ -499,7 +627,13 @@ namespace AutomataCSharp
                         Operation(item);
                     }
                     else return;
-                } else AddError(item, -601);
+                }
+                else if(item.Lexema == "(")
+                {
+                    item = GetNextItem(item); // id + id + id
+                    Operation(item);
+                }
+                else AddError(item, -601);
             }
             else AddError(item, -604);
         }
@@ -568,9 +702,11 @@ namespace AutomataCSharp
             //Entrada: 
             switch (type)
             {
-                case 1: //Input: Console.ReadLine();
+                case 1: //Input: Console.ReadLine(); ENTRA VARIABLE
+
+
                     break;
-                case 2: //Output: Console.WriteLine();
+                case 2: //Output: Console.WriteLine(); 
 
                     break;
             }
