@@ -139,9 +139,10 @@ namespace AutomataCSharp
                             }
                             else { AddError(item, -600); break; }
                         }
-                        else { AddError(item, -600); break;} //ERROR: que vergas es esto
+                        else { AddError(item, -600); break;}
                         continue;
                 }
+                item = GetNextItem(item);
             } while ((item = GetNextItem(item)) != null);
         }
 
@@ -243,7 +244,7 @@ namespace AutomataCSharp
             {
                 //x++
                 item = GetNextItem(item);
-                if (assignsymbol.ContainsKey(item.Valor))
+                if (assignsymbol.ContainsKey(item.Valor) || item.Valor == -19)
                 {
                     item = GetNextItem(item);
                     if (item.Lexema == "++" || item.Lexema == "--")
@@ -740,7 +741,6 @@ namespace AutomataCSharp
                             }
                         }
                     }
-
                     break;
             }
         }

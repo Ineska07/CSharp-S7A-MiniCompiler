@@ -9,7 +9,6 @@ namespace AutomataCSharp
     {
         bool saved;
         string template = Properties.Resources.template;
-        Lexico lex;
         Sintaxis syn;
         int errorlexico;
         int linecount;
