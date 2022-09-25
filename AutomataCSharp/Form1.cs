@@ -1,4 +1,5 @@
-﻿using ExcelDataReader;
+﻿using System.Collections.Generic;
+using ExcelDataReader;
 using System;
 using System.IO;
 using System.Windows.Forms;
@@ -139,9 +140,14 @@ namespace AutomataCSharp
                 dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
                 errorlexico++;
             }
+            /*
             foreach (Tokens token in syn.tokensGenerados)
             {
                 dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
+            }
+            */
+            foreach(LinkedListNode<Tokens> token in syn.tokensGenerado){
+                dvgToken.Rows.Add(token.Value.Tipo, token.Value.Lexema, token.Value.Valor, token.Value.Linea);
             }
         }
 
