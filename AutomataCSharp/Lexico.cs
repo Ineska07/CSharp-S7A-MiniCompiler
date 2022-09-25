@@ -10,7 +10,7 @@ namespace AutomataCSharp
     class Lexico : MatrizTransicion
     {
         public Queue<Tokens> tokensGenerados = new Queue<Tokens>();
-        public LinkedList<Token> tokensGenerado = new LinkedList<Token>();
+        public LinkedList<Tokens> listaTokens = new LinkedList<Tokens>();
         public Queue<Tokens> listaErrores = new Queue<Tokens>();
         private Dictionary<int, string> tokens = new Dictionary<int, string>();
         private Dictionary<int, string> reservadas = new Dictionary<int, string>();
@@ -348,7 +348,7 @@ namespace AutomataCSharp
             }
             Tokens tempToken = new Tokens(type, lexema, temp, linea);
             tokensGenerados.Enqueue(tempToken);
-            tokensGenerado.AddAfter(tempToken);
+            listaTokens.AddLast(tempToken);
         }
 
         private int EncontrarReservada(string lexema, int key)

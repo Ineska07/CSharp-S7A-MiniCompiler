@@ -16,6 +16,8 @@ namespace AutomataCSharp
     Paréntesis para operaciones y condicionales
      */
 
+    //NOTA 1: tokensGenenerados aun no se elimina, toca cambiar por LinkedList (listaTokens)
+
     class Sintaxis : Lexico
     {
         public Queue<Tokens> listasyntaxErrores = new Queue<Tokens>();
