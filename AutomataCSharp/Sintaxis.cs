@@ -242,7 +242,6 @@ namespace AutomataCSharp
         private void Statement(Tokens item)
         {
             string[] variables; 
-            //ENTRADA: x || <variabletype>
             if (item.Valor == -1) //x = a
             {
                 //x++
@@ -283,16 +282,10 @@ namespace AutomataCSharp
                     else //x *= 2;
                     {
                         item = GetNextItem(item);
-                        if (item.Valor == -2 || item.Valor == -2) //Numeros
+                        if (valuetypes.ContainsKey(item.Valor)) //Numeros
                         {
                             item = GetNextItem(item);
                             if (item.Lexema == ";") return; //x += 2;
-                            else AddError(item, -605);
-                        }
-                        else if (item.Valor == -1) //Variable
-                        {
-                            item = GetNextItem(item);
-                            if (item.Lexema == ";") return; //x += a;
                             else AddError(item, -605);
                         }
                         else AddError(item, -602);
