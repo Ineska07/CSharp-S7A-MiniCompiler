@@ -14,6 +14,7 @@ namespace AutomataCSharp
     No evaluar cada token en el principal ._.XD
     Conversiones a string e int;
     Paréntesis para operaciones y condicionales
+    Bloqueo en statements del tipo int i;
      */
 
     //NOTA 1: tokensGenenerados aun no se elimina, toca cambiar por LinkedList (listaTokens)
@@ -145,6 +146,7 @@ namespace AutomataCSharp
                         continue;
                 }
                 item = GetNextItem(item);
+                if (item == null) break;
             } while ((item = GetNextItem(item)) != null);
         }
 
@@ -303,23 +305,16 @@ namespace AutomataCSharp
                 if (item.Valor == -1) // int x
                 {
                     item = GetNextItem(item);
-                    if (assignsymbol.ContainsKey(item.Valor)) // int x =
+                    if (assignsymbol.ContainsKey(item.Valor) || item.Lexema == "=") // int x =
                     {
                         item = GetNextItem(item);
-                        if (item.Valor == -1) //int x = a
+                        if (valuetypes.ContainsKey(item.Valor)) //int x = a
                         {
                             item = GetNextItem(item);
                             if (item.Lexema == ";") return; //x = a;
                             else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //x = a +...
-                            else AddError(item, -600);
-                        }
-                        else if (valuetypes.ContainsKey(item.Valor)) //x = 4
-                        {
-                            item = GetNextItem(item);
-                            if (item.Lexema == ";") return; //int x = a;
-                            else if (arisymbol.ContainsKey(item.Valor)) Operation(item); //int x = a +...
-                            else AddError(item, -600);
-                        } 
+                            else AddError(item, -605);
+                        } else AddError(item, -602);
                     }
                     else if(item.Lexema == ",")
                     {
@@ -327,7 +322,7 @@ namespace AutomataCSharp
                         if (item.Lexema == ";") return;
                     }
                     else if (item.Lexema == ";") return;
-                }
+                } else AddError(item, -601);
             }
         }
 
