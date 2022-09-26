@@ -241,14 +241,12 @@ namespace AutomataCSharp
         {
             string[] variables; 
             //ENTRADA: x || <variabletype>
-            item = GetNextItem(item);
             if (item.Valor == -1) //x = a
             {
                 //x++
                 item = GetNextItem(item);
                 if (assignsymbol.ContainsKey(item.Valor) || item.Valor == -19)
                 {
-                    item = GetNextItem(item);
                     if (item.Lexema == "++" || item.Lexema == "--")
                     {
                         item = GetNextItem(item);
