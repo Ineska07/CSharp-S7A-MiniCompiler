@@ -23,7 +23,10 @@ namespace AutomataCSharp
 
         private LinkedListNode<Tokens> AddSyntaxError(LinkedListNode<Tokens> p, int e, string s)
         {
-            string type = "";
+            LinkedListNode<Tokens> tempP = p;
+            if (p == null) tempP = p.Previous;
+
+            string type;
             switch (e)
             {
                 case -600: type = "Error de Sintaxis"; break;
@@ -32,11 +35,10 @@ namespace AutomataCSharp
                     break;
             }
             
-            Error error = new Error(type, e, 0);
-            error.Linea = p.Value.Linea;
+            Error error = new Error(type, e, tempP.Value.Linea);
             syntaxError.AddLast(error);
             hasSyntaxErrors = true;
-            return p;
+            return tempP;
         }
 
         public Syntax()
@@ -99,21 +101,33 @@ namespace AutomataCSharp
             {
                 switch (p.Next.Value.Valor)
                 {
-                    case -41: p = Class(p); break;
-                    case -44: p = Namespace(p); break;
-                    case -86: p = Libraries(p); break;
+                    case -41:
+                        p = p.Next;
+                        p = Class(p); 
+                        break;
+                    case -44:
+                        p = p.Next;
+                        p = Namespace(p); 
+                        break;
+                    case -86:
+                        p = p.Next;
+                        p = Libraries(p); 
+                        break;
                     default:
                         if (vartype.ContainsKey(p.Value.Valor))
                         {
+                            p = p.Next;
                             p = VartypeDeclaration(p);
                         }
                         else if (p.Value.Valor == -1 && p.Value.Lexema != "Console")
                         {
+                            p = p.Next;
                             p = VarDeclaration(p);
                         }
                         else if (p.Value.Lexema == "Console")
                         {
-
+                            p = p.Next;
+                            p = ConsoleSentence(p);
                         }
                         else p = AddSyntaxError(p, -600, "0");
                         break;
@@ -134,19 +148,39 @@ namespace AutomataCSharp
             return p;
         }
 
+        private LinkedListNode<Tokens> ConsoleSentence(LinkedListNode<Tokens> p)
+        {
+            //Entrada Console
+            p = p.Next;
+            if(p.Value.Lexema == ".")
+            {
+                if (p.Value.Lexema == "WriteLine")
+                {
+
+                }
+                else if (p.Value.Lexema == "ReadLine")
+                {
+
+                }
+            }
+
+            return p;
+        }
         #endregion
 
         #region Espacios
         private LinkedListNode<Tokens> Libraries(LinkedListNode<Tokens> p)
         {
             //Entrada: using
-            int lineaactual = p.Value.Linea;
-            if ((p = p.Next) != null && p.Value.Lexema == "System")
+            p = p.Next;
+            if (p != null && p.Value.Lexema == "System")
             {
-                if ((p = p.Next)!= null && p.Value.Lexema == ";") return p;
+                p = p.Next;
+                if (p != null && p.Value.Lexema == ";") return p;
                 else p = AddSyntaxError(p, -605, ";");
             }
             else p = AddSyntaxError(p, -601, "Identificador");
+
             return p;
         }
 
