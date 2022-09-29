@@ -23,6 +23,7 @@ namespace AutomataCSharp
 
         private LinkedListNode<Tokens> AddSyntaxError(LinkedListNode<Tokens> p, int e, string s)
         {
+            /*NullReferenceException con p*/
             LinkedListNode<Tokens> tempP = p;
             if (p == null) tempP = p.Previous;
 
