@@ -110,7 +110,7 @@ namespace AutomataCSharp
             dgvSintactico.Rows.Clear();
             lblError.Text = "Errores Léxicos: ";
             
-            syn = new Sintaxis();
+            syn = new Syntax();
 
             syn.Inicializar();
 

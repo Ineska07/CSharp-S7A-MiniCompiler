@@ -217,12 +217,11 @@ namespace AutomataCSharp
                         break;
 
                     case 2: //Clases
-                        if (vartype.ContainsKey(item.Valor) || item.Valor == 1) Statement(item);
+                        if (vartype.ContainsKey(item.Valor) || item.Valor == 1) item = Statement(item);
                         else if (accesstype.ContainsKey(item.Valor))
                         {
-                            if (item.Lexema == "static") MainMethod(item);
+                            if (item.Lexema == "static") item = MainMethod(item);
                             else AddError(item, -600);
-
                         }
                         else AddError(item, -600);
                         break;
@@ -236,8 +235,9 @@ namespace AutomataCSharp
                         break;
                 }
 
+                if (item.Lexema == "}") return item;
+
             } while (item.Lexema != "}");
-            if (item.Lexema == "}") return item;
             return item;
         }
         private Tokens Statement(Tokens item)
@@ -369,9 +369,7 @@ namespace AutomataCSharp
                 item = GetNextItem(item);
                 if (item.Lexema == "{")
                 {
-                    item = Block(2, item);
-                    if (item.Lexema == "}") return item;
-                    else AddError(item, -605);
+                    item = Block(3, item);
                 }
                 else AddError(item, -605);
             }
@@ -506,7 +504,7 @@ namespace AutomataCSharp
                 item = GetNextItem(item);
                 if (item.Valor == -1)
                 {
-                    //Conditional
+                    item = Conditional(item);
                     item = GetNextItem(item);
                     if (item.Lexema == ")")
                     {
@@ -544,13 +542,13 @@ namespace AutomataCSharp
                 item = GetNextItem(item);
                 if (item.Valor == -1)
                 {
-                    Conditional(item);
+                    item = Conditional(item);
                     if (item.Lexema == ")")
                     {
                         item = GetNextItem(item);
                         if (item.Lexema == "{")
                         {
-                            Block(1, item);
+                            item = Block(1, item);
                             if (item.Lexema == "}")
                             {
                                 item = GetNextItem(item);
@@ -564,7 +562,7 @@ namespace AutomataCSharp
                                             item = GetNextItem(item);
                                             if (item.Valor == -1)
                                             {
-                                                Conditional(item);
+                                                item = Conditional(item);
                                                 if (item.Lexema == ")")
                                                 {
                                                     item = GetNextItem(item);
@@ -579,7 +577,7 @@ namespace AutomataCSharp
                                                                 item = GetNextItem(item);
                                                                 if (item.Lexema == "{")
                                                                 {
-                                                                    Block(1, item);
+                                                                    item = Block(1, item);
                                                                     if (item.Lexema == "}") return item;
                                                                 }
                                                             }
@@ -599,25 +597,26 @@ namespace AutomataCSharp
                 } AddError(item, -605);
             return item;
         }
-        private void Conditional(Tokens item)
+        private Tokens Conditional(Tokens item)
         {
             //ENTRADA: ID
             item = GetNextItem(item);
             if (relsymbol.ContainsKey(item.Valor)) // ==
             {
                 item = GetNextItem(item); ; // == id
-                if (item.Valor == -1)
+                if (item.Valor == -1 || item.Valor == -2 || item.Valor == -3)
                 {
                     item = GetNextItem(item); // == id &&
                     if (logicsymbol.ContainsKey(item.Valor))
                     {
                         item = GetNextItem(item); // == id && id
                         Conditional(item);
-                        if (item.Lexema == ")") return;
+                        if (item.Lexema == ")") return item;
                     }
-                    else return;
+                    else return item;
                 } else AddError(item, -601);
             } else AddError(item, -604);
+            return item;
         }
         private void Operation(Tokens item)
         {
