@@ -19,6 +19,7 @@ namespace AutomataCSharp
         private Dictionary<int, string> relsymbol = new Dictionary<int, string>();
         private Dictionary<int, string> boolval = new Dictionary<int, string>();
         private Dictionary<int, string> valuetypes = new Dictionary<int, string>();
+        private bool hasSyntaxErrors;
 
         private LinkedListNode<Tokens> AddSyntaxError(LinkedListNode<Tokens> p, int e, string s)
         {
@@ -30,19 +31,11 @@ namespace AutomataCSharp
                     type = "Se esperaba " + s;
                     break;
             }
-
+            
             Error error = new Error(type, e, 0);
-
-            try
-            {
-                error.Linea = p.Value.Linea;
-            }
-            catch (NullReferenceException)
-            {
-                error.Linea = p.Previous.Value.Linea;
-            }
-
+            error.Linea = p.Value.Linea;
             syntaxError.AddLast(error);
+            hasSyntaxErrors = true;
             return p;
         }
 
@@ -95,12 +88,16 @@ namespace AutomataCSharp
         {
             foreach (Tokens item in listaTokens) { TokenList.AddLast(item); }
 
+            LinkedListNode<Tokens> head = new LinkedListNode<Tokens>(new Tokens("HEAD", "NODO", 0, 0));
+            TokenList.AddFirst(head);
+
             //Apuntador
             LinkedListNode<Tokens> p = TokenList.First;
 
-            while (p != null)
+            hasSyntaxErrors = false;
+            while (p != null && p.Next != null)
             {
-                switch (p.Value.Valor)
+                switch (p.Next.Value.Valor)
                 {
                     case -41: p = Class(p); break;
                     case -44: p = Namespace(p); break;
@@ -128,19 +125,6 @@ namespace AutomataCSharp
         #region Statements
         private LinkedListNode<Tokens> VartypeDeclaration(LinkedListNode<Tokens> p)
         {
-            //Entrada: int
-            string variabletype = p.Value.Lexema;
-
-            p = p.Next;
-            if (p.Value.Valor == -1)
-            {
-                p = p.Next;
-            }
-            else
-            {
-                p = AddSyntaxError(p, -601, "0");
-            }
-
             return p;
         }
 
