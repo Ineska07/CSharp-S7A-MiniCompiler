@@ -10,7 +10,7 @@ namespace AutomataCSharp
     {
         bool saved;
         string template = Properties.Resources.template;
-        Sintaxis syn;
+        Syntax syn;
         int errorlexico;
         int linecount;
 
@@ -113,10 +113,8 @@ namespace AutomataCSharp
             syn = new Syntax();
 
             syn.Inicializar();
-
             lblError.Visible = true;
             syn.AnalisisLexico(tbxCodigo.Text + " ");
-            syn.StartSyntax();
 
             ImprimirTablaTokens();
             lblError.Text = "Errores Léxicos: " + errorlexico.ToString();
@@ -150,18 +148,18 @@ namespace AutomataCSharp
         {
             lblErrorSintaxis.Visible = true;
 
-            if (syn.listasyntaxErrores.Count == 0)
+            if (syn.syntaxError.Count == 0)
             {
                 lblErrorSintaxis.Text = "Felicidades! No hay errores de sintaxis :)";
             }
             else
             {
-                lblErrorSintaxis.Text = "Errores de Sintaxis: " + syn.listasyntaxErrores.Count.ToString();
+                lblErrorSintaxis.Text = "Errores de Sintaxis: " + syn.syntaxError.Count.ToString();
                 dgvSintactico.Visible = true;
 
-                foreach (Tokens synE in syn.listasyntaxErrores)
+                foreach (Error synE in syn.syntaxError)
                 {
-                    dgvSintactico.Rows.Add(synE.Tipo, synE.Lexema, synE.Valor, synE.Linea);
+                    dgvSintactico.Rows.Add(synE.Codigo, synE.Descripcion, synE.Linea);
                 }
             }
         }

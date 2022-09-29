@@ -46,4 +46,37 @@ namespace AutomataCSharp
         }
 
     }
+
+    class Error
+    {
+        protected int codigo;
+        protected string desc;
+        protected int linea;
+
+        public int Codigo
+        {
+            get { return codigo; }
+            set { codigo = value; }
+        }
+
+        public string Descripcion
+        {
+            get { return desc; }
+            set { desc = value; }
+        }
+
+        public int Linea
+        {
+            get { return linea; }
+            set { linea = value; }
+        }
+
+        public Error(string type, int e, int linea)
+        {
+            this.codigo = e;
+            this.desc = type;
+            this.linea = linea;
+        }
+
+    }
 }

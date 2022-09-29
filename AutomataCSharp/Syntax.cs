@@ -9,7 +9,7 @@ namespace AutomataCSharp
     class Syntax : Lexico
     {
         private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
-        public LinkedList<Tokens> syntaxError = new LinkedList<Tokens>();
+        public LinkedList<Error> syntaxError = new LinkedList<Error>();
 
         private Dictionary<int, string> vartype = new Dictionary<int, string>();
         private Dictionary<int, string> accesstype = new Dictionary<int, string>();
@@ -20,13 +20,34 @@ namespace AutomataCSharp
         private Dictionary<int, string> boolval = new Dictionary<int, string>();
         private Dictionary<int, string> valuetypes = new Dictionary<int, string>();
 
-        public Syntax()
+        private LinkedListNode<Tokens> AddSyntaxError(LinkedListNode<Tokens> p, int e, string s)
         {
-            foreach (Tokens item in tokensGenerados)
+            string type = "";
+            switch (e)
             {
-                TokenList.AddLast(item);
+                case -600: type = "Error de Sintaxis"; break;
+                default:
+                    type = "Se esperaba " + s;
+                    break;
             }
 
+            Error error = new Error(type, e, 0);
+
+            try
+            {
+                error.Linea = p.Value.Linea;
+            }
+            catch (NullReferenceException)
+            {
+                error.Linea = p.Previous.Value.Linea;
+            }
+
+            syntaxError.AddLast(error);
+            return p;
+        }
+
+        public Syntax()
+        {
             valuetypes.Add(-1, "ID");
             valuetypes.Add(-2, "Number");
             valuetypes.Add(-3, "Decimal");
@@ -68,26 +89,95 @@ namespace AutomataCSharp
 
             boolval.Add(-90, "true");
             boolval.Add(-91, "false");
-            AnalizadorSintactico();
         }
+
         public void AnalizadorSintactico()
         {
+            foreach (Tokens item in listaTokens) { TokenList.AddLast(item); }
+
             //Apuntador
-            TokenList.AddFirst(new LinkedListNode<Tokens>(new Tokens("cabeza","nodo",0,0)));
             LinkedListNode<Tokens> p = TokenList.First;
 
-            do
+            while (p != null)
             {
-                switch (p.Value)
+                switch (p.Value.Valor)
                 {
+                    case -41: p = Class(p); break;
+                    case -44: p = Namespace(p); break;
+                    case -86: p = Libraries(p); break;
+                    default:
+                        if (vartype.ContainsKey(p.Value.Valor))
+                        {
+                            p = VartypeDeclaration(p);
+                        }
+                        else if (p.Value.Valor == -1 && p.Value.Lexema != "Console")
+                        {
+                            p = VarDeclaration(p);
+                        }
+                        else if (p.Value.Lexema == "Console")
+                        {
 
+                        }
+                        else p = AddSyntaxError(p, -600, "0");
+                        break;
                 }
-
-
-
-            } while ((p != null && p.Next != null));
+                p = p.Next;
+            }
         }
-    }
 
-    
+        #region Statements
+        private LinkedListNode<Tokens> VartypeDeclaration(LinkedListNode<Tokens> p)
+        {
+            //Entrada: int
+            string variabletype = p.Value.Lexema;
+
+            p = p.Next;
+            if (p.Value.Valor == -1)
+            {
+                p = p.Next;
+            }
+            else
+            {
+                p = AddSyntaxError(p, -601, "0");
+            }
+
+            return p;
+        }
+
+        private LinkedListNode<Tokens> VarDeclaration(LinkedListNode<Tokens> p)
+        {
+            //Entrada ID
+            return p;
+        }
+
+        #endregion
+
+        #region Espacios
+        private LinkedListNode<Tokens> Libraries(LinkedListNode<Tokens> p)
+        {
+            //Entrada: using
+            int lineaactual = p.Value.Linea;
+            if ((p = p.Next) != null && p.Value.Lexema == "System")
+            {
+                if ((p = p.Next)!= null && p.Value.Lexema == ";") return p;
+                else p = AddSyntaxError(p, -605, ";");
+            }
+            else p = AddSyntaxError(p, -601, "Identificador");
+            return p;
+        }
+
+        private LinkedListNode<Tokens> Namespace(LinkedListNode<Tokens> p)
+        {
+            //Entrada namespace
+            return p;
+        }
+
+        private LinkedListNode<Tokens> Class(LinkedListNode<Tokens> p)
+        {
+            //Entrada class
+            return p;
+        }
+
+        #endregion
+    }
 }
