@@ -20,7 +20,7 @@ namespace AutomataCSharp
         private Dictionary<int, string> relsymbol = new Dictionary<int, string>();
         private Dictionary<int, string> boolval = new Dictionary<int, string>();
         private Dictionary<int, string> valuetypes = new Dictionary<int, string>();
-        private bool hasSyntaxErrors;
+        private bool hasSyntaxErrors = false;
 
         private LinkedListNode<Tokens> AddSyntaxError(LinkedListNode<Tokens> p, int e, string s)
         {
@@ -165,9 +165,16 @@ namespace AutomataCSharp
         #region Statements
         private LinkedListNode<Tokens> VartypeDeclaration(LinkedListNode<Tokens> p)
         {
-            //Entrada: int
+            string variabletipo = p.Value.Lexema;
             p = p.Next;
-
+            if (p.Value.Lexema == ";")
+            {
+                //AddVariable(p, variabletipo)
+            }
+            else if (p.Value.Lexema == "=")
+            {
+                p = Assignment(p);
+            }
 
             return p;
         }
@@ -176,6 +183,18 @@ namespace AutomataCSharp
         {
             //Entrada ID
             p = p.Next;
+            if(p.Value.Lexema == "++" || p.Value.Lexema == "--")
+            {
+                p = p.Next;
+                if (p.Value.Lexema == ";")
+                {
+                    return p;
+                }
+            }
+            else if (p.Value.Lexema == "=")
+            {
+                p = Assignment(p);
+            }
             return p;
         }
 
@@ -268,12 +287,38 @@ namespace AutomataCSharp
                 {
                     case -34: break; //}
                     //AnalisisSintactico() si se puede ._.XD
+                    case -41:
+                        p = p.Next;
+                        p = Class(p);
+                        break;
+                    case -45:
+                        p = p.Next;
+                        p = MainMethod(p);
+                        break;
+                    default:
+                        if (vartype.ContainsKey(p.Value.Valor))
+                        {
+                            p = VartypeDeclaration(p);
+                        }
+                        else if (p.Value.Valor == -1)
+                        {
+                            p = PreCheck(p);
+                        }
+                        else if (p.Value.Lexema == "while")
+                        {
+                            p = While(p);
+                        }
+                        else if (p.Value.Lexema == "if")
+                        {
+                            p = If(p);
+                        }
+                        else p = AddSyntaxError(p, -600, "0");
+                        break;
                 }
                if (p.Value.Lexema == "}") break;
             }
           return p;
         }
-
         private LinkedListNode<Tokens> Class(LinkedListNode<Tokens> p)
         {
             //entrada class
@@ -340,6 +385,21 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> If(LinkedListNode<Tokens> p)
         {
             //Entrada if
+            p = p.Next;
+            if (p.Value.Lexema == "(")
+            {
+                if (p.Value.Valor == -1)
+                {
+                    p = Conditional(p);
+                    if (p.Value.Lexema == ")")
+                    {
+                        if (p.Value.Lexema == "{")
+                        {
+                            p = Block(p);
+                        }
+                    }
+                }
+            }
             return p;
         }
         private LinkedListNode<Tokens> While(LinkedListNode<Tokens> p)
@@ -403,6 +463,13 @@ namespace AutomataCSharp
                     }
                 }
             }
+            return p;
+        }
+
+        private LinkedListNode<Tokens> Assignment(LinkedListNode<Tokens> p)
+        {
+            //Entrada =
+            
             return p;
         }
     }
