@@ -9,7 +9,8 @@ namespace AutomataCSharp
     class Variable
     {
         protected string type;
-        protected int token;
+        protected string name;
+        protected string val;
         protected int line;
 
         public string Type
@@ -18,22 +19,27 @@ namespace AutomataCSharp
             set { type = value; }
         }
 
-        public int Token
+        public string Name
         {
-            get { return token; }
-            set { token = value; }
+            get { return name;}
+            set { name = value; }
         }
-
+        public string Value
+        {
+            get { return val; }
+            set { val = value; }
+        }
         public int Line
         {
             get { return line; }
             set { line = value; }
         }
 
-        public Variable(string tipo, int valor, int line)
+        public Variable(string tipo, string name, string valor, int line)
         {
             this.type = tipo;
-            this.token = valor;
+            this.name = name;
+            this.val = valor;
             this.line = line;
         }
     }

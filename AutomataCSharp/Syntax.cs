@@ -124,27 +124,43 @@ namespace AutomataCSharp
                         {
                             p = VartypeDeclaration(p);
                         }
-                        else if (p.Value.Valor == -1 && p.Value.Lexema != "Console")
+                        else if (p.Value.Valor == -1)
                         {
-                            p = VarDeclaration(p);
-                        }
-                        else if (p.Value.Lexema == "Console")
-                        {
-                            p = ConsoleSentence(p);
-                        }
-                        else if (p.Value.Lexema == "if")
-                        {
-                            p = If(p);
+                            p = PreCheck(p);
                         }
                         else if (p.Value.Lexema == "while")
                         {
                             p = While(p);
+                        }
+                        else if (p.Value.Lexema == "if")
+                        {
+                            p = If(p);
                         }
                         else p = AddSyntaxError(p, -600, "0");
                         break;
                 }
             }
         }
+
+        private LinkedListNode<Tokens> PreCheck(LinkedListNode<Tokens> p)
+        {
+            //Entrada: ID
+
+            switch (p.Value.Lexema)
+            {
+                case "Console":
+                    p = ConsoleSentence(p);
+                    break;
+                case "static":
+                    p = MainMethod(p);
+                    break;
+                default:
+                    p = VarDeclaration(p);
+                    break;
+            }
+            return p;
+        }
+
 
         #region Statements
         private LinkedListNode<Tokens> VartypeDeclaration(LinkedListNode<Tokens> p)
@@ -277,6 +293,45 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> MainMethod(LinkedListNode<Tokens> p)
         {
             //Entrada static
+
+            p = p.Next;
+            if (p.Value.Lexema == "void")
+            {
+                p = p.Next;
+                if (p.Value.Lexema == "Main")
+                {
+                    p = p.Next;
+                    if (p.Value.Lexema == "(")
+                    {
+                        p = p.Next;
+                        if (p.Value.Lexema == "string")
+                        {
+                            p = p.Next;
+                            if (p.Value.Lexema == "[")
+                            {
+                                p = p.Next;
+                                if (p.Value.Lexema == "]")
+                                {
+                                    p = p.Next;
+                                    if (p.Value.Lexema == "args")
+                                    {
+                                        p = p.Next;
+                                        if (p.Value.Lexema == ")")
+                                        {
+                                            p = p.Next;
+                                            if (p.Value.Lexema == "{")
+                                            {
+                                                p = Block(p);
+                                                return p;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             return p;
         }
 
@@ -303,8 +358,8 @@ namespace AutomataCSharp
                         p = p.Next;
                         if (p.Value.Lexema == "{")
                         {
-                            p = p.Next;
-                            if (p.Value.Lexema == "}") return p;
+                            p = Block(p);
+                            return p;
                         }
                     }
                 }
@@ -316,8 +371,8 @@ namespace AutomataCSharp
                         p = p.Next;
                         if (p.Value.Lexema == "{")
                         {
-                            p = p.Next;
-                            if (p.Value.Lexema == "}") return p;
+                            p = Block(p);
+                            return p;
                         }
                     }
                 }
