@@ -286,7 +286,6 @@ namespace AutomataCSharp
                 switch (p.Next.Value.Valor)
                 {
                     case -34: break; //}
-                    //AnalisisSintactico() si se puede ._.XD
                     case -41:
                         p = p.Next;
                         p = Class(p);
@@ -315,6 +314,7 @@ namespace AutomataCSharp
                         else p = AddSyntaxError(p, -600, "0");
                         break;
                 }
+
                if (p.Value.Lexema == "}") break;
             }
           return p;
@@ -469,8 +469,24 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Assignment(LinkedListNode<Tokens> p)
         {
             //Entrada =
-            
-            return p;
+            string[] infijo;
+            int i = 0;
+
+            p = p.Next;
+            if (valuetypes.ContainsKey(p.Value.Valor))
+            {
+                if (valuetypes.ContainsKey(p.Value.Valor))
+                {
+
+                }
+                else if (valuetypes.ContainsKey(p.Value.Valor))
+                {
+
+                }
+            }
+                //Conversion a posfijo
+
+                return p;
         }
     }
 }
