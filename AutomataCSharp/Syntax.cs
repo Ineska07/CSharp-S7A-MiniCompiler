@@ -10,6 +10,7 @@ namespace AutomataCSharp
     {
         private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
         public LinkedList<Error> syntaxError = new LinkedList<Error>();
+        public bool semError = false;
 
         private Dictionary<int, string> vartype = new Dictionary<int, string>();
         private Dictionary<int, string> accesstype = new Dictionary<int, string>();
@@ -23,7 +24,7 @@ namespace AutomataCSharp
 
         private LinkedListNode<Tokens> AddSyntaxError(LinkedListNode<Tokens> p, int e, string s)
         {
-            /*NullReferenceException con p*/
+            /*NullReferenceException con p al momento de error de ultima cosa (ej: ;)*/
             LinkedListNode<Tokens> tempP = p;
             if (p == null) tempP = p.Previous;
 
@@ -114,38 +115,51 @@ namespace AutomataCSharp
                         p = p.Next;
                         p = Libraries(p); 
                         break;
+                    case -45:
+                        p = p.Next;
+                        p = MainMethod(p);
+                        break;
                     default:
                         if (vartype.ContainsKey(p.Value.Valor))
                         {
-                            p = p.Next;
                             p = VartypeDeclaration(p);
                         }
                         else if (p.Value.Valor == -1 && p.Value.Lexema != "Console")
                         {
-                            p = p.Next;
                             p = VarDeclaration(p);
                         }
                         else if (p.Value.Lexema == "Console")
                         {
-                            p = p.Next;
                             p = ConsoleSentence(p);
+                        }
+                        else if (p.Value.Lexema == "if")
+                        {
+                            p = If(p);
+                        }
+                        else if (p.Value.Lexema == "while")
+                        {
+                            p = While(p);
                         }
                         else p = AddSyntaxError(p, -600, "0");
                         break;
                 }
-                p = p.Next;
             }
         }
 
         #region Statements
         private LinkedListNode<Tokens> VartypeDeclaration(LinkedListNode<Tokens> p)
         {
+            //Entrada: int
+            p = p.Next;
+
+
             return p;
         }
 
         private LinkedListNode<Tokens> VarDeclaration(LinkedListNode<Tokens> p)
         {
             //Entrada ID
+            p = p.Next;
             return p;
         }
 
@@ -157,11 +171,39 @@ namespace AutomataCSharp
             {
                 if (p.Value.Lexema == "WriteLine")
                 {
+                    if (p.Value.Lexema == "WriteLine")
+                    {
+                        p = p.Next;
+                        if (p.Value.Lexema == "(")
+                        {
+                            p = PrintAssignment(p);
 
+                            if (p.Value.Lexema == ")")
+                            {
+                                p = p.Next;
+                                if (p.Value.Lexema == ";")
+                                {
+                                    return p;
+                                }
+                            }
+                        }
+                    }
                 }
                 else if (p.Value.Lexema == "ReadLine")
                 {
-
+                    p = p.Next;
+                    if (p.Value.Lexema == "(")
+                    {
+                        p = p.Next;
+                        if (p.Value.Lexema == ")")
+                        {
+                            p = p.Next;
+                            if (p.Value.Lexema == ";")
+                            {
+                                return p;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -180,7 +222,7 @@ namespace AutomataCSharp
                 if (p != null && p.Value.Lexema == ";") return p;
                 else p = AddSyntaxError(p, -605, ";");
             }
-            else p = AddSyntaxError(p, -601, "Identificador");
+            else p = AddSyntaxError(p, -601, "Nombre de Librería");
 
             return p;
         }
@@ -188,15 +230,125 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Namespace(LinkedListNode<Tokens> p)
         {
             //Entrada namespace
+            p = p.Next;
+            if (p != null && p.Value.Valor == -1)
+            {
+                p = p.Next;
+                if (p != null && p.Value.Lexema == "{") 
+                {
+                    p = Block(p);
+                    return p; 
+                }
+                else p = AddSyntaxError(p, -605, "{");
+            }
+            else p = AddSyntaxError(p, -601, "Identificador");
             return p;
+        }
+        private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
+        {
+            while (p != null)
+            {
+                switch (p.Next.Value.Valor)
+                {
+                    case -34: break; //}
+                    //AnalisisSintactico() si se puede ._.XD
+                }
+               if (p.Value.Lexema == "}") break;
+            }
+          return p;
         }
 
         private LinkedListNode<Tokens> Class(LinkedListNode<Tokens> p)
         {
-            //Entrada class
+            //entrada class
+            p = p.Next;
+            if (p != null && p.Value.Valor == -1)
+            {
+                p = p.Next;
+                if (p != null && p.Value.Lexema == "{")
+                {
+                    p = Block(p);
+                    return p;
+                }
+            }
+            else p = AddSyntaxError(p, -601, "Identificador");
+            return p;
+        }
+        private LinkedListNode<Tokens> MainMethod(LinkedListNode<Tokens> p)
+        {
+            //Entrada static
             return p;
         }
 
         #endregion
+
+        private LinkedListNode<Tokens> If(LinkedListNode<Tokens> p)
+        {
+            //Entrada if
+            return p;
+        }
+        private LinkedListNode<Tokens> While(LinkedListNode<Tokens> p)
+        {
+            //Entrada while
+            p = p.Next;
+            if (p.Value.Lexema == "(")
+            {
+                p = p.Next;
+                if (p.Value.Valor == -1)
+                {
+                    p = Conditional(p);
+                    p = p.Next;
+                    if (p.Value.Lexema == ")")
+                    {
+                        p = p.Next;
+                        if (p.Value.Lexema == "{")
+                        {
+                            p = p.Next;
+                            if (p.Value.Lexema == "}") return p;
+                        }
+                    }
+                }
+                else if (boolval.ContainsKey(p.Value.Valor))
+                {
+                    p = p.Next;
+                    if (p.Value.Lexema == ")")
+                    {
+                        p = p.Next;
+                        if (p.Value.Lexema == "{")
+                        {
+                            p = p.Next;
+                            if (p.Value.Lexema == "}") return p;
+                        }
+                    }
+                }
+            }
+            return p;
+        }
+        private LinkedListNode<Tokens> PrintAssignment(LinkedListNode<Tokens> p)
+        {
+            //Entrada (
+            return p;
+        }
+
+        private LinkedListNode<Tokens> Conditional(LinkedListNode<Tokens> p)
+        {
+            //Entrada ID
+            p = p.Next;
+            if (relsymbol.ContainsKey(p.Value.Valor))
+            {
+                p = p.Next; // == id
+                if (p.Value.Valor == -1 || p.Value.Valor == -2 || p.Value.Valor == -3)
+                {
+                    p = p.Next; // == id &&
+                    if (logicsymbol.ContainsKey(p.Value.Valor))
+                    {
+                        p = p.Next; // == id && id
+                        p = Conditional(p);
+                        if (p.Value.Lexema == ")") return p;
+                    }
+                }
+            }
+            return p;
+        }
     }
 }
