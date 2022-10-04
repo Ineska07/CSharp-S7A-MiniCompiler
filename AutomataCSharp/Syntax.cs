@@ -25,9 +25,6 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> AddSyntaxError(LinkedListNode<Tokens> p, int e, string s)
         {
             /*NullReferenceException con p al momento de error de ultima cosa (ej: ;)*/
-            LinkedListNode<Tokens> tempP = p;
-            if (p == null) tempP = p.Previous;
-
             string type;
             switch (e)
             {
@@ -37,10 +34,10 @@ namespace AutomataCSharp
                     break;
             }
             
-            Error error = new Error(type, e, tempP.Value.Linea);
+            Error error = new Error(type, e, p.Value.Linea);
             syntaxError.AddLast(error);
             hasSyntaxErrors = true;
-            return tempP;
+            return p;
         }
 
         public Syntax()
@@ -120,20 +117,24 @@ namespace AutomataCSharp
                         p = MainMethod(p);
                         break;
                     default:
-                        if (vartype.ContainsKey(p.Value.Valor))
+                        if (vartype.ContainsKey(p.Next.Value.Valor))
                         {
+                            p = p.Next;
                             p = VartypeDeclaration(p);
                         }
-                        else if (p.Value.Valor == -1)
+                        else if (p.Next.Value.Valor == -1)
                         {
+                            p = p.Next;
                             p = PreCheck(p);
                         }
-                        else if (p.Value.Lexema == "while")
+                        else if (p.Next.Value.Lexema == "while")
                         {
+                            p = p.Next;
                             p = While(p);
                         }
-                        else if (p.Value.Lexema == "if")
+                        else if (p.Next.Value.Lexema == "if")
                         {
+                            p = p.Next;
                             p = If(p);
                         }
                         else p = AddSyntaxError(p, -600, "0");
@@ -271,54 +272,25 @@ namespace AutomataCSharp
                 p = p.Next;
                 if (p != null && p.Value.Lexema == "{") 
                 {
-                    p = Block(p);
-                    return p; 
+                    p = p.Next;
+                    if (p.Value.Lexema == "class")
+                    {
+                        p = Class(p); //retorna con } de clase
+
+                        p = p.Next;
+                        if (p.Value.Lexema == "}")
+                        {
+                            return p;
+                        }
+                    }
+                    else if (p.Value.Lexema == "}") return p;
                 }
                 else p = AddSyntaxError(p, -605, "{");
             }
             else p = AddSyntaxError(p, -601, "Identificador");
             return p;
         }
-        private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
-        {
-            while (p != null)
-            {
-                switch (p.Next.Value.Valor)
-                {
-                    case -34: break; //}
-                    case -41:
-                        p = p.Next;
-                        p = Class(p);
-                        break;
-                    case -45:
-                        p = p.Next;
-                        p = MainMethod(p);
-                        break;
-                    default:
-                        if (vartype.ContainsKey(p.Value.Valor))
-                        {
-                            p = VartypeDeclaration(p);
-                        }
-                        else if (p.Value.Valor == -1)
-                        {
-                            p = PreCheck(p);
-                        }
-                        else if (p.Value.Lexema == "while")
-                        {
-                            p = While(p);
-                        }
-                        else if (p.Value.Lexema == "if")
-                        {
-                            p = If(p);
-                        }
-                        else p = AddSyntaxError(p, -600, "0");
-                        break;
-                }
 
-               if (p.Value.Lexema == "}") break;
-            }
-          return p;
-        }
         private LinkedListNode<Tokens> Class(LinkedListNode<Tokens> p)
         {
             //entrada class
@@ -328,8 +300,18 @@ namespace AutomataCSharp
                 p = p.Next;
                 if (p != null && p.Value.Lexema == "{")
                 {
-                    p = Block(p);
-                    return p;
+                    p = p.Next;
+                    if (p.Value.Lexema == "static")
+                    {
+                        p = MainMethod(p); //retorna con } de clase
+
+                        p = p.Next;
+                        if (p.Value.Lexema == "}")
+                        {
+                            return p;
+                        }
+                    }
+                    else if (p.Value.Lexema == "}") return p;
                 }
             }
             else p = AddSyntaxError(p, -601, "Identificador");
@@ -366,8 +348,13 @@ namespace AutomataCSharp
                                             p = p.Next;
                                             if (p.Value.Lexema == "{")
                                             {
-                                                p = Block(p);
-                                                return p;
+                                                p = p.Next;
+                                                if (p.Value.Lexema == "}") return p;
+                                                else 
+                                                { 
+                                                    p = Block(p);
+                                                    if (p.Value.Lexema == "}") return p;
+                                                }
                                             }
                                         }
                                     }
@@ -395,7 +382,7 @@ namespace AutomataCSharp
                     {
                         if (p.Value.Lexema == "{")
                         {
-                            p = Block(p);
+                            //p = Block(p);
                         }
                     }
                 }
@@ -418,7 +405,7 @@ namespace AutomataCSharp
                         p = p.Next;
                         if (p.Value.Lexema == "{")
                         {
-                            p = Block(p);
+                            //p = Block(p);
                             return p;
                         }
                     }
@@ -431,7 +418,7 @@ namespace AutomataCSharp
                         p = p.Next;
                         if (p.Value.Lexema == "{")
                         {
-                            p = Block(p);
+                            //p = Block(p);
                             return p;
                         }
                     }
@@ -445,9 +432,18 @@ namespace AutomataCSharp
             return p;
         }
 
+        private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
+        {
+            //Entrada {
+            
+            return p;
+        }
+
+
         private LinkedListNode<Tokens> Conditional(LinkedListNode<Tokens> p)
         {
             //Entrada ID
+
             p = p.Next;
             if (relsymbol.ContainsKey(p.Value.Valor))
             {
