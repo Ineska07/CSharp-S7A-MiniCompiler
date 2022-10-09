@@ -45,17 +45,15 @@ namespace AutomataCSharp
             this.OpenDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveDialog = new System.Windows.Forms.SaveFileDialog();
             this.dgvToken = new System.Windows.Forms.DataGridView();
-            this.Tipo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Palabra = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Valor = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Linea = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblError = new System.Windows.Forms.Label();
             this.lblNumLineas = new System.Windows.Forms.Label();
             this.dgvSintactico = new System.Windows.Forms.DataGridView();
             this.lblErrorSintaxis = new System.Windows.Forms.Label();
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Tipo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Palabra = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Valor = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Linea = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvToken)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvSintactico)).BeginInit();
             this.SuspendLayout();
@@ -182,36 +180,9 @@ namespace AutomataCSharp
             dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dgvToken.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvToken.RowHeadersVisible = false;
-            this.dgvToken.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.dgvToken.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.dgvToken.Size = new System.Drawing.Size(350, 245);
             this.dgvToken.TabIndex = 4;
-            // 
-            // Tipo
-            // 
-            this.Tipo.Frozen = true;
-            this.Tipo.HeaderText = "Tipo";
-            this.Tipo.Name = "Tipo";
-            this.Tipo.Width = 51;
-            // 
-            // Palabra
-            // 
-            this.Palabra.Frozen = true;
-            this.Palabra.HeaderText = "Palabra";
-            this.Palabra.Name = "Palabra";
-            this.Palabra.Width = 66;
-            // 
-            // Valor
-            // 
-            this.Valor.Frozen = true;
-            this.Valor.HeaderText = "Token";
-            this.Valor.Name = "Valor";
-            this.Valor.Width = 61;
-            // 
-            // Linea
-            // 
-            this.Linea.HeaderText = "Linea";
-            this.Linea.Name = "Linea";
-            this.Linea.Width = 56;
             // 
             // lblError
             // 
@@ -248,7 +219,6 @@ namespace AutomataCSharp
             dataGridViewCellStyle5.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle5.ForeColor = System.Drawing.Color.White;
             this.dgvSintactico.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
-            this.dgvSintactico.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvSintactico.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgvSintactico.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(41)))), ((int)(((byte)(35)))));
             this.dgvSintactico.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -264,10 +234,9 @@ namespace AutomataCSharp
             this.dgvSintactico.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.dgvSintactico.ColumnHeadersHeight = 20;
             this.dgvSintactico.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.dgvSintactico.ColumnHeadersVisible = false;
             this.dgvSintactico.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dataGridViewTextBoxColumn3,
-            this.dataGridViewTextBoxColumn1,
-            this.dataGridViewTextBoxColumn4});
+            this.dataGridViewTextBoxColumn3});
             dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(41)))), ((int)(((byte)(35)))));
             dataGridViewCellStyle7.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -289,7 +258,7 @@ namespace AutomataCSharp
             dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dgvSintactico.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
             this.dgvSintactico.RowHeadersVisible = false;
-            this.dgvSintactico.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.dgvSintactico.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
             this.dgvSintactico.Size = new System.Drawing.Size(350, 245);
             this.dgvSintactico.TabIndex = 8;
             this.dgvSintactico.Visible = false;
@@ -309,23 +278,42 @@ namespace AutomataCSharp
             // 
             // dataGridViewTextBoxColumn3
             // 
-            this.dataGridViewTextBoxColumn3.Frozen = true;
-            this.dataGridViewTextBoxColumn3.HeaderText = "Código";
+            this.dataGridViewTextBoxColumn3.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.dataGridViewTextBoxColumn3.FillWeight = 350F;
+            this.dataGridViewTextBoxColumn3.HeaderText = "Errores Sintácticos y Semanticos";
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            this.dataGridViewTextBoxColumn3.Width = 63;
+            this.dataGridViewTextBoxColumn3.ReadOnly = true;
+            this.dataGridViewTextBoxColumn3.Width = 350;
             // 
-            // dataGridViewTextBoxColumn1
+            // Tipo
             // 
-            this.dataGridViewTextBoxColumn1.Frozen = true;
-            this.dataGridViewTextBoxColumn1.HeaderText = "Descripción";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.Width = 86;
+            this.Tipo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.Tipo.FillWeight = 184.8878F;
+            this.Tipo.HeaderText = "Tipo";
+            this.Tipo.Name = "Tipo";
+            this.Tipo.Width = 90;
             // 
-            // dataGridViewTextBoxColumn4
+            // Palabra
             // 
-            this.dataGridViewTextBoxColumn4.HeaderText = "Linea";
-            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
-            this.dataGridViewTextBoxColumn4.Width = 56;
+            this.Palabra.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Palabra.FillWeight = 12.83943F;
+            this.Palabra.HeaderText = "Palabra";
+            this.Palabra.Name = "Palabra";
+            // 
+            // Valor
+            // 
+            this.Valor.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.Valor.FillWeight = 102.2727F;
+            this.Valor.HeaderText = "Token";
+            this.Valor.Name = "Valor";
+            this.Valor.Width = 70;
+            // 
+            // Linea
+            // 
+            this.Linea.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.Linea.HeaderText = "Linea";
+            this.Linea.Name = "Linea";
+            this.Linea.Width = 50;
             // 
             // frmIDE
             // 
@@ -366,15 +354,13 @@ namespace AutomataCSharp
         private System.Windows.Forms.DataGridView dgvToken;
         private System.Windows.Forms.Label lblError;
         private System.Windows.Forms.Label lblNumLineas;
+        private System.Windows.Forms.DataGridView dgvSintactico;
+        private System.Windows.Forms.Label lblErrorSintaxis;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridViewTextBoxColumn Tipo;
         private System.Windows.Forms.DataGridViewTextBoxColumn Palabra;
         private System.Windows.Forms.DataGridViewTextBoxColumn Valor;
         private System.Windows.Forms.DataGridViewTextBoxColumn Linea;
-        private System.Windows.Forms.DataGridView dgvSintactico;
-        private System.Windows.Forms.Label lblErrorSintaxis;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
     }
 }
 

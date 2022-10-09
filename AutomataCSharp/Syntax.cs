@@ -12,7 +12,7 @@ namespace AutomataCSharp
         #region Inicio
         private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
         public List<string> ErrorS = new List<string>();
-
+        private int currentline = 0;
         private LinkedList<Tokens> tempInfijo = new LinkedList<Tokens>();
 
         private Dictionary<int, string> vartype = new Dictionary<int, string>();
@@ -79,7 +79,7 @@ namespace AutomataCSharp
         {
             foreach (Tokens item in listaTokens) { TokenList.AddLast(item); }
 
-            LinkedListNode<Tokens> head = new LinkedListNode<Tokens>(new Tokens("HEAD", "NODO", 0, 0));
+            LinkedListNode<Tokens> head = new LinkedListNode<Tokens>(new Tokens("HEAD", "NODO", 0, 1));
             TokenList.AddFirst(head);
 
             LinkedListNode<Tokens> p = TokenList.First;
@@ -87,6 +87,7 @@ namespace AutomataCSharp
             hasSyntaxErrors = false;
             while (p != null && p.Next != null)
             {
+                currentline = p.Value.Linea;
                 switch (p.Next.Value.Valor)
                 {
                     case -41:
@@ -159,14 +160,14 @@ namespace AutomataCSharp
             if (errorcode < 700) hasSyntaxErrors = true;
             else semError = true;
 
-            ErrorS.Add(errorcode.ToString() + ": " + errordesc);
+            ErrorS.Add("Linea " + currentline.ToString() + " ERROR " + errorcode.ToString() + ": " + errordesc);
         }
 
         #region Statements
         private LinkedListNode<Tokens> VartypeDeclaration(LinkedListNode<Tokens> p)
         {
             string variabletipo = p.Value.Lexema;
-            int lineaactual = p.Value.Linea;
+            currentline = p.Value.Linea;
             string variablename;
 
             p = p.Next;
@@ -176,7 +177,7 @@ namespace AutomataCSharp
                 p = p.Next;
                 if (p != null && p.Value.Lexema == ";")
                 {
-                    Variable varx = new Variable(variabletipo, variablename, null, lineaactual);
+                    Variable varx = new Variable(variabletipo, variablename, null, currentline);
                     variableList.AddLast(varx);
                 }
                 else if (p != null && p.Value.Lexema == "=")
@@ -194,6 +195,7 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> VarDeclaration(LinkedListNode<Tokens> p)
         {
             //Entrada ID
+            currentline = p.Value.Linea;
             p = p.Next;
             if (p != null && p.Value.Lexema == "++" || p.Value.Lexema == "--")
             {
@@ -218,6 +220,7 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> ConsoleSentence(LinkedListNode<Tokens> p)
         {
             //Entrada Console
+            currentline = p.Value.Linea;
             p = p.Next;
             if (p != null && p.Value.Lexema == ".")
             {
@@ -264,6 +267,7 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Libraries(LinkedListNode<Tokens> p)
         {
             //Entrada: using
+            currentline = p.Value.Linea;
             p = p.Next;
             if (p != null && p.Value.Lexema == "System")
             {
@@ -278,6 +282,7 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Namespace(LinkedListNode<Tokens> p)
         {
             //Entrada namespace
+            currentline = p.Value.Linea;
             p = p.Next;
             if (p != null && p.Value.Valor == -1)
             {
@@ -304,6 +309,7 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Class(LinkedListNode<Tokens> p)
         {
             //entrada class
+            currentline = p.Value.Linea;
             p = p.Next;
             if (p != null && p.Value.Valor == -1)
             {
@@ -327,6 +333,7 @@ namespace AutomataCSharp
         } 
         private LinkedListNode<Tokens> MainMethod(LinkedListNode<Tokens> p)
         {
+            currentline = p.Value.Linea;
             //Entrada static
             p = p.Next;
             if (p != null && p.Value.Lexema == "void")
@@ -379,6 +386,7 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> If(LinkedListNode<Tokens> p)
         {
             //Entrada if
+            currentline = p.Value.Linea;
             p = p.Next;
             if (p != null && p.Value.Lexema == "(")
             {
@@ -414,6 +422,7 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> While(LinkedListNode<Tokens> p)
         {
             //Entrada while
+            currentline = p.Value.Linea;
             p = p.Next;
             if (p != null && p.Value.Lexema == "(")
             {
