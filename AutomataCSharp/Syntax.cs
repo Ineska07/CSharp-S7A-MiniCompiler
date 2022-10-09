@@ -201,7 +201,7 @@ namespace AutomataCSharp
                 if (p != null && p.Value.Lexema == ";")
                 {
                     return p;
-                }
+                } else AddError(603, ";");
             }
             else if (p != null && p.Value.Lexema == "=")
             {
@@ -211,6 +211,7 @@ namespace AutomataCSharp
                     p = Assignment(p); //regresa en ;
                 }
             }
+            else AddError(602, string.Empty);
             return p;
         }
 
@@ -288,10 +289,7 @@ namespace AutomataCSharp
                     {
                         p = Class(p); //retorna con } de clase
                         p = p.Next;
-                        if (p != null && p.Value.Lexema == "}")
-                        {
-                            return p;
-                        }
+                        if (p != null && p.Value.Lexema == "}")  return p; 
                         else AddError(603, "}");
                     }
                     else if (p != null && p.Value.Lexema == "}") return p;
