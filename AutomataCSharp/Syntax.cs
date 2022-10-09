@@ -13,6 +13,8 @@ namespace AutomataCSharp
         private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
         public List<string> ErrorS = new List<string>();
 
+        private LinkedList<Tokens> tempInfijo = new LinkedList<Tokens>();
+
         private Dictionary<int, string> vartype = new Dictionary<int, string>();
         private Dictionary<int, string> accesstype = new Dictionary<int, string>();
         private Dictionary<int, string> arisymbol = new Dictionary<int, string>();
@@ -26,7 +28,6 @@ namespace AutomataCSharp
         private bool hasSyntaxErrors = false;
 
         private LinkedList<Variable> variableList = new LinkedList<Variable>();
-        #endregion
 
         public Syntax()
         {
@@ -72,6 +73,7 @@ namespace AutomataCSharp
             boolval.Add(-90, "true");
             boolval.Add(-91, "false");
         }
+        #endregion
 
         public void AnalizadorSintactico()
         {
@@ -99,7 +101,7 @@ namespace AutomataCSharp
                         p = p.Next;
                         p = Libraries(p); 
                         break;
-                    case -45:
+                    case -51:
                         p = p.Next;
                         p = MainMethod(p);
                         break;
@@ -116,9 +118,6 @@ namespace AutomataCSharp
                             {
                                 case "Console":
                                     p = ConsoleSentence(p);
-                                    break;
-                                case "static":
-                                    p = MainMethod(p);
                                     break;
                                 default:
                                     p = VarDeclaration(p);
@@ -171,42 +170,46 @@ namespace AutomataCSharp
             string variablename;
 
             p = p.Next;
-            if(p.Value.Valor == -1)
+            if(p != null && p.Value.Valor == -1)
             {
                 variablename = p.Value.Lexema; 
                 p = p.Next;
-                if (p.Value.Lexema == ";")
+                if (p != null && p.Value.Lexema == ";")
                 {
                     Variable varx = new Variable(variabletipo, variablename, null, lineaactual);
+                    variableList.AddLast(varx);
                 }
-                else if (p.Value.Lexema == "=")
+                else if (p != null && p.Value.Lexema == "=")
                 {
-                    p = Assignment(p);
+                    p = p.Next;
+                    if (p != null && valuetypes.ContainsKey(p.Value.Valor))
+                    {
+                        p = Assignment(p); //regresa en ;
+                    }
                 }
             }
-
             return p;
         }
 
         private LinkedListNode<Tokens> VarDeclaration(LinkedListNode<Tokens> p)
         {
-            bool variableexists;
-            int linea = p.Value.Linea;
-
             //Entrada ID
-            //Checar si existe la variable
             p = p.Next;
-            if (p.Value.Lexema == "++" || p.Value.Lexema == "--")
+            if (p != null && p.Value.Lexema == "++" || p.Value.Lexema == "--")
             {
                 p = p.Next;
-                if (p.Value.Lexema == ";")
+                if (p != null && p.Value.Lexema == ";")
                 {
                     return p;
                 }
             }
-            else if (p.Value.Lexema == "=")
+            else if (p != null && p.Value.Lexema == "=")
             {
-                p = Assignment(p);
+                p = p.Next;
+                if (p != null && valuetypes.ContainsKey(p.Value.Valor))
+                {
+                    p = Assignment(p); //regresa en ;
+                }
             }
             return p;
         }
@@ -215,19 +218,19 @@ namespace AutomataCSharp
         {
             //Entrada Console
             p = p.Next;
-            if (p.Value.Lexema == ".")
+            if (p != null && p.Value.Lexema == ".")
             {
-                if (p.Value.Lexema == "WriteLine")
+                if (p != null && p.Value.Lexema == "WriteLine")
                 {
                     p = p.Next;
-                    if (p.Value.Lexema == "(")
+                    if (p != null && p.Value.Lexema == "(")
                     {
                         p = PrintAssignment(p);
 
-                        if (p.Value.Lexema == ")")
+                        if (p != null && p.Value.Lexema == ")")
                         {
                             p = p.Next;
-                            if (p.Value.Lexema == ";")
+                            if (p != null && p.Value.Lexema == ";")
                             {
                                 return p;
                             }
@@ -269,7 +272,7 @@ namespace AutomataCSharp
             }
             else AddError(601, string.Empty);
             return p;
-        }
+        } //DONE
 
         private LinkedListNode<Tokens> Namespace(LinkedListNode<Tokens> p)
         {
@@ -298,7 +301,7 @@ namespace AutomataCSharp
             }
             else AddError(601, string.Empty);
             return p;
-        }
+        } //DONE
 
         private LinkedListNode<Tokens> Class(LinkedListNode<Tokens> p)
         {
@@ -323,7 +326,7 @@ namespace AutomataCSharp
             }
             else AddError(601, string.Empty);
             return p;
-        }
+        } //DONE
         private LinkedListNode<Tokens> MainMethod(LinkedListNode<Tokens> p)
         {
             //Entrada static
@@ -371,7 +374,7 @@ namespace AutomataCSharp
                 } else AddError(601, string.Empty);
             } else AddError(603, "tipo de retorno");
             return p;
-        }
+        } //DONE
 
         #endregion
 
@@ -389,6 +392,21 @@ namespace AutomataCSharp
                         if (p != null && p.Value.Lexema == "{")
                         {
                             p = Block(p); //retorna con }
+
+                            p = p.Next;
+                            if (p.Value.Lexema == "else")
+                            {
+                                p = p.Next;
+                                if (p != null && p.Value.Lexema == "if")
+                                {
+                                    p = If(p);
+                                }
+                                else if (p != null && p.Value.Lexema == "{")
+                                {
+                                    p = Block(p);
+                                }
+                            }
+                            else return p;
                         }
                     }
                 }
@@ -435,9 +453,10 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> PrintAssignment(LinkedListNode<Tokens> p)
         {
             //Entrada (
+
             return p;
         }
-
+        
         private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
         {
             //Entrada {
@@ -465,7 +484,17 @@ namespace AutomataCSharp
                             break;
                     }
                 }
-                if (p.Next.Value.Lexema == "}") break;
+                else if (p != null && p.Next.Value.Lexema == "while")
+                {
+                    p = p.Next;
+                    p = While(p);
+                }
+                else if (p != null && p.Next.Value.Lexema == "if")
+                {
+                    p = p.Next;
+                    p = If(p);
+                }
+                else if (p.Next.Value.Lexema == "}") break;
                 else AddError(600, string.Empty);
             }
             return p;
@@ -501,6 +530,32 @@ namespace AutomataCSharp
             return p;
         }
 
+        private LinkedListNode<Tokens> Assignment(LinkedListNode<Tokens> p)
+        {
+            //Entrada ID
+            p = p.Next; //= id
+            if (arisymbol.ContainsKey(p.Value.Valor))
+            {
+                tempInfijo.AddLast(p.Value);
+                p = p.Next; // id + id
+                if (p != null && p.Value.Valor == -1)
+                {
+                    tempInfijo.AddLast(p.Value);
+                    p = p.Next; // id + id +
+                    if (p != null && arisymbol.ContainsKey(p.Value.Valor))
+                    {
+                        tempInfijo.AddLast(p.Value);
+                        p = p.Next;
+                        Assignment(p);
+                    }
+                    else if (p != null && p.Value.Lexema == ";")
+                    {
+                        return p;
+                    }
+                }
+            }
+            return p;
+        }
 
         #region SEMANTICA
         /// EVALUACIONES - SEMANTICA-----------------------------------------------------
@@ -582,29 +637,7 @@ namespace AutomataCSharp
 
             return false;
         }
-
-        private LinkedListNode<Tokens> Assignment(LinkedListNode<Tokens> p)
-        {
-            //Entrada =
-            string[] infijo;
-            int i = 0;
-
-            p = p.Next;
-            if (valuetypes.ContainsKey(p.Value.Valor))
-            {
-                if (valuetypes.ContainsKey(p.Value.Valor))
-                {
-
-                }
-                else if (valuetypes.ContainsKey(p.Value.Valor))
-                {
-
-                }
-            }
-                //Conversion a posfijo
-
-                return p;
-        }
+       
         #endregion
     }
 }

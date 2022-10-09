@@ -124,6 +124,7 @@ namespace AutomataCSharp
                     case -41: item = Class(item); break;
                     case -44: item = Namespace(item); break;
                     case -86: item = Libraries(item); break;
+                    case -51: item = Libraries(item); break;
                     default:
                         if (vartype.ContainsKey(item.Valor) || item.Valor == -1)
                         {
