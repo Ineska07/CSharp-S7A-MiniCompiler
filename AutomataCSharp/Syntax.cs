@@ -511,7 +511,7 @@ namespace AutomataCSharp
                 relacion = p.Value;
 
                 p = p.Next; // == id
-                if (p != null && p.Value.Valor == -1 || p.Value.Valor == -2 || p.Value.Valor == -3 || p.Value.Valor == -4)
+                if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
                     var2 = p.Value;
                     EvaluarCondicion(var1, relacion, var2);
