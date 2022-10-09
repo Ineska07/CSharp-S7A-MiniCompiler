@@ -148,19 +148,20 @@ namespace AutomataCSharp
         {
             lblErrorSintaxis.Visible = true;
 
-            if (syn.syntaxError.Count == 0)
+            if (syn.ErrorS.Count == 0)
             {
                 lblErrorSintaxis.Text = "Felicidades! No hay errores de sintaxis :)";
             }
             else
             {
-                lblErrorSintaxis.Text = "Errores de Sintaxis: " + syn.syntaxError.Count.ToString();
+                lblErrorSintaxis.Text = "Errores de Sintaxis: " + syn.ErrorS.Count.ToString();
                 dgvSintactico.Visible = true;
 
-                foreach (Error synE in syn.syntaxError)
+                foreach (string error in syn.ErrorS)
                 {
-                    dgvSintactico.Rows.Add(synE.Codigo, synE.Descripcion, synE.Linea);
+                    dgvSintactico.Rows.Add(error);
                 }
+                MessageBox.Show("Hay uno o más errores. No se ha podido ejecutar el código");
             }
         }
     }
