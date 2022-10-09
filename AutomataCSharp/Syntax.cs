@@ -301,7 +301,7 @@ namespace AutomataCSharp
             }
             else AddError(601, string.Empty);
             return p;
-        } //DONE
+        } 
 
         private LinkedListNode<Tokens> Class(LinkedListNode<Tokens> p)
         {
@@ -326,7 +326,7 @@ namespace AutomataCSharp
             }
             else AddError(601, string.Empty);
             return p;
-        } //DONE
+        } 
         private LinkedListNode<Tokens> MainMethod(LinkedListNode<Tokens> p)
         {
             //Entrada static
@@ -374,7 +374,7 @@ namespace AutomataCSharp
                 } else AddError(601, string.Empty);
             } else AddError(603, "tipo de retorno");
             return p;
-        } //DONE
+        } 
 
         #endregion
 
@@ -538,7 +538,7 @@ namespace AutomataCSharp
             {
                 tempInfijo.AddLast(p.Value);
                 p = p.Next; // id + id
-                if (p != null && p.Value.Valor == -1)
+                if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
                     tempInfijo.AddLast(p.Value);
                     p = p.Next; // id + id +
