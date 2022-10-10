@@ -84,7 +84,6 @@ namespace AutomataCSharp
 
             LinkedListNode<Tokens> p = TokenList.First;
 
-            //Añadidos checks para que se detenga si hay errores y no haga loop infinito
             while (p != null && p.Next != null && !hasSyntaxErrors && !semError)
             {
                 currentline = p.Value.Linea;
@@ -170,7 +169,6 @@ namespace AutomataCSharp
             currentline = p.Value.Linea;
             string variablename;
 
-            //p = p.Next; De acuerdo a  la lógica actual del codigo, este coso es mas dañino que chernobyl
             if(p != null && p.Value.Valor == -1)
             {
                 variablename = p.Value.Lexema; 
@@ -225,12 +223,13 @@ namespace AutomataCSharp
             p = p.Next;
             if (p != null && p.Value.Lexema == ".")
             {
+                p = p.Next;
                 if (p != null && p.Value.Lexema == "WriteLine")
                 {
                     p = p.Next;
                     if (p != null && p.Value.Lexema == "(")
                     {
-                        p = PrintAssignment(p);
+                        p = PrintAssignment(p); //Regresa en )
 
                         if (p != null && p.Value.Lexema == ")")
                         {
@@ -242,16 +241,16 @@ namespace AutomataCSharp
                         }
                     }
                 }
-                else if (p.Value.Lexema == "ReadLine")
+                else if (p != null && p.Value.Lexema == "ReadLine")
                 {
                     p = p.Next;
-                    if (p.Value.Lexema == "(")
+                    if (p != null && p.Value.Lexema == "(")
                     {
                         p = p.Next;
-                        if (p.Value.Lexema == ")")
+                        if (p != null && p.Value.Lexema == ")")
                         {
                             p = p.Next;
-                            if (p.Value.Lexema == ";")
+                            if (p != null && p.Value.Lexema == ";")
                             {
                                 return p;
                             }
@@ -391,16 +390,17 @@ namespace AutomataCSharp
             p = p.Next;
             if (p != null && p.Value.Lexema == "(")
             {
+                p = p.Next;
                 if (p != null && p.Value.Valor == -1)
                 {
                     p = Conditional(p);
                     if (p != null && p.Value.Lexema == ")")
                     {
+                        p = p.Next;
                         if (p != null && p.Value.Lexema == "{")
                         {
                             p = Block(p); //retorna con }
 
-                            p = p.Next;
                             if (p.Value.Lexema == "else")
                             {
                                 p = p.Next;
@@ -431,7 +431,6 @@ namespace AutomataCSharp
                 if (p != null && p.Value.Valor == -1)
                 {
                     p = Conditional(p);
-                    p = p.Next;
                     if (p != null && p.Value.Lexema == ")")
                     {
                         p = p.Next;
@@ -461,6 +460,16 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> PrintAssignment(LinkedListNode<Tokens> p)
         {
             //Entrada (
+            p = p.Next;
+            while(p != null && p.Value.Lexema != ")")
+            {
+                if(p != null && valuetypes.ContainsKey(p.Value.Valor))
+                {
+                    p = p.Next;
+                    if (p != null && p.Value.Lexema == "+") { p = p.Next;  continue; }
+                    else if (p != null && p.Value.Lexema == ")") break;
+                }
+            }
 
             return p;
         }
@@ -468,8 +477,6 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
         {
             //Entrada {
-            //p = p.Next; Esta cosa hace mas daño que escuchar a la Nerissa
-            //Añadido check para evitar loops infinitos si hay errores
             while(p != null && p.Value.Lexema != "}" && !hasSyntaxErrors && !semError)
             {
                 if (vartype.ContainsKey(p.Value.Valor))
@@ -525,15 +532,16 @@ namespace AutomataCSharp
                 if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
                     var2 = p.Value;
-                    EvaluarCondicion(var1, relacion, var2);
+                    //EvaluarCondicion(var1, relacion, var2); Pa después ._.XD
 
                     p = p.Next; // == id &&
                     if (logicsymbol.ContainsKey(p.Value.Valor))
                     {
                         p = p.Next; // == id && id
-                        p = Conditional(p);
-                        if (p != null && p.Value.Lexema == ")") return p;
+                        if (p != null && valuetypes.ContainsKey(p.Value.Valor)) p = Conditional(p);
+                        
                     }
+                    else if (p != null && p.Value.Lexema == ")") return p;
                 }
             }
             return p;
@@ -543,19 +551,16 @@ namespace AutomataCSharp
         {
             //Entrada ID
             p = p.Next; //= id
-            if (arisymbol.ContainsKey(p.Value.Valor))
+            if (p != null && arisymbol.ContainsKey(p.Value.Valor))
             {
-                tempInfijo.AddLast(p.Value);
                 p = p.Next; // id + id
                 if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
-                    tempInfijo.AddLast(p.Value);
                     p = p.Next; // id + id +
                     if (p != null && arisymbol.ContainsKey(p.Value.Valor))
                     {
-                        tempInfijo.AddLast(p.Value);
                         p = p.Next;
-                        Assignment(p);
+                        if (p != null && valuetypes.ContainsKey(p.Value.Valor)) p = Assignment(p);
                     }
                     else if (p != null && p.Value.Lexema == ";")
                     {
@@ -563,6 +568,7 @@ namespace AutomataCSharp
                     }
                 }
             }
+            else if (p != null && p.Value.Lexema == ";") return p;
             return p;
         }
 
