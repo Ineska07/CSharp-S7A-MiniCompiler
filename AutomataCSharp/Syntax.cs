@@ -84,8 +84,8 @@ namespace AutomataCSharp
 
             LinkedListNode<Tokens> p = TokenList.First;
 
-            hasSyntaxErrors = false;
-            while (p != null && p.Next != null)
+            //Añadidos checks para que se detenga si hay errores y no haga loop infinito
+            while (p != null && p.Next != null && !hasSyntaxErrors && !semError)
             {
                 currentline = p.Value.Linea;
                 switch (p.Next.Value.Valor)
@@ -170,7 +170,7 @@ namespace AutomataCSharp
             currentline = p.Value.Linea;
             string variablename;
 
-            p = p.Next;
+            //p = p.Next; De acuerdo a  la lógica actual del codigo, este coso es mas dañino que chernobyl
             if(p != null && p.Value.Valor == -1)
             {
                 variablename = p.Value.Lexema; 
@@ -186,6 +186,7 @@ namespace AutomataCSharp
                     if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                     {
                         p = Assignment(p); //regresa en ;
+                        p = p.Next;
                     }
                 }
             }
@@ -287,14 +288,14 @@ namespace AutomataCSharp
             if (p != null && p.Value.Valor == -1)
             {
                 p = p.Next;
-                if (p != null && p.Value.Lexema == "{") 
+                if (p != null && p.Value.Lexema == "{")
                 {
                     p = p.Next;
                     if (p != null && p.Value.Lexema == "class")
                     {
                         p = Class(p); //retorna con } de clase
                         p = p.Next;
-                        if (p != null && p.Value.Lexema == "}")  return p; 
+                        if (p != null && p.Value.Lexema == "}")  return p;
                         else AddError(603, "}");
                     }
                     else if (p != null && p.Value.Lexema == "}") return p;
@@ -467,10 +468,11 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
         {
             //Entrada {
-            p = p.Next;
-            while(p != null && p.Value.Lexema != "}")
+            //p = p.Next; Esta cosa hace mas daño que escuchar a la Nerissa
+            //Añadido check para evitar loops infinitos si hay errores
+            while(p != null && p.Value.Lexema != "}" && !hasSyntaxErrors && !semError)
             {
-                if (vartype.ContainsKey(p.Next.Value.Valor))
+                if (vartype.ContainsKey(p.Value.Valor))
                 {
                     p = p.Next;
                     p = VartypeDeclaration(p);
