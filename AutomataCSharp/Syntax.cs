@@ -592,13 +592,13 @@ namespace AutomataCSharp
                     }
                     else if (p != null && p.Value.Lexema == ";")
                     {
-                        return p;
+                        return p.Next;
                     }
                     else AddError(603, ";");
                 }
                 else AddError(603, "Valor");
             }
-            else if (p != null && p.Value.Lexema == ";") return p;
+            else if (p != null && p.Value.Lexema == ";") return p.Next;
             else AddError(603, ";");
             return p;
         }
