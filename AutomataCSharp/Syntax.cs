@@ -184,9 +184,10 @@ namespace AutomataCSharp
                     if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                     {
                         p = Assignment(p); //regresa en ;
-                        p = p.Next;
                     }
+                    else AddError(602, string.Empty);
                 }
+                else AddError(603, "= o asignación");
             }
             return p;
         }
@@ -211,8 +212,9 @@ namespace AutomataCSharp
                 {
                     p = Assignment(p); //regresa en ;
                 }
+                else AddError(602, string.Empty);
             }
-            else AddError(602, string.Empty);
+            else AddError(600, string.Empty);
             return p;
         }
 
@@ -238,8 +240,11 @@ namespace AutomataCSharp
                             {
                                 return p;
                             }
+                            else AddError(603, ";");
                         }
+                        else AddError(603, ")");
                     }
+                    else AddError(603, "(");
                 }
                 else if (p != null && p.Value.Lexema == "ReadLine")
                 {
@@ -254,10 +259,15 @@ namespace AutomataCSharp
                             {
                                 return p;
                             }
+                            else AddError(603, ";");
                         }
+                        else AddError(603, ")");
                     }
+                    else AddError(603, "(");
                 }
+                else AddError(600, string.Empty);
             }
+            else AddError(600, string.Empty);
 
             return p;
         }
@@ -412,12 +422,17 @@ namespace AutomataCSharp
                                 {
                                     p = Block(p);
                                 }
+                                else AddError(603, "{");
                             }
                             else return p;
                         }
+                        else AddError(603, "{");
                     }
+                    else AddError(603, ")");
                 }
+                else AddError(601, string.Empty);
             }
+            else AddError(603, "(");
             return p;
         }
         private LinkedListNode<Tokens> While(LinkedListNode<Tokens> p)
@@ -439,7 +454,9 @@ namespace AutomataCSharp
                             p = Block(p);
                             return p;
                         }
+                        else AddError(603, "{");
                     }
+                    else AddError(603, ")");
                 }
                 else if (p != null && boolval.ContainsKey(p.Value.Valor))
                 {
@@ -452,9 +469,13 @@ namespace AutomataCSharp
                             p = Block(p);
                             return p;
                         }
+                        else AddError(603, "{");
                     }
+                    else AddError(603, ")");
                 }
+                else AddError(601, string.Empty);
             }
+            else AddError(603, "(");
             return p;
         }
         private LinkedListNode<Tokens> PrintAssignment(LinkedListNode<Tokens> p)
@@ -468,7 +489,9 @@ namespace AutomataCSharp
                     p = p.Next;
                     if (p != null && p.Value.Lexema == "+") { p = p.Next;  continue; }
                     else if (p != null && p.Value.Lexema == ")") break;
+                    else AddError(603, "+ o cierre");
                 }
+                else AddError(601, string.Empty);
             }
 
             return p;
@@ -479,6 +502,7 @@ namespace AutomataCSharp
             //Entrada {
             while(p != null && p.Value.Lexema != "}" && !hasSyntaxErrors && !semError)
             {
+                currentline = p.Value.Linea;
                 if (vartype.ContainsKey(p.Value.Valor))
                 {
                     p = p.Next;
@@ -532,17 +556,20 @@ namespace AutomataCSharp
                 if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
                     var2 = p.Value;
-                    //EvaluarCondicion(var1, relacion, var2); Pa después ._.XD
+                    EvaluarCondicion(var1, relacion, var2);
 
                     p = p.Next; // == id &&
                     if (logicsymbol.ContainsKey(p.Value.Valor))
                     {
                         p = p.Next; // == id && id
                         if (p != null && valuetypes.ContainsKey(p.Value.Valor)) p = Conditional(p);
-                        
+                        else AddError(603, "relación");
+
                     }
                     else if (p != null && p.Value.Lexema == ")") return p;
+                    else AddError(603, ")");
                 }
+                else AddError(603, "Valor");
             }
             return p;
         }
@@ -561,14 +588,18 @@ namespace AutomataCSharp
                     {
                         p = p.Next;
                         if (p != null && valuetypes.ContainsKey(p.Value.Valor)) p = Assignment(p);
+                        else AddError(601, string.Empty);
                     }
                     else if (p != null && p.Value.Lexema == ";")
                     {
                         return p;
                     }
+                    else AddError(603, ";");
                 }
+                else AddError(603, "Valor");
             }
             else if (p != null && p.Value.Lexema == ";") return p;
+            else AddError(603, ";");
             return p;
         }
 
