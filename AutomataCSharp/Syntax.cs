@@ -166,11 +166,12 @@ namespace AutomataCSharp
         #region Statements
         private LinkedListNode<Tokens> VartypeDeclaration(LinkedListNode<Tokens> p)
         {
+            //entrada int / double / string
             string variabletipo = p.Value.Lexema;
             currentline = p.Value.Linea;
             string variablename;
 
-            if(p != null && p.Value.Valor == -1)
+            if (p != null && p.Value.Valor == -1)
             {
                 variablename = p.Value.Lexema; 
                 p = p.Next;
@@ -178,7 +179,7 @@ namespace AutomataCSharp
                 {
                     Variable varx = new Variable(variabletipo, variablename, null, currentline);
                     variableList.AddLast(varx);
-                    return p.Next;
+                    return p;
                 }
                 else if (p != null && p.Value.Lexema == "=")
                 {
@@ -500,44 +501,43 @@ namespace AutomataCSharp
 
             return p;
         }
-        
+
         private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
         {
             //Entrada {
-            while(p != null && p.Value.Lexema != "}" && !hasSyntaxErrors && !semError)
-            {
-                currentline = p.Value.Linea;
-                if (p != null && vartype.ContainsKey(p.Value.Valor))
+            while (p.Next != null && p.Next.Value.Lexema != "}" && !hasSyntaxErrors && !semError)
                 {
-                    p = p.Next;
-                    p = VartypeDeclaration(p);
-                }
-                else if (p != null && p.Value.Valor == -1)
-                {
-                    switch (p.Value.Lexema)
+                    currentline = p.Value.Linea;
+                    if (vartype.ContainsKey(p.Value.Valor))
                     {
-                        case "Console":
-                            p = ConsoleSentence(p);
-                            break;
-                        case "static":
-                            p = MainMethod(p);
-                            break;
-                        default:
-                            p = VarDeclaration(p);
-                            break;
+                        p = VartypeDeclaration(p);
                     }
+                    else if (p.Value.Valor == -1)
+                    {
+                        switch (p.Value.Lexema)
+                        {
+                            case "Console":
+                                p = ConsoleSentence(p);
+                                break;
+                            case "static":
+                                p = MainMethod(p);
+                                break;
+                            default:
+                                p = VarDeclaration(p);
+                                break;
+                        }
+                    }
+                    else if (p != null && p.Value.Lexema == "while")
+                    {
+                        p = While(p);
+                    }
+                    else if (p != null && p.Value.Lexema == "if")
+                    {
+                        p = If(p);
+                    }
+                    else if (p.Value.Lexema == "}") break;
+                    else AddError(600, string.Empty);
                 }
-                else if (p!= null && p.Value.Lexema == "while")
-                {
-                    p = While(p);
-                }
-                else if (p != null && p.Value.Lexema == "if")
-                {
-                    p = If(p);
-                }
-                else if (p != null && p.Value.Lexema == "}") break;
-                else AddError(600, string.Empty);
-            }
             return p;
         }
 
@@ -664,6 +664,15 @@ namespace AutomataCSharp
             return null;
         }
        
+        public void InfixPosfix(Tokens[] infix)
+        {
+
+        }
+
+        public void EvaluarPosfijo(object[] posfix)
+        {
+
+        }
         #endregion
     }
 }
