@@ -177,6 +177,7 @@ namespace AutomataCSharp
                 {
                     Variable varx = new Variable(variabletipo, variablename, null, currentline);
                     variableList.AddLast(varx);
+                    return p.Next;
                 }
                 else if (p != null && p.Value.Lexema == "=")
                 {
@@ -238,7 +239,7 @@ namespace AutomataCSharp
                             p = p.Next;
                             if (p != null && p.Value.Lexema == ";")
                             {
-                                return p;
+                                return p.Next;
                             }
                             else AddError(603, ";");
                         }
@@ -257,7 +258,7 @@ namespace AutomataCSharp
                             p = p.Next;
                             if (p != null && p.Value.Lexema == ";")
                             {
-                                return p;
+                                return p.Next;
                             }
                             else AddError(603, ";");
                         }
@@ -510,9 +511,8 @@ namespace AutomataCSharp
                     p = p.Next;
                     p = VartypeDeclaration(p);
                 }
-                else if (p.Next != null && p.Next.Value.Valor == -1)
+                else if (p != null && p.Value.Valor == -1)
                 {
-                    p = p.Next;
                     switch (p.Value.Lexema)
                     {
                         case "Console":
@@ -526,17 +526,15 @@ namespace AutomataCSharp
                             break;
                     }
                 }
-                else if (p.Next != null && p.Next.Value.Lexema == "while")
+                else if (p!= null && p.Value.Lexema == "while")
                 {
-                    p = p.Next;
                     p = While(p);
                 }
-                else if (p.Next != null && p.Next.Value.Lexema == "if")
+                else if (p != null && p.Value.Lexema == "if")
                 {
-                    p = p.Next;
                     p = If(p);
                 }
-                else if (p.Next != null && p.Next.Value.Lexema == "}") break;
+                else if (p != null && p.Value.Lexema == "}") break;
                 else AddError(600, string.Empty);
             }
             return p;
@@ -594,7 +592,7 @@ namespace AutomataCSharp
                     }
                     else if (p != null && p.Value.Lexema == ";")
                     {
-                        return p.Next;
+                        return p;
                     }
                     else AddError(603, ";");
                 }
