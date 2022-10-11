@@ -426,7 +426,7 @@ namespace AutomataCSharp
                                     else if (p != null && p.Value.Lexema == "{")
                                     {
                                         p = Block(p);
-                                        if (p.Value.Lexema == "}") return p;
+                                        if (p != null && p.Value.Lexema == "}") return p;
                                         else AddError(603, "}");
                                     }
                                     else AddError(603, "{");
@@ -460,7 +460,7 @@ namespace AutomataCSharp
                         if (p != null && p.Value.Lexema == "{")
                         {
                             p = Block(p);
-                            if (p.Value.Lexema == "}") return p;
+                            if (p != null && p.Value.Lexema == "}") return p;
                             else AddError(603, "}");
                         }
                         else AddError(603, "{");
