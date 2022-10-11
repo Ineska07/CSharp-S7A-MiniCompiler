@@ -377,7 +377,6 @@ namespace AutomataCSharp
                                                 else
                                                 {
                                                     p = Block(p);
-                                                    if (p != null && p.Value.Lexema == "}") return p;
                                                 }
                                             } else AddError(603, "{");
                                         } else AddError(603, ")");
@@ -401,7 +400,7 @@ namespace AutomataCSharp
             if (p != null && p.Value.Lexema == "(")
             {
                 p = p.Next;
-                if (p != null && p.Value.Valor == -1)
+                if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
                     p = Conditional(p);
                     if (p != null && p.Value.Lexema == ")")
@@ -410,21 +409,24 @@ namespace AutomataCSharp
                         if (p != null && p.Value.Lexema == "{")
                         {
                             p = Block(p); //retorna con }
-
-                            if (p.Value.Lexema == "else")
+                            if(p != null && p.Value.Lexema == "}")
                             {
                                 p = p.Next;
-                                if (p != null && p.Value.Lexema == "if")
+                                if (p.Value.Lexema == "else")
                                 {
-                                    p = If(p);
-                                }
-                                else if (p != null && p.Value.Lexema == "{")
-                                {
-                                    p = Block(p);
-                                }
-                                else AddError(603, "{");
+                                    p = p.Next;
+                                    if (p != null && p.Value.Lexema == "if")
+                                    {
+                                        p = If(p);
+                                    }
+                                    else if (p != null && p.Value.Lexema == "{")
+                                    {
+                                        p = Block(p);
+                                    }
+                                    else AddError(603, "{");
+                                } return p;
                             }
-                            else return p;
+                            else AddError(603, "}");
                         }
                         else AddError(603, "{");
                     }
@@ -443,7 +445,7 @@ namespace AutomataCSharp
             if (p != null && p.Value.Lexema == "(")
             {
                 p = p.Next;
-                if (p != null && p.Value.Valor == -1)
+                if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
                     p = Conditional(p);
                     if (p != null && p.Value.Lexema == ")")
@@ -503,12 +505,12 @@ namespace AutomataCSharp
             while(p != null && p.Value.Lexema != "}" && !hasSyntaxErrors && !semError)
             {
                 currentline = p.Value.Linea;
-                if (vartype.ContainsKey(p.Value.Valor))
+                if (p != null && vartype.ContainsKey(p.Value.Valor))
                 {
                     p = p.Next;
                     p = VartypeDeclaration(p);
                 }
-                else if (p.Next.Value.Valor == -1)
+                else if (p.Next != null && p.Next.Value.Valor == -1)
                 {
                     p = p.Next;
                     switch (p.Value.Lexema)
@@ -524,17 +526,17 @@ namespace AutomataCSharp
                             break;
                     }
                 }
-                else if (p != null && p.Next.Value.Lexema == "while")
+                else if (p.Next != null && p.Next.Value.Lexema == "while")
                 {
                     p = p.Next;
                     p = While(p);
                 }
-                else if (p != null && p.Next.Value.Lexema == "if")
+                else if (p.Next != null && p.Next.Value.Lexema == "if")
                 {
                     p = p.Next;
                     p = If(p);
                 }
-                else if (p.Next.Value.Lexema == "}") break;
+                else if (p.Next != null && p.Next.Value.Lexema == "}") break;
                 else AddError(600, string.Empty);
             }
             return p;
