@@ -614,21 +614,13 @@ namespace AutomataCSharp
 
             if (relacion.Lexema == "<" || relacion.Lexema == ">" || relacion.Lexema == "<=" || relacion.Lexema == ">=")
             {
-                if (var1type == "string" || var2type == "string")
-                {
-                    AddError(703, string.Empty);
-                    return;
-                }
+                if (var1type == "string" || var2type == "string") { AddError(703, string.Empty); return; }
             }
             else // == !=
             {
                 if (var1type != var2type)
                 {
-                    if (var1type == "string" || var2type == "string")
-                    {
-                        AddError(703, string.Empty);
-                        return;
-                    }
+                    if (var1type == "string" || var2type == "string") { AddError(703, string.Empty); return; }
                 }
             }
         }
