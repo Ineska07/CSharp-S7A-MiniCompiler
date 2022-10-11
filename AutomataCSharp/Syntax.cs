@@ -84,7 +84,7 @@ namespace AutomataCSharp
 
             LinkedListNode<Tokens> p = TokenList.First;
 
-            while (p != null && p.Next != null && !hasSyntaxErrors && !semError)
+            while (p != null && p.Next != null && !hasSyntaxErrors)
             {
                 currentline = p.Value.Linea;
                 switch (p.Next.Value.Valor)
@@ -171,6 +171,7 @@ namespace AutomataCSharp
             currentline = p.Value.Linea;
             string variablename;
 
+            p = p.Next;
             if (p != null && p.Value.Valor == -1)
             {
                 variablename = p.Value.Lexema; 
@@ -241,7 +242,7 @@ namespace AutomataCSharp
                             p = p.Next;
                             if (p != null && p.Value.Lexema == ";")
                             {
-                                return p.Next;
+                                return p;
                             }
                             else AddError(603, ";");
                         }
@@ -260,7 +261,7 @@ namespace AutomataCSharp
                             p = p.Next;
                             if (p != null && p.Value.Lexema == ";")
                             {
-                                return p.Next;
+                                return p;
                             }
                             else AddError(603, ";");
                         }
@@ -336,6 +337,7 @@ namespace AutomataCSharp
                         p = p.Next;
                         if (p != null && p.Value.Lexema == "}") return p;
                         else AddError(603, "}");
+
                     } else if (p != null && p.Value.Lexema == "}") return p;
                     else AddError(603, "}");
                 }
@@ -375,12 +377,10 @@ namespace AutomataCSharp
                                             p = p.Next;
                                             if (p != null && p.Value.Lexema == "{")
                                             {
-                                                p = p.Next;
+                                                p = Block(p); //Retorna con }
                                                 if (p != null && p.Value.Lexema == "}") return p;
-                                                else
-                                                {
-                                                    p = Block(p);
-                                                }
+                                                else AddError(603, "}");
+
                                             } else AddError(603, "{");
                                         } else AddError(603, ")");
                                     } else AddError(601, string.Empty);
@@ -390,6 +390,7 @@ namespace AutomataCSharp
                     } else AddError(603, "(");
                 } else AddError(601, string.Empty);
             } else AddError(603, "tipo de retorno");
+
             return p;
         } 
 
@@ -425,9 +426,11 @@ namespace AutomataCSharp
                                     else if (p != null && p.Value.Lexema == "{")
                                     {
                                         p = Block(p);
+                                        if (p.Value.Lexema == "}") return p;
+                                        else AddError(603, "}");
                                     }
                                     else AddError(603, "{");
-                                } return p;
+                                } else return p;
                             }
                             else AddError(603, "}");
                         }
@@ -457,7 +460,8 @@ namespace AutomataCSharp
                         if (p != null && p.Value.Lexema == "{")
                         {
                             p = Block(p);
-                            return p;
+                            if (p.Value.Lexema == "}") return p;
+                            else AddError(603, "}");
                         }
                         else AddError(603, "{");
                     }
@@ -505,9 +509,10 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
         {
             //Entrada {
-            while (p.Next != null && p.Next.Value.Lexema != "}" && !hasSyntaxErrors && !semError)
+            while (p.Next != null && !hasSyntaxErrors)
                 {
-                    currentline = p.Value.Linea;
+                p = p.Next; //Algunos devuelven la ultima wea de la sentencia y pos XD, aparte de que entra con el {
+                currentline = p.Value.Linea;
                     if (vartype.ContainsKey(p.Value.Valor))
                     {
                         p = VartypeDeclaration(p);
@@ -593,13 +598,13 @@ namespace AutomataCSharp
                     }
                     else if (p != null && p.Value.Lexema == ";")
                     {
-                        return p;
+                        return p.Next;
                     }
                     else AddError(603, ";");
                 }
                 else AddError(603, "Valor");
             }
-            else if (p != null && p.Value.Lexema == ";") return p.Next;
+            else if (p != null && p.Value.Lexema == ";") return p;
             else AddError(603, ";");
             return p;
         }

@@ -130,6 +130,8 @@ namespace AutomataCSharp
                 lblErrorSintaxis.Text = "ERROR: Resuelva los problemas léxicos";
             }
 
+            if(syn.semError) MessageBox.Show("Hay errores de Semántica. No se puede generar el código Intermedio");
+
         }
         private void ImprimirTablaTokens()
         {
@@ -154,14 +156,15 @@ namespace AutomataCSharp
             }
             else
             {
-                lblErrorSintaxis.Text = "Errores de Sintaxis: " + syn.ErrorS.Count.ToString();
+                lblErrorSintaxis.Text = "Errores: " + syn.ErrorS.Count.ToString();
                 dgvSintactico.Visible = true;
 
                 foreach (string error in syn.ErrorS)
                 {
                     dgvSintactico.Rows.Add(error);
                 }
-                MessageBox.Show("Hay uno o más errores. No se ha podido ejecutar el código");
+
+                MessageBox.Show("Hay errores de Sintaxis. No se ha podido ejecutar al análisis semántico");
             }
         }
     }
