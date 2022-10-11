@@ -154,6 +154,7 @@ namespace AutomataCSharp
                 case 701: errordesc = "Variable " + symbol + " no declarada"; break;
                 case 702: errordesc = "La variable " + symbol + " ya está declarada"; break;
                 case 703: errordesc = "Tipos de variable incompatibles"; break;
+                case 704: errordesc = "La variable " + symbol + " no tiene un valor asignado"; break;
             }
 
             if (errorcode < 700) hasSyntaxErrors = true;
@@ -608,8 +609,8 @@ namespace AutomataCSharp
         private void EvaluarCondicion(Tokens var1, Tokens relacion, Tokens var2)
         {
             string var1type, var2type;
-            var1type = GetVariableType(var1);
-            var2type = GetVariableType(var2);
+            var1type = GetVarType(var1);
+            var2type = GetVarType(var2);
 
             if (relacion.Lexema == "<" || relacion.Lexema == ">" || relacion.Lexema == "<=" || relacion.Lexema == ">=")
             {
@@ -632,14 +633,16 @@ namespace AutomataCSharp
             }
         }
 
-        public string GetVariableType(Tokens variable)
+        public string GetVarType(Tokens variable)
         {
             string tipo = string.Empty;
+            Variable tempVar;
 
             switch (variable.Valor)
             {
                 case -1:
-                    tipo = EncontrarVariable(variable);
+                    tempVar = GetVariable(variable);
+                    if (!semError) tipo = tempVar.Type;
                     break;
                 case -2:
                     tipo = "int";
@@ -655,33 +658,18 @@ namespace AutomataCSharp
             return tipo;
         }
 
-        public string EncontrarVariable(Tokens variable)
-        {
-            string tipo = string.Empty;
-
-            if(VariableExists(variable) == true) //SI EXISTE EN LA LISTA DE VARIABLES
-            {
-
-            }
-            else
-            {
-                AddError(701, variable.Lexema);
-            }
-
-            return tipo;
-        }
-
-        public bool VariableExists(Tokens id)
+        public Variable GetVariable(Tokens id)
         {
             foreach(Variable var in variableList)
             {
                 if (id.Lexema == var.Name)
                 {
-                    return true;
+                    return var;
                 }
             }
 
-            return false;
+            AddError(701, id.Lexema);
+            return null;
         }
        
         #endregion
