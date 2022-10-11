@@ -392,10 +392,48 @@ namespace AutomataCSharp
             } else AddError(603, "tipo de retorno");
 
             return p;
-        } 
+        }
 
         #endregion
-
+        private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
+        {
+            //Entrada {
+            while (p.Next != null && !hasSyntaxErrors)
+            {
+                p = p.Next; //Algunos devuelven la ultima wea de la sentencia y pos XD, aparte de que entra con el {
+                currentline = p.Value.Linea;
+                if (vartype.ContainsKey(p.Value.Valor))
+                {
+                    p = VartypeDeclaration(p);
+                }
+                else if (p.Value.Valor == -1)
+                {
+                    switch (p.Value.Lexema)
+                    {
+                        case "Console":
+                            p = ConsoleSentence(p);
+                            break;
+                        case "static":
+                            p = MainMethod(p);
+                            break;
+                        default:
+                            p = VarDeclaration(p);
+                            break;
+                    }
+                }
+                else if (p != null && p.Value.Lexema == "while")
+                {
+                    p = While(p);
+                }
+                else if (p != null && p.Value.Lexema == "if")
+                {
+                    p = If(p);
+                }
+                else if (p.Value.Lexema == "}") break;
+                else AddError(600, string.Empty);
+            }
+            return p;
+        }
         private LinkedListNode<Tokens> If(LinkedListNode<Tokens> p)
         {
             //Entrada if
@@ -487,6 +525,8 @@ namespace AutomataCSharp
             else AddError(603, "(");
             return p;
         }
+
+
         private LinkedListNode<Tokens> PrintAssignment(LinkedListNode<Tokens> p)
         {
             //Entrada (
@@ -503,46 +543,6 @@ namespace AutomataCSharp
                 else AddError(601, string.Empty);
             }
 
-            return p;
-        }
-
-        private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
-        {
-            //Entrada {
-            while (p.Next != null && !hasSyntaxErrors)
-                {
-                p = p.Next; //Algunos devuelven la ultima wea de la sentencia y pos XD, aparte de que entra con el {
-                currentline = p.Value.Linea;
-                    if (vartype.ContainsKey(p.Value.Valor))
-                    {
-                        p = VartypeDeclaration(p);
-                    }
-                    else if (p.Value.Valor == -1)
-                    {
-                        switch (p.Value.Lexema)
-                        {
-                            case "Console":
-                                p = ConsoleSentence(p);
-                                break;
-                            case "static":
-                                p = MainMethod(p);
-                                break;
-                            default:
-                                p = VarDeclaration(p);
-                                break;
-                        }
-                    }
-                    else if (p != null && p.Value.Lexema == "while")
-                    {
-                        p = While(p);
-                    }
-                    else if (p != null && p.Value.Lexema == "if")
-                    {
-                        p = If(p);
-                    }
-                    else if (p.Value.Lexema == "}") break;
-                    else AddError(600, string.Empty);
-                }
             return p;
         }
 
