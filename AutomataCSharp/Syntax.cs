@@ -175,12 +175,19 @@ namespace AutomataCSharp
             p = p.Next;
             if (p != null && p.Value.Valor == -1)
             {
-                variablename = p.Value.Lexema; 
+                Tokens nombre = p.Value;
                 p = p.Next;
                 if (p != null && p.Value.Lexema == ";")
                 {
-                    Variable varx = new Variable(variabletipo, variablename, null, currentline);
-                    variableList.AddLast(varx);
+                    if(GetVariable(nombre) != null)
+                    {
+                        AddError(702, nombre.Lexema);
+                    }
+                    else
+                    {
+                        Variable varx = new Variable(variabletipo, nombre.Lexema, null, currentline);
+                        variableList.AddLast(varx);
+                    }
                     return p;
                 }
                 else if (p != null && p.Value.Lexema == "=")
@@ -188,6 +195,15 @@ namespace AutomataCSharp
                     p = p.Next;
                     if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                     {
+                        if (GetVariable(nombre) != null)
+                        {
+                            AddError(702, nombre.Lexema);
+                        }
+                        else
+                        {
+                            Variable varx = new Variable(variabletipo, nombre.Lexema, null, currentline);
+                            variableList.AddLast(varx);
+                        }
                         p = Assignment(p); //regresa en ;
                     }
                     else AddError(602, string.Empty);
@@ -200,6 +216,7 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> VarDeclaration(LinkedListNode<Tokens> p)
         {
             //Entrada ID
+            Tokens nombre = p.Value;
             currentline = p.Value.Linea;
             p = p.Next;
             if (p != null && p.Value.Lexema == "++" || p.Value.Lexema == "--")
@@ -669,7 +686,7 @@ namespace AutomataCSharp
             return null;
         }
        
-        public void InfixPosfix(object[] infix)
+        public void InfixPosfix(Tokens[] infix)
         {
 
         }
