@@ -14,6 +14,7 @@ namespace AutomataCSharp
         public List<string> ErrorS = new List<string>();
         private int currentline = 0;
         private LinkedList<Tokens> tempInfijo = new LinkedList<Tokens>();
+        private Types sistematipos = new Types();
 
         private Dictionary<int, string> vartype = new Dictionary<int, string>();
         private Dictionary<int, string> accesstype = new Dictionary<int, string>();
@@ -613,19 +614,16 @@ namespace AutomataCSharp
         /// EVALUACIONES - SEMANTICA-----------------------------------------------------
         private void EvaluarCondicion(Tokens var1, Tokens relacion, Tokens var2)
         {
-            string var1type, var2type;
-            var1type = GetVarType(var1);
-            var2type = GetVarType(var2);
+           if (!hasSyntaxErrors)
+            {
+                string var1type, var2type;
+                var1type = GetVarType(var1);
+                var2type = GetVarType(var2);
 
-            if (relacion.Lexema == "<" || relacion.Lexema == ">" || relacion.Lexema == "<=" || relacion.Lexema == ">=")
-            {
-                if (var1type == "string" || var2type == "string") { AddError(703, string.Empty); return; }
-            }
-            else // == !=
-            {
-                if (var1type != var2type)
+                if (!semError)
                 {
-                    if (var1type == "string" || var2type == "string") { AddError(703, string.Empty); return; }
+                    bool valido = sistematipos.EvaluarTipos(relacion, var1type, var2type);
+                    if (valido == false) AddError(703, string.Empty);
                 }
             }
         }
@@ -639,7 +637,11 @@ namespace AutomataCSharp
             {
                 case -1:
                     tempVar = GetVariable(variable);
-                    if (!semError) tipo = tempVar.Type;
+                    if (tempVar == null)
+                    {
+                        AddError(701, variable.Lexema);
+                    }
+                    else tipo = tempVar.Type;
                     break;
                 case -2:
                     tipo = "int";
@@ -664,12 +666,10 @@ namespace AutomataCSharp
                     return var;
                 }
             }
-
-            AddError(701, id.Lexema);
             return null;
         }
        
-        public void InfixPosfix(Tokens[] infix)
+        public void InfixPosfix(object[] infix)
         {
 
         }

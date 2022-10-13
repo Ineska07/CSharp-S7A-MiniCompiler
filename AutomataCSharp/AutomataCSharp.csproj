@@ -64,6 +64,7 @@
     <Compile Include="Syntax.cs" />
     <Compile Include="Tokens.cs" />
     <Compile Include="MatrizTransicion.cs" />
+    <Compile Include="Types.cs" />
     <Compile Include="Variable.cs" />
     <None Include="packages.config" />
     <None Include="Resources\template.cs" />
