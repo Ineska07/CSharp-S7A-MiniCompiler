@@ -221,9 +221,14 @@ namespace AutomataCSharp
             p = p.Next;
             if (p != null && p.Value.Lexema == "++" || p.Value.Lexema == "--")
             {
+                Tokens operando = p.Value;
                 p = p.Next;
                 if (p != null && p.Value.Lexema == ";")
                 {
+                    Variable currentVar = GetVariable(nombre);
+                    if(currentVar == null) AddError(701, nombre.Lexema);
+                    else { if(currentVar.Type != "int") AddError(703, string.Empty); }
+
                     return p;
                 } else AddError(603, ";");
             }
@@ -232,6 +237,9 @@ namespace AutomataCSharp
                 p = p.Next;
                 if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
+                    Variable currentVar = GetVariable(nombre);
+                    if (currentVar == null) AddError(701, nombre.Lexema);
+
                     p = Assignment(p); //regresa en ;
                 }
                 else AddError(602, string.Empty);
