@@ -615,10 +615,10 @@ namespace AutomataCSharp
 
             while (p != null && p.Value.Lexema != ";")
             {
-                p = p.Next; //= id
+                p = p.Next;
                 if (p != null && arisymbol.ContainsKey(p.Value.Valor))
                 {
-                    p = p.Next; // id + id
+                    p = p.Next;
                     if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                     {
                         infijo.AddLast(p.Value);
@@ -635,27 +635,12 @@ namespace AutomataCSharp
         }
 
         #region SEMANTICA
-        /// EVALUACIONES - SEMANTICA-----------------------------------------------------
-        private void EvaluarCondicion(Tokens var1, Tokens relacion, Tokens var2)
-        {
-           if (!hasSyntaxErrors)
-            {
-                string var1type, var2type;
-                var1type = GetVarType(var1);
-                var2type = GetVarType(var2);
-
-                if (!semError)
-                {
-                    bool valido = sistematipos.EvaluarTipos(relacion, var1type, var2type);
-                    if (valido == false) AddError(703, string.Empty);
-                }
-            }
-        }
+        
         public void InfixPosfix(Tokens[] infix)
         {
-            Dictionary<int, string> Prioridad = new Dictionary<int, string>(){ {1, "+"}, {1, "-"}, {2, "*"}, {2, "/"} };
-            LinkedList<Tokens> res = new LinkedList<Tokens>();
-            LinkedList<Tokens> aux = new LinkedList<Tokens>();
+            Dictionary<int, string> Prioridad = new Dictionary<int, string>(){ {1, "+"}, {2, "-"}, {3, "*"}, {4, "/"} };
+            Stack<Tokens> res = new Stack<Tokens>();
+            Stack<Tokens> aux = new Stack<Tokens>();
 
             if (!hasSyntaxErrors)
             {
@@ -669,11 +654,17 @@ namespace AutomataCSharp
                             if (GetVariable(infix[i]) == null) AddError(701, infix[i].Lexema);
                         }
 
-                        res.AddLast(infix[i]);
+                        res.Push(infix[i]);
                     }
                     else if (arisymbol.ContainsKey(infix[i].Valor))
                     {
-                        aux.AddLast(infix[i]);
+                        aux.Push(infix[i]);
+
+                        if (aux.Count > 1)
+                        {
+
+                        }
+
                     }
                 }
 
@@ -684,9 +675,21 @@ namespace AutomataCSharp
 
         public void EvaluarPosfijo(Tokens[] posfix)
         {
+            Dictionary<Tokens, string> varlist = new Dictionary<Tokens, string>();
+
             if (!hasSyntaxErrors && !semError)
             {
-                
+                for (int i = 0; i < posfix.Length; i++)
+                {
+                    if (valuetypes.ContainsKey(posfix[i].Valor))
+                    {
+                        varlist.Add(posfix[i], GetVarType(posfix[i])); //Cada variable que encuentra la guarda con su tipo
+                    }
+                    else if (arisymbol.ContainsKey(posfix[i].Valor))
+                    {
+
+                    }
+                }
             }
         }
 
@@ -729,6 +732,22 @@ namespace AutomataCSharp
                 }
             }
             return null;
+        }
+
+        private void EvaluarCondicion(Tokens var1, Tokens relacion, Tokens var2)
+        {
+            if (!hasSyntaxErrors)
+            {
+                string var1type, var2type;
+                var1type = GetVarType(var1);
+                var2type = GetVarType(var2);
+
+                if (!semError)
+                {
+                    bool valido = sistematipos.EvaluarTipos(relacion, var1type, var2type);
+                    if (valido == false) AddError(703, string.Empty);
+                }
+            }
         }
         #endregion
     }
