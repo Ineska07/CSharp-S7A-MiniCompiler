@@ -657,12 +657,18 @@ namespace AutomataCSharp
             LinkedList<Tokens> res = new LinkedList<Tokens>();
             LinkedList<Tokens> aux = new LinkedList<Tokens>();
 
-            if (!hasSyntaxErrors && !semError)
+            if (!hasSyntaxErrors)
             {
                 for (int i = 0; i < infix.Length; i++)
                 {
                     if (valuetypes.ContainsKey(infix[i].Valor))
                     {
+                        if((infix[i].Valor) == -1) 
+                        {
+                            //Error 1: No se podrá comprobar su tipo si alguna veriable no existe
+                            if (GetVariable(infix[i]) == null) AddError(701, infix[i].Lexema);
+                        }
+
                         res.AddLast(infix[i]);
                     }
                     else if (arisymbol.ContainsKey(infix[i].Valor))
@@ -670,13 +676,18 @@ namespace AutomataCSharp
                         aux.AddLast(infix[i]);
                     }
                 }
+
+                EvaluarPosfijo(res.ToArray());
             }
 
     }
 
-        public void EvaluarPosfijo(object[] posfix)
+        public void EvaluarPosfijo(Tokens[] posfix)
         {
-
+            if (!hasSyntaxErrors && !semError)
+            {
+                
+            }
         }
 
         public string GetVarType(Tokens variable)
