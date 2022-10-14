@@ -11,9 +11,8 @@ namespace AutomataCSharp
     {
         #region Inicio
         private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
-        public List<string> ErrorS = new List<string>();
+        public List<string> ErrorS = new List<string>(); //Lista de Errores
         private int currentline = 0;
-        private LinkedList<Tokens> tempInfijo = new LinkedList<Tokens>();
         private Types sistematipos = new Types();
 
         private Dictionary<int, string> vartype = new Dictionary<int, string>();
@@ -609,29 +608,26 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Assignment(LinkedListNode<Tokens> p)
         {
             //Entrada ID
-            p = p.Next; //= id
-            if (p != null && arisymbol.ContainsKey(p.Value.Valor))
+            LinkedList<Tokens> infijo = new LinkedList<Tokens>();
+            infijo.AddFirst(p.Value);
+
+            while (p != null && p.Value.Lexema != ";")
             {
-                p = p.Next; // id + id
-                if (p != null && valuetypes.ContainsKey(p.Value.Valor))
+                p = p.Next; //= id
+                if (p != null && arisymbol.ContainsKey(p.Value.Valor))
                 {
-                    p = p.Next; // id + id +
-                    if (p != null && arisymbol.ContainsKey(p.Value.Valor))
+                    p = p.Next; // id + id
+                    if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                     {
-                        p = p.Next;
-                        if (p != null && valuetypes.ContainsKey(p.Value.Valor)) p = Assignment(p);
-                        else AddError(601, string.Empty);
+                        infijo.AddLast(p.Value);
                     }
-                    else if (p != null && p.Value.Lexema == ";")
-                    {
-                        return p.Next;
-                    }
-                    else AddError(603, ";");
+                    else AddError(603, "Valor");
                 }
-                else AddError(603, "Valor");
+                if (p != null && p.Value.Lexema == ";") break;
             }
-            else if (p != null && p.Value.Lexema == ";") return p;
-            else AddError(603, ";");
+
+            InfixPosfix(infijo);
+
             return p;
         }
 
@@ -651,6 +647,25 @@ namespace AutomataCSharp
                     if (valido == false) AddError(703, string.Empty);
                 }
             }
+        }
+        public void InfixPosfix(LinkedList<Tokens> infix)
+        {
+            Dictionary<int, string> Prioridad = new Dictionary<int, string>(){
+                {1, "+"}, {1, "-"},
+                {2, "*"}, {2, "/"}
+            };
+
+
+            if (!hasSyntaxErrors && !semError)
+            {
+
+            }
+
+    }
+
+        public void EvaluarPosfijo(object[] posfix)
+        {
+
         }
 
         public string GetVarType(Tokens variable)
@@ -684,7 +699,7 @@ namespace AutomataCSharp
 
         public Variable GetVariable(Tokens id)
         {
-            foreach(Variable var in variableList)
+            foreach (Variable var in variableList)
             {
                 if (id.Lexema == var.Name)
                 {
@@ -692,16 +707,6 @@ namespace AutomataCSharp
                 }
             }
             return null;
-        }
-       
-        public void InfixPosfix(Tokens[] infix)
-        {
-
-        }
-
-        public void EvaluarPosfijo(object[] posfix)
-        {
-
         }
         #endregion
     }
