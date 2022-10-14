@@ -10,10 +10,12 @@ namespace AutomataCSharp
     class Syntax : Lexico
     {
         #region Inicio
-        private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
-        public List<string> ErrorS = new List<string>(); //Lista de Errores
-        private int currentline = 0;
         private Types sistematipos = new Types();
+        private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
+        private LinkedList<Variable> variableList = new LinkedList<Variable>();
+
+        private int currentline = 0;
+        private string Posfijo = string.Empty;
 
         private Dictionary<int, string> vartype = new Dictionary<int, string>();
         private Dictionary<int, string> accesstype = new Dictionary<int, string>();
@@ -24,10 +26,10 @@ namespace AutomataCSharp
         private Dictionary<int, string> boolval = new Dictionary<int, string>();
         private Dictionary<int, string> valuetypes = new Dictionary<int, string>();
 
+        //ERRORES
+        public List<string> ErrorS = new List<string>(); //Lista de Errores
         public bool semError = false;
         private bool hasSyntaxErrors = false;
-
-        private LinkedList<Variable> variableList = new LinkedList<Variable>();
 
         public Syntax()
         {
@@ -626,7 +628,8 @@ namespace AutomataCSharp
                 if (p != null && p.Value.Lexema == ";") break;
             }
 
-            InfixPosfix(infijo);
+            Posfijo = string.Empty;
+            InfixPosfix(infijo.ToArray());
 
             return p;
         }
@@ -648,17 +651,25 @@ namespace AutomataCSharp
                 }
             }
         }
-        public void InfixPosfix(LinkedList<Tokens> infix)
+        public void InfixPosfix(Tokens[] infix)
         {
-            Dictionary<int, string> Prioridad = new Dictionary<int, string>(){
-                {1, "+"}, {1, "-"},
-                {2, "*"}, {2, "/"}
-            };
-
+            Dictionary<int, string> Prioridad = new Dictionary<int, string>(){ {1, "+"}, {1, "-"}, {2, "*"}, {2, "/"} };
+            LinkedList<Tokens> res = new LinkedList<Tokens>();
+            LinkedList<Tokens> aux = new LinkedList<Tokens>();
 
             if (!hasSyntaxErrors && !semError)
             {
-
+                for (int i = 0; i < infix.Length; i++)
+                {
+                    if (valuetypes.ContainsKey(infix[i].Valor))
+                    {
+                        res.AddLast(infix[i]);
+                    }
+                    else if (arisymbol.ContainsKey(infix[i].Valor))
+                    {
+                        aux.AddLast(infix[i]);
+                    }
+                }
             }
 
     }
