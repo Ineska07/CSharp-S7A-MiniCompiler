@@ -618,6 +618,7 @@ namespace AutomataCSharp
                 p = p.Next;
                 if (p != null && arisymbol.ContainsKey(p.Value.Valor))
                 {
+                    infijo.AddLast(p.Value);
                     p = p.Next;
                     if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                     {
@@ -627,10 +628,7 @@ namespace AutomataCSharp
                 }
                 if (p != null && p.Value.Lexema == ";") break;
             }
-
-            Posfijo = string.Empty;
             InfixPosfix(infijo.ToArray());
-
             return p;
         }
 
@@ -638,7 +636,7 @@ namespace AutomataCSharp
         
         public void InfixPosfix(Tokens[] infix)
         {
-            Dictionary<int, string> Prioridad = new Dictionary<int, string>(){ {1, "+"}, {2, "-"}, {3, "*"}, {4, "/"} };
+            Dictionary<int, int> Prioridad = new Dictionary<int, int>(){ {-6, 1}, {-7, 2}, {-8, 3}, {-9, 4} };
             Stack<Tokens> res = new Stack<Tokens>();
             Stack<Tokens> aux = new Stack<Tokens>();
 
@@ -648,30 +646,46 @@ namespace AutomataCSharp
                 {
                     if (valuetypes.ContainsKey(infix[i].Valor))
                     {
-                        if((infix[i].Valor) == -1) 
+                        //Checamos errores de no declarada en infijo, en postfijo de compatibilidad
+                        if ((infix[i].Valor) == -1)
                         {
                             //Error 1: No se podrá comprobar su tipo si alguna veriable no existe
                             if (GetVariable(infix[i]) == null) AddError(701, infix[i].Lexema);
                         }
 
+                        //Si es variable o número, se añade al posfijo
                         res.Push(infix[i]);
                     }
                     else if (arisymbol.ContainsKey(infix[i].Valor))
                     {
-                        aux.Push(infix[i]);
-
-                        if (aux.Count > 1)
+                        if (aux.Count > 0)
                         {
+                            //Sacar prioridades del operando al tope de la pila y el actual
+                            int prioridadactual = Prioridad[infix[i].Valor];
+                            int prioridadtope = Prioridad[aux.Peek().Valor];
 
+                            while (prioridadtope >= prioridadactual && aux.Count > 0)
+                            {
+                                //Se quita el tope de la lista auxiliar hasta que aparezca un operando de mayor o  prioridad
+                                Tokens temp = aux.Pop();
+                                //El ultimo elemento de la pila pasa a la lista de posfijo
+                                res.Push(temp);
+                            }
                         }
-
+                        //Se añade el operando acual a la pila auxiliar
+                        aux.Push(infix[i]);
                     }
                 }
-
+                //Si al terminar queda algun operador, se va al postfijo
+                while (aux.Count != 0)
+                {
+                    Tokens temp = aux.Pop();
+                    res.Push(temp);
+                }
                 EvaluarPosfijo(res.ToArray());
             }
-
-    }
+            else return;
+        }
 
         public void EvaluarPosfijo(Tokens[] posfix)
         {
@@ -683,7 +697,8 @@ namespace AutomataCSharp
                 {
                     if (valuetypes.ContainsKey(posfix[i].Valor))
                     {
-                        varlist.Add(posfix[i], GetVarType(posfix[i])); //Cada variable que encuentra la guarda con su tipo
+                        // Cada variable que encuentra la guarda con su tipo
+                        varlist.Add(posfix[i], GetVarType(posfix[i]));
                     }
                     else if (arisymbol.ContainsKey(posfix[i].Valor))
                     {
