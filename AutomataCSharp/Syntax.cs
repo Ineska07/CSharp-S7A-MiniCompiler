@@ -193,19 +193,26 @@ namespace AutomataCSharp
                 }
                 else if (p != null && p.Value.Lexema == "=")
                 {
+                    Tokens asignado = p.Value;
+
                     p = p.Next;
                     if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                     {
                         if (GetVariable(nombre) != null)
                         {
                             AddError(702, nombre.Lexema);
+                            p = Assignment(p); //regresa en ;
                         }
                         else
                         {
                             Variable varx = new Variable(variabletipo, nombre.Lexema, null, currentline);
-                            variableList.AddLast(varx);
+
+                            p = Assignment(p);
+
+                            bool valido = sistematipos.EvaluarTipos(asignado, varx.Type, sistematipos.Tipo);
+                            if (valido == false && !semError) AddError(703, string.Empty);
+                            else variableList.AddLast(varx);
                         }
-                        p = Assignment(p); //regresa en ;
                     }
                     else AddError(602, string.Empty);
                 }
@@ -222,7 +229,6 @@ namespace AutomataCSharp
             p = p.Next;
             if (p != null && p.Value.Lexema == "++" || p.Value.Lexema == "--")
             {
-                Tokens operando = p.Value;
                 p = p.Next;
                 if (p != null && p.Value.Lexema == ";")
                 {
@@ -235,13 +241,23 @@ namespace AutomataCSharp
             }
             else if (p != null && p.Value.Lexema == "=")
             {
+                Tokens asignado = p.Value;
+
                 p = p.Next;
                 if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
                     Variable currentVar = GetVariable(nombre);
-                    if (currentVar == null) AddError(701, nombre.Lexema);
-
-                    p = Assignment(p); //regresa en ;
+                    if (currentVar == null)
+                    {
+                        AddError(701, nombre.Lexema);
+                        p = Assignment(p); 
+                    }
+                    else
+                    {
+                        p = Assignment(p);
+                        bool valido = sistematipos.EvaluarTipos(asignado, currentVar.Type, sistematipos.Tipo);
+                        if (valido == false && !semError) AddError(703, string.Empty);
+                    }
                 }
                 else AddError(602, string.Empty);
             }
@@ -689,29 +705,33 @@ namespace AutomataCSharp
                 {
                     if (valuetypes.ContainsKey(posfix[i].Valor))
                     {
-                        // Cada variable que encuentra la guarda en Variables
                         vars.Push(posfix[i]);
                     }
                     else if (arisymbol.ContainsKey(posfix[i].Valor))
                     {
                         if(vars.Count > 1)
                         {
-                            //Toma las ultimas 2 variables/numeros de la pila y las evalua
-                            Tokens Var1 = vars.Pop();
                             Tokens Var2 = vars.Pop();
+                            Tokens Var1 = vars.Pop();
                             EvaluarTiposVariables(Var1, posfix[i], Var2);
 
                             if (!semError)
                             {
-                                //EvaluarTipos setea el tipo de la clase Types, la tomamos.
                                 string Type = sistematipos.Tipo;
 
-                                //La sentencia de convierte en una nueva variable cuyo tipo será evaluado posteriormente
-                                Tokens newVar = new Tokens(Type, Var1.Lexema + posfix[i].Lexema + Var2.Lexema, SetVarToken(Type), currentline);
+                                Tokens newVar = new Tokens(sistematipos.Tipo, Var1.Lexema + posfix[i].Lexema + Var2.Lexema, SetVarToken(Type), currentline);
                                 vars.Push(newVar);
                             }
                         }
                     }
+                }
+
+                if (vars.Count == 1)
+                {
+                    string Type = GetVarType(vars.Peek());
+                    sistematipos.Tipo = Type;
+                    Tokens newVar = new Tokens(Type, vars.Peek().Lexema, SetVarToken(Type), currentline);
+                    vars.Push(newVar);
                 }
             }
         }
@@ -760,8 +780,10 @@ namespace AutomataCSharp
                 case "string":
                     token = -4;
                     break;
+                default:
+                    token = -1;
+                    break;
             }
-
             return token;
         }
 

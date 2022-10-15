@@ -12,43 +12,43 @@ namespace AutomataCSharp
         #region TabladeTipos
 
         private string[,] sum =
-        {   //+         int         double      string
-            /*int*/     {"int",     "double",   "E" },
-            /*double*/  {"double",  "double",   "E" },
-            /*string*/  {"string",  "string",   "string" },
-            /*bool*/    {"E",       "E",        "E" },
+        {   //+         int         double      string      bool
+            /*int*/     {"int",     "double",   "E",        "E"   },
+            /*double*/  {"double",  "double",   "E",        "E"   },
+            /*string*/  {"string",  "string",   "string",   "E"   },
+            /*bool*/    {"E",       "E",        "E",        "E"   },
         };
 
         private string[,] res =
         {   //-         int         double      string
-            /*int*/     {"int",     "double",   "E" },
-            /*double*/  {"double",  "double",   "E" },
-            /*string*/  {"E",       "E",        "E" },
-            /*bool*/    {"E",       "E",        "E" },
+            /*int*/     {"int",     "double",   "E",   "E"   },
+            /*double*/  {"double",  "double",   "E",   "E"   },
+            /*string*/  {"E",       "E",        "E",   "E"   },
+            /*bool*/    {"E",       "E",        "E",   "E"   },
         };
 
         private string[,] mul =
         {   //*         int         double      string
-            /*int*/     {"int",     "double",   "E" },
-            /*double*/  {"double",  "double",   "E" },
-            /*string*/  {"E",       "E",        "E" },
-            /*bool*/    {"E",       "E",        "E" },
+            /*int*/     {"int",     "double",   "E",   "E"   },
+            /*double*/  {"double",  "double",   "E",   "E"   },
+            /*string*/  {"E",       "E",        "E",   "E"   },
+            /*bool*/    {"E",       "E",        "E",   "E"   },
         };
 
         private string[,] div =
-        {   ///         int         double      string
-            /*int*/     {"double",  "double",   "E" },
-            /*double*/  {"double",  "double",   "E" },
-            /*string*/  {"E",       "E",        "E" },
-            /*bool*/    {"E",       "E",        "E" },
+        {   ///         int         double      string  bool
+            /*int*/     {"double",  "double",   "E",    "E"   },
+            /*double*/  {"double",  "double",   "E",    "E"   },
+            /*string*/  {"E",       "E",        "E",    "E"   },
+            /*bool*/    {"E",       "E",        "E",    "E"   },
         };
 
         private string[,] than =
-        {   //< >       int       double        string
-            /*int*/     {"bool",  "bool",       "E" },
-            /*double*/  {"bool",  "bool",       "E" },
-            /*string*/  {"E",     "E",          "E" },
-            /*bool*/    {"E",       "E",        "E" },
+        {   //< >       int       double        string  bool
+            /*int*/     {"bool",  "bool",       "E",    "E"   },
+            /*double*/  {"bool",  "bool",       "E",    "E"   },
+            /*string*/  {"E",     "E",          "E",    "E"   },
+            /*bool*/    {"E",     "E",          "E",    "E"   },
         };
 
         private string[,] equals =
@@ -56,14 +56,15 @@ namespace AutomataCSharp
             /*int*/     {"bool",  "bool",       "E",       "E" },
             /*double*/  {"bool",  "bool",       "E",       "E"  },
             /*string*/  {"E",     "E",          "bool",    "E"  },
-            /*bool*/    {"E",       "E",        "E",       "bool"  },
+            /*bool*/    {"E",     "E",          "E",       "bool"  },
         };
 
         private string[,] final = //se usará para asignaciones al final, tipo int x = "hola >>> ERROR
-        {   //=         int         double      string
-            /*int*/     {"int",     "E",        "E" },
-            /*double*/  {"double",  "double",   "E" },
-            /*string*/  {"E",       "E",        "string"}
+        {   //=         int         double      string      bool
+            /*int*/     {"int",     "E",        "E",        "E"   },
+            /*double*/  {"double",  "double",   "E",        "E"   },
+            /*string*/  {"E",       "E",        "string",   "E"  },
+            /*bool*/    {"E",       "E",        "E",        "bool"  },
         };
 
         #endregion
@@ -130,6 +131,7 @@ namespace AutomataCSharp
                 case "int": line = 0; break;
                 case "double": line = 1; break;
                 case "string": line = 2; break;
+                case "bool": line = 3; break;
             }
 
             switch (type2)
@@ -137,6 +139,7 @@ namespace AutomataCSharp
                 case "int": column = 0; break;
                 case "double": column = 1; break;
                 case "string": column = 2; break;
+                case "bool": line = 3; break;
             }
 
             string estado = TablaTipos[line, column];
