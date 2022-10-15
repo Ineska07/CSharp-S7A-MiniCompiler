@@ -589,7 +589,7 @@ namespace AutomataCSharp
                 if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
                     var2 = p.Value;
-                    EvaluarCondicion(var1, relacion, var2);
+                    EvaluarTiposVariables(var1, relacion, var2);
 
                     p = p.Next; // == id &&
                     if (logicsymbol.ContainsKey(p.Value.Valor))
@@ -646,50 +646,42 @@ namespace AutomataCSharp
                 {
                     if (valuetypes.ContainsKey(infix[i].Valor))
                     {
-                        //Checamos errores de no declarada en infijo, en postfijo de compatibilidad
                         if ((infix[i].Valor) == -1)
                         {
-                            //Error 1: No se podrá comprobar su tipo si alguna veriable no existe
                             if (GetVariable(infix[i]) == null) AddError(701, infix[i].Lexema);
                         }
-
-                        //Si es variable o número, se añade al posfijo
                         res.Push(infix[i]);
                     }
                     else if (arisymbol.ContainsKey(infix[i].Valor))
                     {
                         if (aux.Count > 0)
                         {
-                            //Sacar prioridades del operando al tope de la pila y el actual
                             int prioridadactual = Prioridad[infix[i].Valor];
                             int prioridadtope = Prioridad[aux.Peek().Valor];
 
                             while (prioridadtope >= prioridadactual && aux.Count > 0)
                             {
-                                //Se quita el tope de la lista auxiliar hasta que aparezca un operando de mayor o  prioridad
                                 Tokens temp = aux.Pop();
-                                //El ultimo elemento de la pila pasa a la lista de posfijo
                                 res.Push(temp);
                             }
                         }
-                        //Se añade el operando acual a la pila auxiliar
                         aux.Push(infix[i]);
                     }
                 }
-                //Si al terminar queda algun operador, se va al postfijo
+
                 while (aux.Count != 0)
                 {
                     Tokens temp = aux.Pop();
                     res.Push(temp);
                 }
-                EvaluarPosfijo(res.ToArray());
+
+                EvaluarPosfijo(res.Reverse().ToArray());
             }
-            else return;
         }
 
         public void EvaluarPosfijo(Tokens[] posfix)
         {
-            Dictionary<Tokens, string> varlist = new Dictionary<Tokens, string>();
+            Stack<Tokens> vars = new Stack<Tokens>();
 
             if (!hasSyntaxErrors && !semError)
             {
@@ -697,12 +689,17 @@ namespace AutomataCSharp
                 {
                     if (valuetypes.ContainsKey(posfix[i].Valor))
                     {
-                        // Cada variable que encuentra la guarda con su tipo
-                        varlist.Add(posfix[i], GetVarType(posfix[i]));
+                        // Cada variable que encuentra la guarda en Variables
+                        vars.Push(posfix[i]);
                     }
                     else if (arisymbol.ContainsKey(posfix[i].Valor))
                     {
-
+                        if(vars.Count > 1)
+                        {
+                            Tokens Var1 = vars.Pop();
+                            Tokens Var2 = vars.Pop();
+                            EvaluarTiposVariables(Var1, posfix[i], Var2);
+                        }
                     }
                 }
             }
@@ -749,7 +746,7 @@ namespace AutomataCSharp
             return null;
         }
 
-        private void EvaluarCondicion(Tokens var1, Tokens relacion, Tokens var2)
+        private void EvaluarTiposVariables(Tokens var1, Tokens relacion, Tokens var2)
         {
             if (!hasSyntaxErrors)
             {
