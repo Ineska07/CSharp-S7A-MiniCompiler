@@ -8,49 +8,55 @@ namespace AutomataCSharp
 {
     class Types
     {
-        string CT = string.Empty; //Comparacion Tipos
         string tipo = string.Empty;
         #region TabladeTipos
+
         private string[,] sum =
         {   //+         int         double      string
-            /*int*/     {"int",     "double",   "string" },
-            /*double*/  {"double",  "double",   "string" },
+            /*int*/     {"int",     "double",   "E" },
+            /*double*/  {"double",  "double",   "E" },
             /*string*/  {"string",  "string",   "string" },
+            /*bool*/    {"E",       "E",        "E" },
         };
 
         private string[,] res =
         {   //-         int         double      string
             /*int*/     {"int",     "double",   "E" },
             /*double*/  {"double",  "double",   "E" },
-            /*string*/  {"E",       "E",        "E" }
+            /*string*/  {"E",       "E",        "E" },
+            /*bool*/    {"E",       "E",        "E" },
         };
 
         private string[,] mul =
         {   //*         int         double      string
             /*int*/     {"int",     "double",   "E" },
             /*double*/  {"double",  "double",   "E" },
-            /*string*/  {"E",       "E",        "E" }
+            /*string*/  {"E",       "E",        "E" },
+            /*bool*/    {"E",       "E",        "E" },
         };
 
         private string[,] div =
         {   ///         int         double      string
             /*int*/     {"double",  "double",   "E" },
             /*double*/  {"double",  "double",   "E" },
-            /*string*/  {"E",       "E",        "E" }
+            /*string*/  {"E",       "E",        "E" },
+            /*bool*/    {"E",       "E",        "E" },
         };
 
         private string[,] than =
         {   //< >       int       double        string
             /*int*/     {"bool",  "bool",       "E" },
             /*double*/  {"bool",  "bool",       "E" },
-            /*string*/  {"E",     "E",          "E" }
+            /*string*/  {"E",     "E",          "E" },
+            /*bool*/    {"E",       "E",        "E" },
         };
 
         private string[,] equals =
-        {   //!= ==     int       double        string
-            /*int*/     {"bool",  "bool",       "E" },
-            /*double*/  {"bool",  "bool",       "E" },
-            /*string*/  {"E",     "E",          "bool" }
+        {   //!= ==     int       double        string    bool
+            /*int*/     {"bool",  "bool",       "E",       "E" },
+            /*double*/  {"bool",  "bool",       "E",       "E"  },
+            /*string*/  {"E",     "E",          "bool",    "E"  },
+            /*bool*/    {"E",       "E",        "E",       "bool"  },
         };
 
         private string[,] final = //se usará para asignaciones al final, tipo int x = "hola >>> ERROR

@@ -696,9 +696,20 @@ namespace AutomataCSharp
                     {
                         if(vars.Count > 1)
                         {
+                            //Toma las ultimas 2 variables/numeros de la pila y las evalua
                             Tokens Var1 = vars.Pop();
                             Tokens Var2 = vars.Pop();
                             EvaluarTiposVariables(Var1, posfix[i], Var2);
+
+                            if (!semError)
+                            {
+                                //EvaluarTipos setea el tipo de la clase Types, la tomamos.
+                                string Type = sistematipos.Tipo;
+
+                                //La sentencia de convierte en una nueva variable cuyo tipo será evaluado posteriormente
+                                Tokens newVar = new Tokens(Type, Var1.Lexema + posfix[i].Lexema + Var2.Lexema, SetVarToken(Type), currentline);
+                                vars.Push(newVar);
+                            }
                         }
                     }
                 }
@@ -732,6 +743,26 @@ namespace AutomataCSharp
             }
 
             return tipo;
+        }
+
+        public int SetVarToken(string type)
+        {
+            int token = 0;
+
+            switch (type)
+            {
+                case "int":
+                    token = -2;
+                    break;
+                case "double":
+                    token = -3;
+                    break;
+                case "string":
+                    token = -4;
+                    break;
+            }
+
+            return token;
         }
 
         public Variable GetVariable(Tokens id)
