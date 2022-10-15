@@ -139,7 +139,7 @@ namespace AutomataCSharp
                 case "int": column = 0; break;
                 case "double": column = 1; break;
                 case "string": column = 2; break;
-                case "bool": line = 3; break;
+                case "bool": column = 3; break;
             }
 
             string estado = TablaTipos[line, column];

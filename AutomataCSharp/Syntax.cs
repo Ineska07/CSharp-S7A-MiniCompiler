@@ -196,7 +196,7 @@ namespace AutomataCSharp
                     Tokens asignado = p.Value;
 
                     p = p.Next;
-                    if (p != null && valuetypes.ContainsKey(p.Value.Valor))
+                    if (p != null && valuetypes.ContainsKey(p.Value.Valor) || boolval.ContainsKey(p.Value.Valor))
                     {
                         if (GetVariable(nombre) != null)
                         {
@@ -636,7 +636,7 @@ namespace AutomataCSharp
                 {
                     infijo.AddLast(p.Value);
                     p = p.Next;
-                    if (p != null && valuetypes.ContainsKey(p.Value.Valor))
+                    if (p != null && valuetypes.ContainsKey(p.Value.Valor) || boolval.ContainsKey(p.Value.Valor))
                     {
                         infijo.AddLast(p.Value);
                     }
@@ -660,7 +660,7 @@ namespace AutomataCSharp
             {
                 for (int i = 0; i < infix.Length; i++)
                 {
-                    if (valuetypes.ContainsKey(infix[i].Valor))
+                    if (valuetypes.ContainsKey(infix[i].Valor) || boolval.ContainsKey(infix[i].Valor))
                     {
                         if ((infix[i].Valor) == -1)
                         {
@@ -703,7 +703,7 @@ namespace AutomataCSharp
             {
                 for (int i = 0; i < posfix.Length; i++)
                 {
-                    if (valuetypes.ContainsKey(posfix[i].Valor))
+                    if (valuetypes.ContainsKey(posfix[i].Valor) || boolval.ContainsKey(posfix[i].Valor))
                     {
                         vars.Push(posfix[i]);
                     }
@@ -759,6 +759,12 @@ namespace AutomataCSharp
                     break;
                 case -4:
                     tipo = "string";
+                    break;
+                case -90:
+                    tipo = "bool";
+                    break;
+                case -91:
+                    tipo = "bool";
                     break;
             }
 
