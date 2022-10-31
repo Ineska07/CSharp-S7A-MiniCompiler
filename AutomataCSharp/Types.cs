@@ -20,11 +20,11 @@ namespace AutomataCSharp
         };
 
         private string[,] res =
-        {   //-         int         double      string
-            /*int*/     {"int",     "double",   "E",   "E"   },
-            /*double*/  {"double",  "double",   "E",   "E"   },
-            /*string*/  {"E",       "E",        "E",   "E"   },
-            /*bool*/    {"E",       "E",        "E",   "E"   },
+        {   //-         int         double      string  bool
+            /*int*/     {"int",     "double",   "E",    "E"   },
+            /*double*/  {"double",  "double",   "E",    "E"   },
+            /*string*/  {"E",       "E",        "E",    "E"   },
+            /*bool*/    {"E",       "E",        "E",    "E"   },
         };
 
         private string[,] mul =
@@ -52,14 +52,14 @@ namespace AutomataCSharp
         };
 
         private string[,] equals =
-        {   //!= ==     int       double        string    bool
+        {   //!= ==     int       double        string      bool
             /*int*/     {"bool",  "bool",       "E",       "E" },
             /*double*/  {"bool",  "bool",       "E",       "E"  },
             /*string*/  {"E",     "E",          "bool",    "E"  },
             /*bool*/    {"E",     "E",          "E",       "bool"  },
         };
 
-        private string[,] final = //se usará para asignaciones al final, tipo int x = "hola >>> ERROR
+        private string[,] final = 
         {   //=         int         double      string      bool
             /*int*/     {"int",     "E",        "E",        "E"   },
             /*double*/  {"double",  "double",   "E",        "E"   },

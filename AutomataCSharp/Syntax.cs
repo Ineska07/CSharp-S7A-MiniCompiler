@@ -156,7 +156,6 @@ namespace AutomataCSharp
                 case 701: errordesc = "Variable " + symbol + " no declarada"; break;
                 case 702: errordesc = "La variable " + symbol + " ya está declarada"; break;
                 case 703: errordesc = "Tipos de variable incompatibles"; break;
-                case 704: errordesc = "La variable " + symbol + " no tiene un valor asignado"; break;
             }
 
             if (errorcode < 700) hasSyntaxErrors = true;
@@ -183,6 +182,7 @@ namespace AutomataCSharp
                     if(GetVariable(nombre) != null)
                     {
                         AddError(702, nombre.Lexema);
+                        //ERROR 702: VARIABLE MULTIDECLARADA
                     }
                     else
                     {
@@ -250,6 +250,7 @@ namespace AutomataCSharp
                     if (currentVar == null)
                     {
                         AddError(701, nombre.Lexema);
+                        //ERROR 701: VARIABLE NO DECLARADA
                         p = Assignment(p); 
                     }
                     else

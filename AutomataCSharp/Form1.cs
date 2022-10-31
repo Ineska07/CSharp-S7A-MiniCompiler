@@ -11,7 +11,7 @@ namespace AutomataCSharp
         bool saved;
         string template = Properties.Resources.template;
         Syntax syn;
-        int errorlexico;
+        int errorcount;
         int linecount;
 
         public frmIDE()
@@ -105,7 +105,6 @@ namespace AutomataCSharp
 
         private void btnRun_Click(object sender, EventArgs e)
         {
-            errorlexico = 0;
             dgvToken.Rows.Clear(); 
             dgvSintactico.Rows.Clear();
             lblError.Text = "Errores Léxicos: ";
@@ -117,7 +116,7 @@ namespace AutomataCSharp
             syn.AnalisisLexico(tbxCodigo.Text + " ");
 
             ImprimirTablaTokens();
-            lblError.Text = "Errores Léxicos: " + errorlexico.ToString();
+            lblError.Text = "Errores Léxicos: " + syn.listaErrores.Count.ToString();
 
             //Inicia análisis sintáctico
             if (syn.listaErrores.Count == 0)
@@ -127,7 +126,7 @@ namespace AutomataCSharp
             }
             else
             {
-                lblErrorSintaxis.Text = "ERROR: Resuelva los problemas léxicos";
+                lblError.Text = "ERROR: Resuelva los problemas léxicos";
             }
 
             if(syn.semError) MessageBox.Show("Hay errores de Semántica. No se puede generar el código Intermedio");
@@ -148,15 +147,15 @@ namespace AutomataCSharp
 
         private void ImprimirTablaSintactico()
         {
-            lblErrorSintaxis.Visible = true;
+            lblError.Visible = true;
 
             if (syn.ErrorS.Count == 0)
             {
-                lblErrorSintaxis.Text = "Felicidades! No hay errores de sintaxis :)";
+                lblError.Text = "Felicidades! No hay errores de sintaxis :)";
             }
             else
             {
-                lblErrorSintaxis.Text = "Errores: " + syn.ErrorS.Count.ToString();
+                lblError.Text = "Errores: " + syn.ErrorS.Count.ToString();
                 dgvSintactico.Visible = true;
 
                 foreach (string error in syn.ErrorS)
