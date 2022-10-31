@@ -12,7 +12,7 @@ namespace AutomataCSharp
         #region Inicio
         private Types sistematipos = new Types();
         private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
-        private LinkedList<Variable> variableList = new LinkedList<Variable>();
+        public LinkedList<Variable> variableList = new LinkedList<Variable>();
 
         private int currentline = 0;
         private string Posfijo = string.Empty;

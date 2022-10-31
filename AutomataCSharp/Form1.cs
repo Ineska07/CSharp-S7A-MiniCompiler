@@ -10,8 +10,7 @@ namespace AutomataCSharp
     {
         bool saved;
         string template = Properties.Resources.template;
-        Syntax syn;
-        int errorcount;
+        Syntax Analizador;
         int linecount;
 
         public frmIDE()
@@ -52,7 +51,7 @@ namespace AutomataCSharp
                 }
                 else
                 {
-                    dgvToken.Rows.Clear();
+                    dgvErrores.Rows.Clear();
                     tbxCodigo.Text = template;
                     lblNumLineas.Text = "Lineas: " + tbxCodigo.Lines.Length.ToString();
                     HabilitarGuardar();
@@ -61,7 +60,7 @@ namespace AutomataCSharp
             }
             else
             {
-                dgvToken.Rows.Clear();
+                dgvErrores.Rows.Clear();
                 tbxCodigo.Text = template;
                 lblNumLineas.Text = "Lineas: " + tbxCodigo.Lines.Length.ToString();
                 HabilitarGuardar();
@@ -99,71 +98,48 @@ namespace AutomataCSharp
                 File.WriteAllText(SaveDialog.FileName, tbxCodigo.Text);
                 saved = true;
                 btnGuardar.Text = "Guardar";
-                dgvToken.Rows.Clear();
+                dgvErrores.Rows.Clear();
             }
         }
 
         private void btnRun_Click(object sender, EventArgs e)
         {
-            dgvToken.Rows.Clear(); 
-            dgvSintactico.Rows.Clear();
-            lblError.Text = "Errores Léxicos: ";
+            dgvErrores.Rows.Clear();
+            lblError.Text = "Errores: ";
             
-            syn = new Syntax();
-
-            syn.Inicializar();
+            Analizador = new Syntax();
             lblError.Visible = true;
-            syn.AnalisisLexico(tbxCodigo.Text + " ");
-
-            ImprimirTablaTokens();
-            lblError.Text = "Errores Léxicos: " + syn.listaErrores.Count.ToString();
+            Analizador.AnalisisLexico(tbxCodigo.Text + " ");
 
             //Inicia análisis sintáctico
-            if (syn.listaErrores.Count == 0)
-            {
-                syn.AnalizadorSintactico();
-                ImprimirTablaSintactico();
-            }
-            else
-            {
-                lblError.Text = "ERROR: Resuelva los problemas léxicos";
-            }
+            if (Analizador.ErrorL.Count == 0) Analizador.AnalizadorSintactico();
 
-            if(syn.semError) MessageBox.Show("Hay errores de Semántica. No se puede generar el código Intermedio");
+            int TotalErrores = Analizador.ErrorL.Count + Analizador.ErrorS.Count;
+            ImprimirTablaErrores(TotalErrores);
 
-        }
-        private void ImprimirTablaTokens()
-        {
-            foreach (Tokens token in syn.listaErrores)
+            if (TotalErrores == 0)
             {
-                dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
-                errorlexico++;
-            }
-            foreach (Tokens token in syn.listaTokens)
-            {
-                dgvToken.Rows.Add(token.Tipo, token.Lexema, token.Valor, token.Linea);
+                Intermedio code = new Intermedio(Analizador.variableList);
             }
         }
 
-        private void ImprimirTablaSintactico()
+        private void ImprimirTablaErrores(int ErrorCount)
         {
             lblError.Visible = true;
 
-            if (syn.ErrorS.Count == 0)
+            if (ErrorCount == 0)
             {
-                lblError.Text = "Felicidades! No hay errores de sintaxis :)";
+                lblError.Text = "Felicidades! No hay errores :)";
             }
             else
             {
-                lblError.Text = "Errores: " + syn.ErrorS.Count.ToString();
-                dgvSintactico.Visible = true;
+                lblError.Text = "Errores: " + ErrorCount.ToString();
+                dgvErrores.Visible = true;
 
-                foreach (string error in syn.ErrorS)
-                {
-                    dgvSintactico.Rows.Add(error);
-                }
+                foreach (string error in Analizador.ErrorL) dgvErrores.Rows.Add(error);
+                foreach (string error in Analizador.ErrorS) dgvErrores.Rows.Add(error);
 
-                MessageBox.Show("Hay errores de Sintaxis. No se ha podido ejecutar al análisis semántico");
+                MessageBox.Show("ERROR: No se puede generar el código Intermedio");
             }
         }
     }
