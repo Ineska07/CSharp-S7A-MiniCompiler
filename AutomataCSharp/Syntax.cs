@@ -12,7 +12,7 @@ namespace AutomataCSharp
         #region Inicio
         private Types sistematipos = new Types();
         private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
-        public LinkedList<Variable> variableList = new LinkedList<Variable>();
+        private LinkedList<Variable> variableList = new LinkedList<Variable>();
 
         private int currentline = 0;
         private string Posfijo = string.Empty;
@@ -579,8 +579,15 @@ namespace AutomataCSharp
             {
                 if(p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
+                    if (GetVariable(p.Value) == null) AddError(701, p.Value.Lexema);
                     p = p.Next;
-                    if (p != null && p.Value.Lexema == "+") { p = p.Next;  continue; }
+
+                    if (p != null && p.Value.Lexema == "+") 
+                    { 
+                        p = p.Next;  
+                        continue; 
+                    }
+
                     else if (p != null && p.Value.Lexema == ")") break;
                     else AddError(603, "+ o cierre");
                 }
@@ -657,6 +664,8 @@ namespace AutomataCSharp
             Stack<Tokens> res = new Stack<Tokens>();
             Stack<Tokens> aux = new Stack<Tokens>();
 
+            bool allvariablesexist = true;
+
             if (!hasSyntaxErrors)
             {
                 for (int i = 0; i < infix.Length; i++)
@@ -665,7 +674,11 @@ namespace AutomataCSharp
                     {
                         if ((infix[i].Valor) == -1)
                         {
-                            if (GetVariable(infix[i]) == null) AddError(701, infix[i].Lexema);
+                            if (GetVariable(infix[i]) == null) 
+                            { 
+                                AddError(701, infix[i].Lexema);
+                                allvariablesexist = false;
+                            }
                         }
                         res.Push(infix[i]);
                     }
@@ -692,7 +705,7 @@ namespace AutomataCSharp
                     res.Push(temp);
                 }
 
-                EvaluarPosfijo(res.Reverse().ToArray());
+                if(allvariablesexist) EvaluarPosfijo(res.Reverse().ToArray());
             }
         }
 

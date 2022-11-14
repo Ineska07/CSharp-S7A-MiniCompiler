@@ -6,20 +6,74 @@ using System.Threading.Tasks;
 
 namespace AutomataCSharp
 {
-    //Generador de Código intermedio
+    /// <summary>
+    /// aaaaaaaaaaaaa
+    /// </summary>
     class Intermedio
     {
-        private Dictionary<string, int> Operandos = new Dictionary<string, int>();
-        LinkedList<Variable> ListaVariables = new LinkedList<Variable>();
-
-        public Intermedio(LinkedList<Variable> variableList)
+        private Dictionary<string, int> Operandos = new Dictionary<string, int>()
         {
-            ListaVariables = variableList;
+            {"=", 7 },
+
+            {"WriteLine", 6 },
+            {"ReadLine", 6 },
+
+            {"==", 5 },
+            {"!=", 4 },
+            {"<=", 4 },
+            {"<", 4 },
+            {">", 4 },
+            {">=", 4 },
+
+            {"/", 2 },
+            {"*", 2 },
+            {"-", 1 },
+            {"+", 1 },
+        };
+
+        private LinkedList<Tokens> Tokens = new LinkedList<Tokens>();
+        List<string> Polish = new List<string>(); //La lista irá por cada línea y se añade a esta lista, habrá un tempPolish
+        int PunteroCount = 0; //Contador para saber el apuntador
+
+
+        public Intermedio(Queue<Tokens> tokens)
+        {
+            foreach (Tokens item in tokens) { Tokens.AddLast(item); }
+
+            LinkedListNode<Tokens> head = new LinkedListNode<Tokens>(new Tokens("HEAD", "NODO", 0, 1));
+            Tokens.AddFirst(head);
+
+            CreatePolish();
+        }
+
+        private void CreatePolish()
+        {
+            LinkedListNode<Tokens> p = Tokens.First;
+
+            while (p != null)
+            {
+                int currentline = p.Value.Linea;
+                switch (p.Value.Lexema)
+                {
+                    //Se irá hasta el main en dado caso de que haya, en donde se supone que están las sentencias
+                    case "class":
+                    case "using":
+                    case "namespace":
+                    case "static":
+                        while (p.Value.Linea == currentline) p = p.Next; 
+                        break;
+
+                    //Súponiendo que está dentro del main
+                    default:
+                        //recorrer sentencia actual
+
+                        break;
+                }
+            }
         }
 
         public void InfixPosfix(Tokens[] infix)
         {
-            Dictionary<int, int> Prioridad = new Dictionary<int, int>() { { -6, 1 }, { -7, 2 }, { -8, 3 }, { -9, 4 } };
             Stack<Tokens> res = new Stack<Tokens>();
             Stack<Tokens> aux = new Stack<Tokens>();
 
@@ -29,8 +83,8 @@ namespace AutomataCSharp
                 {
                     if (aux.Count > 0)
                     {
-                        int prioridadactual = Prioridad[infix[i].Valor];
-                        int prioridadtope = Prioridad[aux.Peek().Valor];
+                        int prioridadactual = Operandos[infix[i].Lexema];
+                        int prioridadtope = Operandos[aux.Peek().Lexema];
 
                         while (prioridadtope >= prioridadactual && aux.Count > 0)
                         {

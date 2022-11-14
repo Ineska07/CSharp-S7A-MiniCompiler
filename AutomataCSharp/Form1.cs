@@ -119,7 +119,7 @@ namespace AutomataCSharp
 
             if (TotalErrores == 0)
             {
-                Intermedio code = new Intermedio(Analizador.variableList);
+                Intermedio code = new Intermedio(Analizador.tokensGenerados);
             }
         }
 
