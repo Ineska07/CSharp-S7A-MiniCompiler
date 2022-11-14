@@ -14,11 +14,13 @@ namespace AutomataCSharp
     {
         private Dictionary<string, int> Operandos = new Dictionary<string, int>()
         {
-            {"=", 7 },
+            {"=", 8 },
 
-            {"WriteLine", 6 },
-            {"ReadLine", 6 },
+            {"WriteLine", 7},
+            {"ReadLine", 7 },
 
+            {"&&", 6 },
+            {"||", 6},
             {"==", 5 },
             {"!=", 4 },
             {"<=", 4 },
@@ -42,7 +44,8 @@ namespace AutomataCSharp
         };
 
         private LinkedList<Tokens> Tokens = new LinkedList<Tokens>();
-        List<string> Polish = new List<string>(); //La lista irá por cada línea y se añade a esta lista, habrá un tempPolish
+        private LinkedList<Tokens> LinkedPolish = new LinkedList<Tokens>(); //Para la lista real del Polish que se usa en la programación
+        List<string> Polish = new List<string>(); //Para la tablita del Polish en la interfaz
         int PunteroCount = 0; //Contador para saber el apuntador
 
 
@@ -75,10 +78,12 @@ namespace AutomataCSharp
 
                     case "if":
                         p = IfPolish(p);
+                        PunteroCount--;
                         break;
 
                     case "while":
                         p = WhilePolish(p);
+                        PunteroCount--;
                         break;
                     default:
                         p = SentencePolish(p);
@@ -89,7 +94,7 @@ namespace AutomataCSharp
 
         public LinkedListNode<Tokens> SentencePolish(LinkedListNode<Tokens> p)
         {
-            //Apundador...?
+            //Apuntador...?
             //Nomás recorre la sentencia ._.XD
 
             return p;
@@ -109,26 +114,41 @@ namespace AutomataCSharp
 
         public LinkedListNode<Tokens> IfPolish(LinkedListNode<Tokens> p)
         {
+            //EL BNF no se pone hasta saber si entra un else o else if, o solo salida
+
             PunteroCount++;
             string tempPolish = string.Empty;
             LinkedList<Tokens> infijo = new LinkedList<Tokens>();
 
             //entra if - NO METER AL POLISH
             p = p.Next;
-            p = p.Next; //Pal ( xd
-
             while(p.Next.Value.Lexema != ")") //en ( empezar a crear el posfijo, como no hay errores solo se pone un while
             {
-                p = p.Next; //Porque empieza el while con el (
+                p = p.Next;
                 infijo.AddLast(p.Value);
             }
-
             tempPolish = InfixPosfix(infijo.ToArray());
-            //llega ), insertar BRF
 
-            //recorrer sentencias hasta el else...?
-            //Llega else, mete apuntador
-            //AQUI ME REVOLVI AAAAAAAAAA
+            p = p.Next; //p == "{"
+
+            //Se recorren las sentencias
+            while(p.Value.Lexema != "}")
+            {
+                switch (p.Value.Lexema)
+                {
+                    case "if":
+                        p = IfPolish(p);
+                        PunteroCount--;
+                        break;
+                    case "while":
+                        p = WhilePolish(p);
+                        PunteroCount--;
+                        break;
+                    default:
+                        p = SentencePolish(p);
+                        break;
+                }
+            }
             return p;
         }
 
@@ -167,8 +187,13 @@ namespace AutomataCSharp
                     Tokens temp = aux.Pop();
                     res.Push(temp);
                 }
+
             //Impresion del posfijo actual
-            foreach (Tokens item in res) currentpolish += item.Lexema + " ";
+            foreach (Tokens item in res) 
+            {
+                LinkedPolish.AddLast(item);
+                currentpolish += item.Lexema + " "; 
+            }
             return currentpolish;
         }
 
