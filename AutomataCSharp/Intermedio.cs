@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace AutomataCSharp
 {
-    /// <summary>
-    /// aaaaaaaaaaaaa
+    /// <NOTITASXD>
+    /// El contador aumentará por cada sentencia while o if anidada
+    /// Añadir Apuntador en cada while, if, else y D
     /// </summary>
     class Intermedio
     {
@@ -29,6 +30,15 @@ namespace AutomataCSharp
             {"*", 2 },
             {"-", 1 },
             {"+", 1 },
+        };
+
+        private Dictionary<string, string> Pointers = new Dictionary<string, string>()
+        {
+            {"if", "A" },
+            {"else", "B" },
+            {"while", "C" },
+            {"if", "D" },
+            //A ver si se usan en los apuntadores
         };
 
         private LinkedList<Tokens> Tokens = new LinkedList<Tokens>();
@@ -63,17 +73,69 @@ namespace AutomataCSharp
                         while (p.Value.Linea == currentline) p = p.Next; 
                         break;
 
-                    //Súponiendo que está dentro del main
-                    default:
-                        //recorrer sentencia actual
+                    case "if":
+                        p = IfPolish(p);
+                        break;
 
+                    case "while":
+                        p = WhilePolish(p);
+                        break;
+                    default:
+                        p = SentencePolish(p);
                         break;
                 }
             }
         }
 
-        public void InfixPosfix(Tokens[] infix)
+        public LinkedListNode<Tokens> SentencePolish(LinkedListNode<Tokens> p)
         {
+            //Apundador...?
+            //Nomás recorre la sentencia ._.XD
+
+            return p;
+        }
+
+        public LinkedListNode<Tokens> WhilePolish(LinkedListNode<Tokens> p)
+        {
+            //entra while - NO METER AL POLISH
+            //Meter Apuntador
+            //en ( empezar a crear el posfijo, como no hay errores solo se pone un while
+            //llega ), y llega } insertar BRF
+            //recorrer sentencias hasta que llegue el }
+            //termina el while, saca el BRI
+
+            return p;
+        }
+
+        public LinkedListNode<Tokens> IfPolish(LinkedListNode<Tokens> p)
+        {
+            PunteroCount++;
+            string tempPolish = string.Empty;
+            LinkedList<Tokens> infijo = new LinkedList<Tokens>();
+
+            //entra if - NO METER AL POLISH
+            p = p.Next;
+            p = p.Next; //Pal ( xd
+
+            while(p.Next.Value.Lexema != ")") //en ( empezar a crear el posfijo, como no hay errores solo se pone un while
+            {
+                p = p.Next; //Porque empieza el while con el (
+                infijo.AddLast(p.Value);
+            }
+
+            tempPolish = InfixPosfix(infijo.ToArray());
+            //llega ), insertar BRF
+
+            //recorrer sentencias hasta el else...?
+            //Llega else, mete apuntador
+            //AQUI ME REVOLVI AAAAAAAAAA
+            return p;
+        }
+
+        public string InfixPosfix(Tokens[] infix)
+        {
+            string currentpolish = string.Empty;
+
             Stack<Tokens> res = new Stack<Tokens>();
             Stack<Tokens> aux = new Stack<Tokens>();
 
@@ -105,6 +167,9 @@ namespace AutomataCSharp
                     Tokens temp = aux.Pop();
                     res.Push(temp);
                 }
+            //Impresion del posfijo actual
+            foreach (Tokens item in res) currentpolish += item.Lexema + " ";
+            return currentpolish;
         }
 
     }
