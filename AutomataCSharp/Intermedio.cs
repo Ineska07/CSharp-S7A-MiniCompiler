@@ -48,7 +48,6 @@ namespace AutomataCSharp
             { 
                 Tokens.AddLast(item); 
             }
-
             CreatePolish();
         }
 
@@ -64,15 +63,15 @@ namespace AutomataCSharp
                     case "using":
                     case "namespace":
                     case "static":
-                    case "{":
                         while (p.Value.Linea == currentline) p = p.Next; 
                         break;
-
+                    case "{":
+                        p = p.Next;
+                        break;
                     case "if":
                         p = IfPolish(p);
                         PunteroCount--;
                         break;
-
                     case "while":
                         p = WhilePolish(p);
                         PunteroCount--;
@@ -139,21 +138,9 @@ namespace AutomataCSharp
             //Se recorren las sentencias
             while (p.Value.Lexema != "}")
             {
-                switch (p.Value.Lexema)
-                {
-                    case "if":
-                        p = IfPolish(p);
-                        PunteroCount--;
-                        break;
-                    case "while":
-                        p = WhilePolish(p);
-                        PunteroCount--;
-                        break;
-                    default:
-                        p = SentencePolish(p);
-                        break;
-                }
+                p = p.Next;
             }
+
             //Llega }
             PunteroCount--;
             LinkedListNode<Tokens> BRI = p;
@@ -182,8 +169,33 @@ namespace AutomataCSharp
                 }
                 else //es ELSE solito
                 {
-
+                    p = p.Next;
+                    p = p.Next; //Entra a primera cosa después del {
+                    while (p.Value.Lexema != "}")
+                    {
+                        switch (p.Value.Lexema)
+                        {
+                            case "if":
+                                p = IfPolish(p);
+                                PunteroCount--;
+                                break;
+                            case "while":
+                                p = WhilePolish(p);
+                                PunteroCount--;
+                                break;
+                            default:
+                                p = SentencePolish(p);
+                                break;
+                        }
+                    }
                 }
+            }
+            else //Es una sentencia
+            {
+                CrearApuntador(p, "D");
+                string apuntador = "D" + PunteroCount.ToString();
+                tempBRI.Lexema += apuntador;
+                BRI.Value = tempBNF;
             }
             return p;
         }
@@ -225,7 +237,7 @@ namespace AutomataCSharp
                 }
 
             //Impresion del posfijo actual
-            foreach (Tokens item in res) 
+            foreach (Tokens item in res.Reverse()) 
             {
                 LinkedPolish.AddLast(item.Lexema);
                 currentpolish += item.Lexema + " "; 
