@@ -1,7 +1,6 @@
 using System;
 
 namespace CompiladorCSharp 
-    // Esto es un programa de prueba
 {
     class Programa
     {
@@ -11,17 +10,20 @@ namespace CompiladorCSharp
             int i;
             Console.WriteLine(x);
 
-            while(i < 5)
+            while(i < 5) //C0
             {
-                if (i == 4)
+                if (i == 4 || i < 6) //A1 -- BNF>> B1
                 {
                     Console.WriteLine("Ya casi!");
+                    int y = 5 + 2;
+                    //BRI>> D1
                 }
-                else
+                else //B1
                 {
                     Console.WriteLine("Aun no");
                 }
-                i++;
+                i++; //D1
+                //BRI C0
             }
         }
     }

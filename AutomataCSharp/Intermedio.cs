@@ -34,27 +34,20 @@ namespace AutomataCSharp
             {"+", 1 },
         };
 
-        private Dictionary<string, string> Pointers = new Dictionary<string, string>()
-        {
-            {"if", "A" },
-            {"else", "B" },
-            {"while", "C" },
-            {"if", "D" },
-            //A ver si se usan en los apuntadores
-        };
-
         private LinkedList<Tokens> Tokens = new LinkedList<Tokens>();
-        private LinkedList<Tokens> LinkedPolish = new LinkedList<Tokens>(); //Para la lista real del Polish que se usa en la programación
-        List<string> Polish = new List<string>(); //Para la tablita del Polish en la interfaz
-        int PunteroCount = 0; //Contador para saber el apuntador
+        private LinkedList<string> LinkedPolish = new LinkedList<string>(); //Para la lista real del Polish que se usa en la programación
 
+        List<string> Polish = new List<string>(); //Para la tablita del Polish en la interfaz
+        List<string> Pointers = new List<string>();
+
+        int PunteroCount = 0; //Contador para saber el apuntador
 
         public Intermedio(Queue<Tokens> tokens)
         {
-            foreach (Tokens item in tokens) { Tokens.AddLast(item); }
-
-            LinkedListNode<Tokens> head = new LinkedListNode<Tokens>(new Tokens("HEAD", "NODO", 0, 1));
-            Tokens.AddFirst(head);
+            foreach (Tokens item in tokens) 
+            { 
+                Tokens.AddLast(item); 
+            }
 
             CreatePolish();
         }
@@ -62,17 +55,16 @@ namespace AutomataCSharp
         private void CreatePolish()
         {
             LinkedListNode<Tokens> p = Tokens.First;
-
             while (p != null)
             {
                 int currentline = p.Value.Linea;
                 switch (p.Value.Lexema)
                 {
-                    //Se irá hasta el main en dado caso de que haya, en donde se supone que están las sentencias
                     case "class":
                     case "using":
                     case "namespace":
                     case "static":
+                    case "{":
                         while (p.Value.Linea == currentline) p = p.Next; 
                         break;
 
@@ -94,33 +86,41 @@ namespace AutomataCSharp
 
         public LinkedListNode<Tokens> SentencePolish(LinkedListNode<Tokens> p)
         {
-            //Apuntador...?
-            //Nomás recorre la sentencia ._.XD
+            //Entra con primera cosa que irá en el Polish 
+            string tempPolish = string.Empty;
+            LinkedList<Tokens> infijo = new LinkedList<Tokens>();
+
+            while (p.Value.Lexema != ";")
+            {
+                infijo.AddLast(p.Value);
+                p = p.Next;
+            }
+            //tempPolish = InfixPosfix(infijo.ToArray());
 
             return p;
         }
 
         public LinkedListNode<Tokens> WhilePolish(LinkedListNode<Tokens> p)
         {
+            CrearApuntador(p, "C");
+
             //entra while - NO METER AL POLISH
             //Meter Apuntador
             //en ( empezar a crear el posfijo, como no hay errores solo se pone un while
             //llega ), y llega } insertar BRF
             //recorrer sentencias hasta que llegue el }
             //termina el while, saca el BRI
-
             return p;
         }
 
         public LinkedListNode<Tokens> IfPolish(LinkedListNode<Tokens> p)
         {
-            //EL BNF no se pone hasta saber si entra un else o else if, o solo salida
+            //Apuntador IF - NO METER IF AL POLISH
+            CrearApuntador(p, "A");
 
-            PunteroCount++;
             string tempPolish = string.Empty;
             LinkedList<Tokens> infijo = new LinkedList<Tokens>();
 
-            //entra if - NO METER AL POLISH
             p = p.Next;
             while(p.Next.Value.Lexema != ")") //en ( empezar a crear el posfijo, como no hay errores solo se pone un while
             {
@@ -130,9 +130,14 @@ namespace AutomataCSharp
             tempPolish = InfixPosfix(infijo.ToArray());
 
             p = p.Next; //p == "{"
+            PunteroCount++;
+
+            //Crear Apuntador - Se le pondrá valor una vez entre el else o salto.
+            LinkedListNode<Tokens> BNF = p;
+            Tokens tempBNF = new Tokens(string.Empty, "BRF>> ", 0, p.Value.Linea);
 
             //Se recorren las sentencias
-            while(p.Value.Lexema != "}")
+            while (p.Value.Lexema != "}")
             {
                 switch (p.Value.Lexema)
                 {
@@ -147,6 +152,37 @@ namespace AutomataCSharp
                     default:
                         p = SentencePolish(p);
                         break;
+                }
+            }
+            //Llega }
+            PunteroCount--;
+            LinkedListNode<Tokens> BRI = p;
+            Tokens tempBRI = new Tokens(string.Empty, "BRI>> ", 0, p.Value.Linea); //Se guarda para cuando sepamos el apuntador
+
+            LinkedListNode<Tokens> d = p.Next; //es temporal y apunta al siguiente para saber si es else o no
+            if(d.Value.Lexema == "else")
+            {
+                CrearApuntador(p, "B");
+
+                //En BNF del IF saltará a BX
+                string apuntador = "B" + PunteroCount.ToString();
+                tempBNF.Lexema += apuntador;
+
+                //Se añade nombre del apuntador al BNF del IF
+                BNF.Value = tempBNF;
+
+                //Añadir apuntador a la lista
+                Pointers.Add(apuntador);
+
+                p = p.Next; //Apunta a ELSE
+                if (p.Next.Value.Lexema == "if") //Si es un else if
+                {
+                    p = p.Next;
+                    p = IfPolish(p);
+                }
+                else //es ELSE solito
+                {
+
                 }
             }
             return p;
@@ -191,11 +227,17 @@ namespace AutomataCSharp
             //Impresion del posfijo actual
             foreach (Tokens item in res) 
             {
-                LinkedPolish.AddLast(item);
+                LinkedPolish.AddLast(item.Lexema);
                 currentpolish += item.Lexema + " "; 
             }
             return currentpolish;
         }
 
+        public void CrearApuntador(LinkedListNode<Tokens> p, string ID)
+        {
+            LinkedListNode<Tokens> apuntador = p;
+            apuntador.Value = new Tokens(string.Empty, ID + PunteroCount.ToString(), 0, p.Value.Linea);
+            Pointers.Add(apuntador.Value.Lexema);
+        }
     }
 }

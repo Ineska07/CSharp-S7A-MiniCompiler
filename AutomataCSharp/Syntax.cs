@@ -579,9 +579,12 @@ namespace AutomataCSharp
             {
                 if(p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
-                    if (GetVariable(p.Value) == null) AddError(701, p.Value.Lexema);
-                    p = p.Next;
+                    if(p.Value.Valor == -1)
+                    {
+                        if (GetVariable(p.Value) == null) AddError(701, p.Value.Lexema);
+                    }
 
+                    p = p.Next;
                     if (p != null && p.Value.Lexema == "+") 
                     { 
                         p = p.Next;  
