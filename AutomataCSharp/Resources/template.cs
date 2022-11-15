@@ -10,20 +10,20 @@ namespace CompiladorCSharp
             int i;
             Console.WriteLine(x);
 
-            while(i < 5) //C0
+            while(i < 5) //>>0
             {
-                if (i == 4 || i < 6) //A1 -- BNF>> B1
+                if (i == 4 || i < 6) //1 -- BNF>> 2
                 {
                     Console.WriteLine("Ya casi!");
                     int y = 5 + 2;
-                    //BRI>> D1
+                    //BRI>> 3
                 }
-                else //B1
+                else //2
                 {
                     Console.WriteLine("Aun no");
                 }
-                i++; //D1
-                //BRI C0
+                i++; //3
+                //BRI 0
             }
         }
     }

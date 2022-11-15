@@ -70,11 +70,9 @@ namespace AutomataCSharp
                         break;
                     case "if":
                         p = IfPolish(p);
-                        PunteroCount--;
                         break;
                     case "while":
                         p = WhilePolish(p);
-                        PunteroCount--;
                         break;
                     default:
                         p = SentencePolish(p);
@@ -114,43 +112,41 @@ namespace AutomataCSharp
 
         public LinkedListNode<Tokens> IfPolish(LinkedListNode<Tokens> p)
         {
-            //Entra IF - NO METER IF AL POLISH
-            CrearApuntador(p, "A");
-            /* >> (*/ p = p.Next;
+            //ENTRA: IF
+            //CREAR APUNTADOR A
+            int indexif = PunteroCount;
+            LinkedPolish.AddLast(">>" + indexif.ToString());
 
+            //Aumentar el apuntador par el BNF
+            PunteroCount++; int indexBRF = PunteroCount;
+
+            //Crea el Posfijo de la espresión, ya hecha se mete a la pila.
             LinkedList<Tokens> infijo = new LinkedList<Tokens>();
-            while(p.Next.Value.Lexema != ")") //en ( empezar a crear el posfijo, como no hay errores solo se pone un while
+            while (p.Next.Value.Lexema != ")")
             {
                 p = p.Next;
                 infijo.AddLast(p.Value);
             }
             string tempPolish = InfixPosfix(infijo.ToArray());
 
-            //Crear Apuntador - Se le pondrá valor una vez entre el else o salto.
-            LinkedListNode<Tokens> BNF = p;
-            Tokens tempBNF = new Tokens(string.Empty, "BRF>> ", 0, p.Value.Linea);
+            //Llega { Crea el BNF al final de la expresión
+            LinkedPolish.AddLast("BRF>> " + indexBRF.ToString());
+            tempPolish += "BRF>> " + indexBRF.ToString();
+            Polish.Add(tempPolish);
 
             //Se recorren las sentencia
-            p = Block(p);
+            p = p.Next;
+            p = Block(p); //retorna en }
 
-            //Block Retorna } - Re reemplaza la llave por el BRI
-            LinkedListNode<Tokens> BRI = p;
-            Tokens tempBRI = new Tokens(string.Empty, "BRI>> ", 0, p.Value.Linea);
+            //Añade salto incondicional de if
+            PunteroCount++; int indexBRI = PunteroCount;
+            LinkedPolish.AddLast("BRI>> " + indexBRI.ToString());
 
             p = p.Next;
-            if(p.Value.Lexema == "else")
+            if (p.Value.Lexema == "else")
             {
-                CrearApuntador(p, "B");
-
-                //En BNF del IF saltará a BX
-                string apuntador = "B" + PunteroCount.ToString();
-                tempBNF.Lexema += apuntador;
-
                 //Se añade nombre del apuntador al BNF del IF
-                BNF.Value = tempBNF;
-
-                //Añadir apuntador a la lista
-                Pointers.Add(apuntador);
+                LinkedPolish.AddLast(">>" + indexBRF.ToString());
 
                 p = p.Next; //Apunta a ELSE
                 if (p.Next.Value.Lexema == "if") //Si es un else if
@@ -160,17 +156,13 @@ namespace AutomataCSharp
                 }
                 else //es ELSE solito
                 {
-                    
+                    p = p.Next;
+                    p = Block(p);
                 }
             }
             else
             {
-                //NOTA: NO SÉ SI
-                CrearApuntador(p, "D");
-                string apuntador = "D" + PunteroCount.ToString();
-                tempBRI.Lexema += apuntador;
-                BRI.Value = tempBRI;
-                p = Block(p);
+                LinkedPolish.AddLast(">>" + indexBRF.ToString());
             }
             return p;
         }
@@ -245,11 +237,13 @@ namespace AutomataCSharp
             return currentpolish;
         }
 
-        public void CrearApuntador(LinkedListNode<Tokens> p, string ID)
+        public LinkedListNode<Tokens> CrearApuntador(LinkedListNode<Tokens> p, string ID)
         {
-            LinkedListNode<Tokens> apuntador = p;
-            apuntador.Value = new Tokens(string.Empty, ID + PunteroCount.ToString(), 0, p.Value.Linea);
+            LinkedListNode<Tokens> apuntador = new LinkedListNode<Tokens>
+                (new Tokens(string.Empty, ID + PunteroCount.ToString(), 0, p.Value.Linea));
             Pointers.Add(apuntador.Value.Lexema);
+
+            return apuntador;
         }
     }
 }
