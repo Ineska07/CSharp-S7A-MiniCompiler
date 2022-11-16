@@ -83,30 +83,31 @@ namespace AutomataCSharp
 
         public LinkedListNode<Tokens> SentencePolish(LinkedListNode<Tokens> p)
         {
-            //Entra con primera cosa que irá en el Polish 
-            string tempPolish = string.Empty;
-            LinkedList<Tokens> infijo = new LinkedList<Tokens>();
+            Dictionary<string, int> IGNORE = new Dictionary<string, int>(){ {"int", 1 }, {"double", 1}, { "string", 1 }, { "bool", 1 },
+                {"Console", 2 }, {"(", 2 }, {")", 2 } , { ".", 2 }};
 
+            //Entra con primera cosa que irá en el Polish 
+            LinkedList<Tokens> infijo = new LinkedList<Tokens>();
             while (p.Value.Lexema != ";")
             {
-                infijo.AddLast(p.Value);
-                p = p.Next;
+                if (IGNORE.ContainsKey(p.Value.Lexema))
+                {
+                    p = p.Next;
+                }
+                else
+                {
+                    infijo.AddLast(p.Value);
+                    p = p.Next;
+                }
             }
-            //tempPolish = InfixPosfix(infijo.ToArray());
-
-            return p;
+            string tempPolish = InfixPosfix(infijo.ToArray());
+            Polish.Add(tempPolish);
+            return p.Next;
         }
 
         public LinkedListNode<Tokens> WhilePolish(LinkedListNode<Tokens> p)
         {
-            CrearApuntador(p, "C");
-
-            //entra while - NO METER AL POLISH
-            //Meter Apuntador
-            //en ( empezar a crear el posfijo, como no hay errores solo se pone un while
-            //llega ), y llega } insertar BRF
-            //recorrer sentencias hasta que llegue el }
-            //termina el while, saca el BRI
+            
             return p;
         }
 
@@ -122,6 +123,7 @@ namespace AutomataCSharp
 
             //Crea el Posfijo de la espresión, ya hecha se mete a la pila.
             LinkedList<Tokens> infijo = new LinkedList<Tokens>();
+            p = p.Next;
             while (p.Next.Value.Lexema != ")")
             {
                 p = p.Next;
@@ -129,14 +131,13 @@ namespace AutomataCSharp
             }
             string tempPolish = InfixPosfix(infijo.ToArray());
 
-            //Llega { Crea el BNF al final de la expresión
             LinkedPolish.AddLast("BRF>> " + indexBRF.ToString());
             tempPolish += "BRF>> " + indexBRF.ToString();
             Polish.Add(tempPolish);
 
             //Se recorren las sentencia
             p = p.Next;
-            p = Block(p); //retorna en }
+            p = Block(p.Next); //retorna en }
 
             //Añade salto incondicional de if
             PunteroCount++; int indexBRI = PunteroCount;
@@ -146,7 +147,7 @@ namespace AutomataCSharp
             if (p.Value.Lexema == "else")
             {
                 //Se añade nombre del apuntador al BNF del IF
-                LinkedPolish.AddLast(">>" + indexBRF.ToString());
+                LinkedPolish.AddLast(">" + indexBRF.ToString());
 
                 p = p.Next; //Apunta a ELSE
                 if (p.Next.Value.Lexema == "if") //Si es un else if
@@ -162,7 +163,7 @@ namespace AutomataCSharp
             }
             else
             {
-                LinkedPolish.AddLast(">>" + indexBRF.ToString());
+                LinkedPolish.AddLast(">" + indexBRF.ToString());
             }
             return p;
         }
@@ -170,9 +171,8 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> Block(LinkedListNode<Tokens> p)
         {
             //entra {
-            PunteroCount++;
             p = p.Next;
-            while (p.Value.Lexema != "}")
+            while (p.Value.Lexema != "}" || p.Value != null)
             {
                 switch (p.Value.Lexema)
                 {
@@ -189,7 +189,6 @@ namespace AutomataCSharp
                         break;
                 }
             }
-            PunteroCount--;
             //Retornar }
             return p; 
         }
