@@ -14,19 +14,19 @@ namespace AutomataCSharp
     {
         private Dictionary<string, int> Operandos = new Dictionary<string, int>()
         {
-            {"=", 8 },
+            {"=", 6 },
 
-            {"WriteLine", 7},
-            {"ReadLine", 7 },
+            {"WriteLine", 5},
+            {"ReadLine", 5 },
 
-            {"&&", 6 },
-            {"||", 6},
-            {"==", 5 },
-            {"!=", 4 },
-            {"<=", 4 },
-            {"<", 4 },
-            {">", 4 },
-            {">=", 4 },
+            {"&&", 4 },
+            {"||", 4},
+            {"==", 3 },
+            {"!=", 3 },
+            {"<=", 3 },
+            {"<", 3 },
+            {">", 3 },
+            {">=", 3},
 
             {"/", 2 },
             {"*", 2 },
@@ -36,9 +36,7 @@ namespace AutomataCSharp
 
         private LinkedList<Tokens> Tokens = new LinkedList<Tokens>();
         private LinkedList<string> LinkedPolish = new LinkedList<string>(); //Para la lista real del Polish que se usa en la programación
-
-        List<string> Polish = new List<string>(); //Para la tablita del Polish en la interfaz
-        List<string> Pointers = new List<string>();
+        public List<string> Polish = new List<string>(); //Para la tablita del Polish en la interfaz
 
         int PunteroCount = 0; //Contador para saber el apuntador
 
@@ -48,10 +46,9 @@ namespace AutomataCSharp
             { 
                 Tokens.AddLast(item); 
             }
-            CreatePolish();
         }
 
-        private void CreatePolish()
+        public void CreatePolish()
         {
             LinkedListNode<Tokens> p = Tokens.First;
             while (p != null)
@@ -66,6 +63,7 @@ namespace AutomataCSharp
                         while (p.Value.Linea == currentline) p = p.Next; 
                         break;
                     case "{":
+                    case "}":
                         p = p.Next;
                         break;
                     case "if":
@@ -81,7 +79,7 @@ namespace AutomataCSharp
             }
         }
 
-        public LinkedListNode<Tokens> SentencePolish(LinkedListNode<Tokens> p)
+        private LinkedListNode<Tokens> SentencePolish(LinkedListNode<Tokens> p)
         {
             Dictionary<string, int> IGNORE = new Dictionary<string, int>(){ {"int", 1 }, {"double", 1}, { "string", 1 }, { "bool", 1 },
                 {"Console", 2 }, {"(", 2 }, {")", 2 } , { ".", 2 }};
@@ -105,13 +103,13 @@ namespace AutomataCSharp
             return p.Next;
         }
 
-        public LinkedListNode<Tokens> WhilePolish(LinkedListNode<Tokens> p)
+        private LinkedListNode<Tokens> WhilePolish(LinkedListNode<Tokens> p)
         {
             
             return p;
         }
 
-        public LinkedListNode<Tokens> IfPolish(LinkedListNode<Tokens> p)
+        private LinkedListNode<Tokens> IfPolish(LinkedListNode<Tokens> p)
         {
             //ENTRA: IF
             //CREAR APUNTADOR A
@@ -142,12 +140,14 @@ namespace AutomataCSharp
             //Añade salto incondicional de if
             PunteroCount++; int indexBRI = PunteroCount;
             LinkedPolish.AddLast("BRI>> " + indexBRI.ToString());
+            Polish.Add("BRI>> " + indexBRI.ToString());
 
             p = p.Next;
             if (p.Value.Lexema == "else")
             {
                 //Se añade nombre del apuntador al BNF del IF
                 LinkedPolish.AddLast(">" + indexBRF.ToString());
+                Polish.Add(">" + indexBRF.ToString());
 
                 p = p.Next; //Apunta a ELSE
                 if (p.Next.Value.Lexema == "if") //Si es un else if
@@ -164,6 +164,7 @@ namespace AutomataCSharp
             else
             {
                 LinkedPolish.AddLast(">" + indexBRF.ToString());
+                Polish.Add(">" + indexBRF.ToString());
             }
             return p;
         }
@@ -172,7 +173,7 @@ namespace AutomataCSharp
         {
             //entra {
             p = p.Next;
-            while (p.Value.Lexema != "}" || p.Value != null)
+            while (p.Value.Lexema != "}")
             {
                 switch (p.Value.Lexema)
                 {
@@ -234,15 +235,6 @@ namespace AutomataCSharp
                 currentpolish += item.Lexema + " "; 
             }
             return currentpolish;
-        }
-
-        public LinkedListNode<Tokens> CrearApuntador(LinkedListNode<Tokens> p, string ID)
-        {
-            LinkedListNode<Tokens> apuntador = new LinkedListNode<Tokens>
-                (new Tokens(string.Empty, ID + PunteroCount.ToString(), 0, p.Value.Linea));
-            Pointers.Add(apuntador.Value.Lexema);
-
-            return apuntador;
         }
     }
 }

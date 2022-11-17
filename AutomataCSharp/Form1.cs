@@ -120,6 +120,12 @@ namespace AutomataCSharp
             if (TotalErrores == 0)
             {
                 Intermedio code = new Intermedio(Analizador.tokensGenerados);
+                code.CreatePolish();
+
+                foreach(string polishline in code.Polish)
+                {
+                    dgvErrores.Rows.Add(polishline);
+                }
             }
         }
 
