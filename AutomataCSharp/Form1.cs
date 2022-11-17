@@ -105,6 +105,8 @@ namespace AutomataCSharp
         private void btnRun_Click(object sender, EventArgs e)
         {
             dgvErrores.Rows.Clear();
+            dgvPolish.Rows.Clear();
+
             lblError.Text = "Errores: ";
             
             Analizador = new Syntax();
@@ -124,7 +126,7 @@ namespace AutomataCSharp
 
                 foreach(string polishline in code.Polish)
                 {
-                    dgvErrores.Rows.Add(polishline);
+                    dgvPolish.Rows.Add(polishline);
                 }
             }
         }
@@ -136,6 +138,7 @@ namespace AutomataCSharp
             if (ErrorCount == 0)
             {
                 lblError.Text = "Felicidades! No hay errores :)";
+                dgvPolish.Visible = true;
             }
             else
             {

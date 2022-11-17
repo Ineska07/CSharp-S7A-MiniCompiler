@@ -14,13 +14,13 @@ namespace AutomataCSharp
     {
         private Dictionary<string, int> Operandos = new Dictionary<string, int>()
         {
-            {"=", 6 },
+            {"=", 0 },
 
             {"WriteLine", 5},
             {"ReadLine", 5 },
 
-            {"&&", 4 },
-            {"||", 4},
+            {"&&", 2 },
+            {"||", 2},
             {"==", 3 },
             {"!=", 3 },
             {"<=", 3 },
@@ -105,7 +105,40 @@ namespace AutomataCSharp
 
         private LinkedListNode<Tokens> WhilePolish(LinkedListNode<Tokens> p)
         {
-            
+            //ENTRA: WHILE
+            int indexwhile = PunteroCount;
+            LinkedPolish.AddLast(">>" + indexwhile.ToString());
+            string tempPolish = ">>" + indexwhile.ToString() + " ";
+
+            //Aumentar el apuntador par el BNF
+            PunteroCount++; int indexBRF = PunteroCount;
+
+            //Crea el Posfijo de la espresión, ya hecha se mete a la pila.
+            LinkedList<Tokens> infijo = new LinkedList<Tokens>();
+            p = p.Next;
+            while (p.Next.Value.Lexema != ")")
+            {
+                p = p.Next;
+                infijo.AddLast(p.Value);
+            }
+            tempPolish += InfixPosfix(infijo.ToArray());
+
+            LinkedPolish.AddLast("BRF>> " + indexBRF.ToString());
+            tempPolish += "BRF>> " + indexBRF.ToString();
+            Polish.Add(tempPolish);
+
+            //Se recorren las sentencia
+            p = p.Next;
+            p = Block(p.Next); //retorna en }
+
+            //Añade salto incondicional de WHILE - Regresa al apuntador del while
+            LinkedPolish.AddLast("BRI>> " + indexwhile.ToString());
+            Polish.Add("BRI>> " + indexwhile.ToString());
+
+            p = p.Next;
+            LinkedPolish.AddLast(">" + indexBRF.ToString());
+            Polish.Add(">" + indexBRF.ToString());
+
             return p;
         }
 
@@ -152,13 +185,13 @@ namespace AutomataCSharp
                 p = p.Next; //Apunta a ELSE
                 if (p.Next.Value.Lexema == "if") //Si es un else if
                 {
-                    p = p.Next;
-                    p = IfPolish(p);
+                    p = IfPolish(p.Next);
                 }
                 else //es ELSE solito
                 {
-                    p = p.Next;
                     p = Block(p);
+                    LinkedPolish.AddLast("> " + indexBRI.ToString());
+                    Polish.Add("> " + indexBRI.ToString());
                 }
             }
             else

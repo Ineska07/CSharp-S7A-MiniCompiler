@@ -129,7 +129,7 @@ namespace AutomataCSharp
             this.lblError.AutoSize = true;
             this.lblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblError.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.lblError.Location = new System.Drawing.Point(620, 308);
+            this.lblError.Location = new System.Drawing.Point(620, 15);
             this.lblError.Name = "lblError";
             this.lblError.Size = new System.Drawing.Size(58, 16);
             this.lblError.TabIndex = 6;
@@ -250,7 +250,7 @@ namespace AutomataCSharp
             this.dgvPolish.DefaultCellStyle = dataGridViewCellStyle7;
             this.dgvPolish.EnableHeadersVisualStyles = false;
             this.dgvPolish.GridColor = System.Drawing.Color.SlateGray;
-            this.dgvPolish.Location = new System.Drawing.Point(623, 327);
+            this.dgvPolish.Location = new System.Drawing.Point(623, 41);
             this.dgvPolish.Name = "dgvPolish";
             dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.ControlDarkDark;
@@ -262,7 +262,7 @@ namespace AutomataCSharp
             this.dgvPolish.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
             this.dgvPolish.RowHeadersVisible = false;
             this.dgvPolish.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
-            this.dgvPolish.Size = new System.Drawing.Size(350, 249);
+            this.dgvPolish.Size = new System.Drawing.Size(350, 535);
             this.dgvPolish.TabIndex = 9;
             this.dgvPolish.Visible = false;
             // 
