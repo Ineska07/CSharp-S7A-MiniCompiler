@@ -6,39 +6,37 @@ using System.Threading.Tasks;
 
 namespace AutomataCSharp
 {
-    /// <NOTITASXD>
-    /// El contador aumentará por cada sentencia while o if anidada
-    /// Añadir Apuntador en cada while, if, else y D
+    /// <summary>
+    /// 
     /// </summary>
+
     class Intermedio
     {
+        //Lisa de Operandos con sus proridades para la generación del posfijo en las expresiones
         private Dictionary<string, int> Operandos = new Dictionary<string, int>()
         {
             {"=", 0 },
 
-            {"WriteLine", 5},
-            {"ReadLine", 5 },
+            {"WriteLine", 5}, {"ReadLine", 5 },
 
-            {"&&", 2 },
-            {"||", 2},
-            {"==", 3 },
-            {"!=", 3 },
-            {"<=", 3 },
-            {"<", 3 },
-            {">", 3 },
-            {">=", 3},
+            {"&&", 2 },  {"||", 2},
+            {"==", 3 }, {"!=", 3 }, 
+            {"<=", 3 }, {"<", 3 }, {">", 3 }, {">=", 3},
 
-            {"/", 2 },
-            {"*", 2 },
-            {"-", 1 },
-            {"+", 1 },
+            {"/", 2 }, {"*", 2 }, {"-", 1 }, {"+", 1 },
         };
 
+        //Lista de Tokens generados en el Léxico
         private LinkedList<Tokens> Tokens = new LinkedList<Tokens>();
-        private LinkedList<string> LinkedPolish = new LinkedList<string>(); //Para la lista real del Polish que se usa en la programación
-        public List<string> Polish = new List<string>(); //Para la tablita del Polish en la interfaz
 
-        int PunteroCount = 0; //Contador para saber el apuntador
+        //Lista real del Polish que se usa en la programación del código objeto.
+        private LinkedList<string> LinkedPolish = new LinkedList<string>();
+
+        //Lista del Polish para presentarse en la interfaz, separando sentencias por líneas e items por espacios
+        public List<string> Polish = new List<string>();
+
+        //Index de apuntadores BRF/BRI
+        int PunteroCount = 0;
 
         public Intermedio(Queue<Tokens> tokens)
         {
@@ -81,10 +79,10 @@ namespace AutomataCSharp
 
         private LinkedListNode<Tokens> SentencePolish(LinkedListNode<Tokens> p)
         {
+            //Entra con primera cosa que irá en el Polish 
             Dictionary<string, int> IGNORE = new Dictionary<string, int>(){ {"int", 1 }, {"double", 1}, { "string", 1 }, { "bool", 1 },
                 {"Console", 2 }, {"(", 2 }, {")", 2 } , { ".", 2 }};
 
-            //Entra con primera cosa que irá en el Polish 
             LinkedList<Tokens> infijo = new LinkedList<Tokens>();
             while (p.Value.Lexema != ";")
             {
@@ -98,8 +96,12 @@ namespace AutomataCSharp
                     p = p.Next;
                 }
             }
-            string tempPolish = InfixPosfix(infijo.ToArray());
-            Polish.Add(tempPolish);
+            if(infijo.ToArray().Length > 1)
+            {
+                //Pa que no tome instrucciones como string i; que tener el infijo no tiene sentido porque solo declara una variable sin valor.
+                string tempPolish = InfixPosfix(infijo.ToArray());
+                Polish.Add(tempPolish);
+            }
             return p.Next;
         }
 
@@ -107,8 +109,8 @@ namespace AutomataCSharp
         {
             //ENTRA: WHILE
             int indexwhile = PunteroCount;
-            LinkedPolish.AddLast(">>" + indexwhile.ToString());
-            string tempPolish = ">>" + indexwhile.ToString() + " ";
+            LinkedPolish.AddLast(">" + indexwhile.ToString());
+            string tempPolish = ">" + indexwhile.ToString() + "   ";
 
             //Aumentar el apuntador par el BNF
             PunteroCount++; int indexBRF = PunteroCount;
@@ -123,8 +125,8 @@ namespace AutomataCSharp
             }
             tempPolish += InfixPosfix(infijo.ToArray());
 
-            LinkedPolish.AddLast("BRF>> " + indexBRF.ToString());
-            tempPolish += "BRF>> " + indexBRF.ToString();
+            LinkedPolish.AddLast("BRF>" + indexBRF.ToString());
+            tempPolish += "BRF>" + indexBRF.ToString();
             Polish.Add(tempPolish);
 
             //Se recorren las sentencia
@@ -132,13 +134,12 @@ namespace AutomataCSharp
             p = Block(p.Next); //retorna en }
 
             //Añade salto incondicional de WHILE - Regresa al apuntador del while
-            LinkedPolish.AddLast("BRI>> " + indexwhile.ToString());
-            Polish.Add("BRI>> " + indexwhile.ToString());
+            LinkedPolish.AddLast("BRI>" + indexwhile.ToString());
+            Polish.Add("BRI>" + indexwhile.ToString());
 
-            p = p.Next;
+            //Añade apuntador BRF
             LinkedPolish.AddLast(">" + indexBRF.ToString());
-            Polish.Add(">" + indexBRF.ToString());
-
+            Polish.Add(">" + indexBRF.ToString() + "  ");
             return p;
         }
 
@@ -147,7 +148,7 @@ namespace AutomataCSharp
             //ENTRA: IF
             //CREAR APUNTADOR A
             int indexif = PunteroCount;
-            LinkedPolish.AddLast(">>" + indexif.ToString());
+            LinkedPolish.AddLast(">" + indexif.ToString() + "   ");
 
             //Aumentar el apuntador par el BNF
             PunteroCount++; int indexBRF = PunteroCount;
@@ -162,8 +163,8 @@ namespace AutomataCSharp
             }
             string tempPolish = InfixPosfix(infijo.ToArray());
 
-            LinkedPolish.AddLast("BRF>> " + indexBRF.ToString());
-            tempPolish += "BRF>> " + indexBRF.ToString();
+            LinkedPolish.AddLast("BRF>" + indexBRF.ToString());
+            tempPolish += "BRF>" + indexBRF.ToString();
             Polish.Add(tempPolish);
 
             //Se recorren las sentencia
@@ -172,15 +173,15 @@ namespace AutomataCSharp
 
             //Añade salto incondicional de if
             PunteroCount++; int indexBRI = PunteroCount;
-            LinkedPolish.AddLast("BRI>> " + indexBRI.ToString());
-            Polish.Add("BRI>> " + indexBRI.ToString());
+            LinkedPolish.AddLast("BRI>" + indexBRI.ToString());
+            Polish.Add("BRI>" + indexBRI.ToString());
 
             p = p.Next;
             if (p.Value.Lexema == "else")
             {
                 //Se añade nombre del apuntador al BNF del IF
                 LinkedPolish.AddLast(">" + indexBRF.ToString());
-                Polish.Add(">" + indexBRF.ToString());
+                Polish.Add(">" + indexBRF.ToString() + "  ");
 
                 p = p.Next; //Apunta a ELSE
                 if (p.Next.Value.Lexema == "if") //Si es un else if
@@ -190,14 +191,14 @@ namespace AutomataCSharp
                 else //es ELSE solito
                 {
                     p = Block(p);
-                    LinkedPolish.AddLast("> " + indexBRI.ToString());
-                    Polish.Add("> " + indexBRI.ToString());
+                    LinkedPolish.AddLast(">" + indexBRI.ToString());
+                    Polish.Add(">" + indexBRI.ToString() + "  ");
                 }
             }
             else
             {
                 LinkedPolish.AddLast(">" + indexBRF.ToString());
-                Polish.Add(">" + indexBRF.ToString());
+                Polish.Add(">" + indexBRF.ToString() + "  ");
             }
             return p;
         }
@@ -212,11 +213,9 @@ namespace AutomataCSharp
                 {
                     case "if":
                         p = IfPolish(p);
-                        PunteroCount--;
                         break;
                     case "while":
                         p = WhilePolish(p);
-                        PunteroCount--;
                         break;
                     default:
                         p = SentencePolish(p);
@@ -262,10 +261,12 @@ namespace AutomataCSharp
                     Tokens temp = aux.Pop();
                     res.Push(temp);
                 }
+
+            //Añadir elementos del posfijo generado al Polish
             foreach (Tokens item in res.Reverse()) 
             {
                 LinkedPolish.AddLast(item.Lexema);
-                currentpolish += item.Lexema + " "; 
+                currentpolish += item.Lexema + "   "; 
             }
             return currentpolish;
         }

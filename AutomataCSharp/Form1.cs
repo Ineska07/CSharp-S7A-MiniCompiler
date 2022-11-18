@@ -133,6 +133,7 @@ namespace AutomataCSharp
 
         private void ImprimirTablaErrores(int ErrorCount)
         {
+            dgvPolish.Visible = false;
             lblError.Visible = true;
 
             if (ErrorCount == 0)
