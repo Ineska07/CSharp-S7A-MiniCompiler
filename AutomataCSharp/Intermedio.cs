@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace AutomataCSharp
 {
     /// <summary>
-    /// 
+    /// ARREGLAR POSFIJO - ERROR CON MULTIPLICACIÓN
+    /// Error BRI del if Innecesario si solo hay un if.
     /// </summary>
-
     class Intermedio
     {
         //Lisa de Operandos con sus proridades para la generación del posfijo en las expresiones
@@ -116,7 +116,6 @@ namespace AutomataCSharp
                         p = p.Next;
                     }
                 }
-                
             }
             if(infijo.ToArray().Length > 1)
             {
@@ -137,7 +136,7 @@ namespace AutomataCSharp
             //Aumentar el apuntador par el BNF
             PunteroCount++; int indexBRF = PunteroCount;
 
-            //Crea el Posfijo de la espresión, ya hecha se mete a la pila.
+            //Posfijo
             LinkedList<Tokens> infijo = new LinkedList<Tokens>();
             p = p.Next;
             while (p.Next.Value.Lexema != ")")
@@ -151,15 +150,17 @@ namespace AutomataCSharp
             tempPolish += "BRF>" + indexBRF.ToString();
             Polish.Add(tempPolish);
 
-            //Se recorren las sentencia
+            //ENTRA AL BLOQUE DESDE EL { HASTA EL }
             p = p.Next;
-            p = Block(p.Next); //retorna en }
+            p = Block(p.Next);
 
-            //Añade salto incondicional de WHILE - Regresa al apuntador del while
+            //Salto incondicional de WHILE
             LinkedPolish.AddLast("BRI>" + indexwhile.ToString());
             Polish.Add("BRI>" + indexwhile.ToString());
 
-            //Añade apuntador BRF
+            p = p.Next;
+
+            //BRF
             LinkedPolish.AddLast(">" + indexBRF.ToString());
             Polish.Add(">" + indexBRF.ToString() + "  ");
             return p;
@@ -168,14 +169,12 @@ namespace AutomataCSharp
         private LinkedListNode<Tokens> IfPolish(LinkedListNode<Tokens> p)
         {
             //ENTRA: IF
-            //CREAR APUNTADOR A
             int indexif = PunteroCount;
             LinkedPolish.AddLast(">" + indexif.ToString() + "   ");
 
-            //Aumentar el apuntador par el BNF
             PunteroCount++; int indexBRF = PunteroCount;
 
-            //Crea el Posfijo de la espresión, ya hecha se mete a la pila.
+            //Posfijo
             LinkedList<Tokens> infijo = new LinkedList<Tokens>();
             p = p.Next;
             while (p.Next.Value.Lexema != ")")
@@ -189,11 +188,10 @@ namespace AutomataCSharp
             tempPolish += "BRF>" + indexBRF.ToString();
             Polish.Add(tempPolish);
 
-            //Se recorren las sentencia
             p = p.Next;
-            p = Block(p.Next); //retorna en }
+            p = Block(p.Next);
 
-            //Añade salto incondicional de if
+            //BRI del IF
             PunteroCount++; int indexBRI = PunteroCount;
             LinkedPolish.AddLast("BRI>" + indexBRI.ToString());
             Polish.Add("BRI>" + indexBRI.ToString());
@@ -206,11 +204,11 @@ namespace AutomataCSharp
                 Polish.Add(">" + indexBRF.ToString() + "  ");
 
                 p = p.Next; //Apunta a ELSE
-                if (p.Next.Value.Lexema == "if") //Si es un else if
+                if (p.Next.Value.Lexema == "if")
                 {
                     p = IfPolish(p.Next);
                 }
-                else //es ELSE solito
+                else
                 {
                     p = Block(p);
                     LinkedPolish.AddLast(">" + indexBRI.ToString());
@@ -293,14 +291,5 @@ namespace AutomataCSharp
             }
             return currentpolish;
         }
-
-        public void RefinarVistaPolish()
-        {
-            List<string> prevPolish = Polish;
-            Polish.Clear();
-
-
-
-    }
     }
 }
