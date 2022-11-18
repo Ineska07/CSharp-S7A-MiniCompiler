@@ -215,6 +215,7 @@ namespace AutomataCSharp
                     p = Block(p);
                     LinkedPolish.AddLast(">" + indexBRI.ToString());
                     Polish.Add(">" + indexBRI.ToString() + "  ");
+                    p = p.Next;
                 }
             }
             else
@@ -298,18 +299,8 @@ namespace AutomataCSharp
             List<string> prevPolish = Polish;
             Polish.Clear();
 
-            foreach (string line in prevPolish)
-            {
-                if(line.StartsWith(">") && line.Length == 2)
-                {
 
-                }
 
-                else
-                {
-                    Polish.Add(line);
-                }
-            }
     }
     }
 }
