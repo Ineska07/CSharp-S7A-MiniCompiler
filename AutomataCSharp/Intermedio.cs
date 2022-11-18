@@ -86,15 +86,37 @@ namespace AutomataCSharp
             LinkedList<Tokens> infijo = new LinkedList<Tokens>();
             while (p.Value.Lexema != ";")
             {
-                if (IGNORE.ContainsKey(p.Value.Lexema))
+                if(p.Value.Valor == -1 && (p.Next.Value.Lexema == "++" || p.Next.Value.Lexema == "--"))
                 {
+                    Tokens var = p.Value;
+                    Tokens op = new Tokens("Aritmético", null, 0, p.Value.Linea);
+                    Tokens asign = new Tokens("Asignativo", "=", -19, p.Value.Linea);
+                    Tokens sum = new Tokens("Numero", "1", -2, p.Value.Linea); ;
+
                     p = p.Next;
+                    switch (p.Value.Lexema)
+                    {
+                        case "++": op.Valor = -6; op.Lexema = "+"; break;
+                        case "--": op.Valor = -7; op.Lexema = "-"; break;
+                    }
+
+                    infijo.AddLast(var); infijo.AddLast(asign); infijo.AddLast(var); infijo.AddLast(op); infijo.AddLast(sum);
+                    p = p.Next;
+
                 }
                 else
                 {
-                    infijo.AddLast(p.Value);
-                    p = p.Next;
+                    if (IGNORE.ContainsKey(p.Value.Lexema))
+                    {
+                        p = p.Next;
+                    }
+                    else
+                    {
+                        infijo.AddLast(p.Value);
+                        p = p.Next;
+                    }
                 }
+                
             }
             if(infijo.ToArray().Length > 1)
             {
@@ -270,5 +292,24 @@ namespace AutomataCSharp
             }
             return currentpolish;
         }
+
+        public void RefinarVistaPolish()
+        {
+            List<string> prevPolish = Polish;
+            Polish.Clear();
+
+            foreach (string line in prevPolish)
+            {
+                if(line.StartsWith(">") && line.Length == 2)
+                {
+
+                }
+
+                else
+                {
+                    Polish.Add(line);
+                }
+            }
+    }
     }
 }
