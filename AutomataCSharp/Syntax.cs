@@ -259,6 +259,10 @@ namespace AutomataCSharp
                         if (valido == false && !semError) AddError(703, string.Empty);
                     }
                 }
+                else if(p.Value.Lexema == "Console")
+                {
+                    p = ConsoleSentence(p);
+                }
                 else AddError(602, string.Empty);
             }
             else AddError(600, string.Empty);

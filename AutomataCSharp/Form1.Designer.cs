@@ -37,6 +37,10 @@ namespace AutomataCSharp
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             this.btnAbrir = new System.Windows.Forms.Button();
             this.btnNuevo = new System.Windows.Forms.Button();
             this.btnGuardar = new System.Windows.Forms.Button();
@@ -50,8 +54,15 @@ namespace AutomataCSharp
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgvPolish = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgvCuadruplos = new System.Windows.Forms.DataGridView();
+            this.AP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OP1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OP2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RES = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvErrores)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPolish)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCuadruplos)).BeginInit();
             this.SuspendLayout();
             // 
             // btnAbrir
@@ -262,7 +273,7 @@ namespace AutomataCSharp
             this.dgvPolish.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
             this.dgvPolish.RowHeadersVisible = false;
             this.dgvPolish.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
-            this.dgvPolish.Size = new System.Drawing.Size(350, 535);
+            this.dgvPolish.Size = new System.Drawing.Size(350, 285);
             this.dgvPolish.TabIndex = 9;
             this.dgvPolish.Visible = false;
             // 
@@ -275,12 +286,101 @@ namespace AutomataCSharp
             this.dataGridViewTextBoxColumn1.ReadOnly = true;
             this.dataGridViewTextBoxColumn1.Width = 350;
             // 
+            // dgvCuadruplos
+            // 
+            this.dgvCuadruplos.AllowUserToAddRows = false;
+            this.dgvCuadruplos.AllowUserToDeleteRows = false;
+            this.dgvCuadruplos.AllowUserToOrderColumns = true;
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(41)))), ((int)(((byte)(35)))));
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle9.ForeColor = System.Drawing.Color.White;
+            this.dgvCuadruplos.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle9;
+            this.dgvCuadruplos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvCuadruplos.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.dgvCuadruplos.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(41)))), ((int)(((byte)(35)))));
+            this.dgvCuadruplos.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvCuadruplos.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvCuadruplos.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle10.BackColor = System.Drawing.Color.Navy;
+            dataGridViewCellStyle10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle10.ForeColor = System.Drawing.Color.Aqua;
+            dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCuadruplos.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle10;
+            this.dgvCuadruplos.ColumnHeadersHeight = 20;
+            this.dgvCuadruplos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.dgvCuadruplos.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.AP,
+            this.OP,
+            this.OP1,
+            this.OP2,
+            this.RES});
+            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(41)))), ((int)(((byte)(35)))));
+            dataGridViewCellStyle11.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle11.ForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvCuadruplos.DefaultCellStyle = dataGridViewCellStyle11;
+            this.dgvCuadruplos.EnableHeadersVisualStyles = false;
+            this.dgvCuadruplos.GridColor = System.Drawing.Color.SlateGray;
+            this.dgvCuadruplos.Location = new System.Drawing.Point(623, 332);
+            this.dgvCuadruplos.Name = "dgvCuadruplos";
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle12.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle12.ForeColor = System.Drawing.SystemColors.Info;
+            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCuadruplos.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
+            this.dgvCuadruplos.RowHeadersVisible = false;
+            this.dgvCuadruplos.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
+            this.dgvCuadruplos.Size = new System.Drawing.Size(350, 244);
+            this.dgvCuadruplos.TabIndex = 10;
+            this.dgvCuadruplos.Visible = false;
+            // 
+            // AP
+            // 
+            this.AP.HeaderText = "AP";
+            this.AP.Name = "AP";
+            this.AP.ReadOnly = true;
+            // 
+            // OP
+            // 
+            this.OP.HeaderText = "Operando";
+            this.OP.Name = "OP";
+            this.OP.ReadOnly = true;
+            // 
+            // OP1
+            // 
+            this.OP1.HeaderText = "OP1";
+            this.OP1.Name = "OP1";
+            this.OP1.ReadOnly = true;
+            // 
+            // OP2
+            // 
+            this.OP2.HeaderText = "OP2";
+            this.OP2.Name = "OP2";
+            this.OP2.ReadOnly = true;
+            // 
+            // RES
+            // 
+            this.RES.HeaderText = "Resultado";
+            this.RES.Name = "RES";
+            this.RES.ReadOnly = true;
+            // 
             // frmIDE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(72)))), ((int)(((byte)(73)))), ((int)(((byte)(68)))));
             this.ClientSize = new System.Drawing.Size(984, 616);
+            this.Controls.Add(this.dgvCuadruplos);
             this.Controls.Add(this.dgvPolish);
             this.Controls.Add(this.dgvErrores);
             this.Controls.Add(this.lblNumLineas);
@@ -296,6 +396,7 @@ namespace AutomataCSharp
             this.Text = "C# IDE";
             ((System.ComponentModel.ISupportInitialize)(this.dgvErrores)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPolish)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCuadruplos)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -316,6 +417,12 @@ namespace AutomataCSharp
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private System.Windows.Forms.DataGridView dgvPolish;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridView dgvCuadruplos;
+        private System.Windows.Forms.DataGridViewTextBoxColumn AP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn OP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn OP1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn OP2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RES;
     }
 }
 

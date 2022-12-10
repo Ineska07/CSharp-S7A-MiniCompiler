@@ -25,7 +25,9 @@ namespace AutomataCSharp
             //igualdad
             {"=", 0},
         };
-        private LinkedList<Cuadruplo> TablaCuadruplos;
+        public LinkedList<Cuadruplo> TablaCuadruplos = new LinkedList<Cuadruplo>();
+
+        int tempvarcount = 0;
 
         public Ensamblador(LinkedList<string> Polish, LinkedList<Variable> Variables)
         {
@@ -38,18 +40,25 @@ namespace AutomataCSharp
 
             foreach (string item in Polish)
             {
-                Cuadruplo c = null;
+                Cuadruplo c = new Cuadruplo(null, null, null, null, null);
+
                 if (item.StartsWith("BRI")) //BRI
                 {
                     string apunta = item.Split('>').Last();
-                    c = new Cuadruplo(apuntador, "BRI", null, null, apunta);
+
+                    c.AP = apuntador;
+                    c.OP = "BRI";
+                    c.RES = apunta;
                 }
                 else if (item.StartsWith("BRF")) //BRF
                 {
                     string apunta = item.Split('>').Last();
                     string operando = vars.Pop();
 
-                    c = new Cuadruplo(apuntador, "BRF", operando, null, apunta);
+                    c.AP = apuntador;
+                    c.OP = "BRF";
+                    c.OP1 = operando;
+                    c.RES = apunta;
                 }
                 else if (item.Length > 1 && item.StartsWith(">")) //APUNTADOR
                 {
@@ -61,27 +70,45 @@ namespace AutomataCSharp
                     if (!Operadores.ContainsKey(item))
                     {
                         vars.Push(item);
+                        continue;
                     }
                     else
                     {
                         //Tomar operador
                         string operador = item;
 
-                        //Toma los elementros de la pila
-                        string Var2 = vars.Pop();
-                        string Var1 = vars.Pop();
-
-                        //Hacer la linea del cuadruplo
-                        #region igualdad
-                        if (operador == "=")
+                        
+                        if (operador == "WriteLine")
                         {
-                            c = new Cuadruplo(apuntador, operador, Var1, Var2, Var1);
+                            string Var1 = vars.Pop();
+                            c.OP = operador;
+                            c.OP1 = Var1;
+                        }
+                        else if (operador == "=")
+                        {
+                            string Var2 = vars.Pop();
+                            string Var1 = vars.Pop();
+
+                            c.AP = apuntador;
+                            c.OP = operador;
+                            c.OP1 = Var1;
+                            c.OP2 = Var2;
+                            c.RES = Var1;
                         }
                         else
                         {
-                            c = new Cuadruplo(apuntador, operador, Var1, Var2, null);
+                            //Toma los elementros de la pila
+                            string Var2 = vars.Pop();
+                            string Var1 = vars.Pop();
+
+                            //Hacer la linea del cuadruplo
+                            c.AP = apuntador;
+                            c.OP = operador;
+                            c.OP1 = Var1;
+                            c.OP2 = Var2;
+                            c.COUNT = tempvarcount; tempvarcount++;
+                            c.RES = null;
                         }
-                        #endregion
 
                         //Meter la variable TX a la pila de variables
                         string newVar = c.variabletemporal;
@@ -92,10 +119,12 @@ namespace AutomataCSharp
                 apuntador = string.Empty;
             }
 
-            if (vars.Count == 1)
+            int restantes = Int32.Parse(apuntador);
+            while (restantes > 0)
             {
-                string newVar = vars.Peek();
-                vars.Push(newVar);
+                Cuadruplo c = new Cuadruplo(restantes.ToString(), null, null, null, null);
+                TablaCuadruplos.AddLast(c);
+                restantes--;
             }
         }
 

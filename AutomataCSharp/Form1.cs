@@ -106,6 +106,7 @@ namespace AutomataCSharp
         {
             dgvErrores.Rows.Clear();
             dgvPolish.Rows.Clear();
+            dgvCuadruplos.Rows.Clear();
 
             lblError.Text = "Errores: ";
             
@@ -120,6 +121,9 @@ namespace AutomataCSharp
 
             if (TotalErrores == 0)
             {
+                dgvPolish.Visible = true;
+                dgvCuadruplos.Visible = true;
+
                 Intermedio code = new Intermedio(Analizador.tokensGenerados);
                 code.CreatePolish();
 
@@ -129,6 +133,11 @@ namespace AutomataCSharp
                 }
 
                 Ensamblador assembly = new Ensamblador(code.LinkedPolish, Analizador.variableList);
+
+                foreach (Cuadruplo cuadruplo in assembly.TablaCuadruplos)
+                {
+                    dgvCuadruplos.Rows.Add(cuadruplo.AP, cuadruplo.OP, cuadruplo.OP1, cuadruplo.OP2, cuadruplo.RES);
+                }
                 //MessageBox.Show("Se ha generado el archivo ensamblador");
 
             }
@@ -137,12 +146,12 @@ namespace AutomataCSharp
         private void ImprimirTablaErrores(int ErrorCount)
         {
             dgvPolish.Visible = false;
-            lblError.Visible = true;
+            dgvCuadruplos.Visible = false;
 
+            lblError.Visible = true;
             if (ErrorCount == 0)
             {
                 lblError.Text = "Felicidades! No hay errores :)";
-                dgvPolish.Visible = true;
             }
             else
             {

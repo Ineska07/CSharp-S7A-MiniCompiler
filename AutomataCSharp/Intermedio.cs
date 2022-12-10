@@ -159,8 +159,6 @@ namespace AutomataCSharp
         {
             //ENTRA: IF
             int indexif = PunteroCount;
-            LinkedPolish.AddLast(">" + indexif.ToString() + "   ");
-
             PunteroCount++; int indexBRF = PunteroCount;
 
             //Posfijo
