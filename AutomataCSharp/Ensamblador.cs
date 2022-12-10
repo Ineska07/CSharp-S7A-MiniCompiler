@@ -26,12 +26,14 @@ namespace AutomataCSharp
             {"=", 0},
         };
         public LinkedList<Cuadruplo> TablaCuadruplos = new LinkedList<Cuadruplo>();
+        public LinkedList<Variable> Variables = new LinkedList<Variable>();
 
         int tempvarcount = 0;
 
-        public Ensamblador(LinkedList<string> Polish, LinkedList<Variable> Variables)
+        public Ensamblador(LinkedList<string> Polish, LinkedList<Variable> VariablesDeclaradas)
         {
             Cuadruplos(Polish);
+            Variables = VariabLesTemporales(VariablesDeclaradas);
         }
         private void Cuadruplos(LinkedList<string> Polish)
         {
@@ -112,6 +114,9 @@ namespace AutomataCSharp
 
                         //Meter la variable TX a la pila de variables
                         string newVar = c.variabletemporal;
+                        Variable var = new Variable(null, c.variabletemporal, null);
+
+                        Variables.AddLast(var);
                         vars.Push(newVar);
                     }
                 }
@@ -126,6 +131,13 @@ namespace AutomataCSharp
                 TablaCuadruplos.AddLast(c);
                 restantes--;
             }
+        }
+
+        private LinkedList<Variable> VariabLesTemporales(LinkedList<Variable> variablesDeclaradas)
+        {
+            LinkedList<Variable> tempVariabes = new LinkedList<Variable>();
+
+            return tempVariabes;
         }
 
         public void CrearEnsamblador()
