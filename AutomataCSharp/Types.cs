@@ -61,7 +61,7 @@ namespace AutomataCSharp
 
         private string[,] final = 
         {   //=         int         double      string      bool
-            /*int*/     {"int",     "E",        "E",        "E"   },
+            /*int*/     {"int",     "double",   "E",        "E"   },
             /*double*/  {"double",  "double",   "E",        "E"   },
             /*string*/  {"E",       "E",        "string",   "E"  },
             /*bool*/    {"E",       "E",        "E",        "bool"  },
@@ -77,7 +77,6 @@ namespace AutomataCSharp
 
         public bool EvaluarTipos(Tokens operador, string type1, string type2)
         {
-            //Tomará una tabla de sistema de tipos dependiendo del operador
             switch (operador.Valor)
             {
                 case -6: //suma

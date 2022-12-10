@@ -6,18 +6,13 @@ using System.Threading.Tasks;
 
 namespace AutomataCSharp
 {
-    /// <summary>
-    /// ARREGLAR POSFIJO - ERROR CON MULTIPLICACIÓN
-    /// Error BRI del if Innecesario si solo hay un if.
-    /// </summary>
     class Intermedio
     {
-        //Lisa de Operandos con sus proridades para la generación del posfijo en las expresiones
         private Dictionary<string, int> Operandos = new Dictionary<string, int>()
         {
             {"=", 0 },
 
-            {"WriteLine", 5}, {"ReadLine", 5 },
+            {"WriteLine", 0}, {"ReadLine", 0 },
 
             {"&&", 2 },  {"||", 2},
             {"==", 3 }, {"!=", 3 }, 
@@ -26,16 +21,10 @@ namespace AutomataCSharp
             {"/", 2 }, {"*", 2 }, {"-", 1 }, {"+", 1 },
         };
 
-        //Lista de Tokens generados en el Léxico
         private LinkedList<Tokens> Tokens = new LinkedList<Tokens>();
-
-        //Lista real del Polish que se usa en la programación del código objeto.
-        private LinkedList<string> LinkedPolish = new LinkedList<string>();
-
-        //Lista del Polish para presentarse en la interfaz, separando sentencias por líneas e items por espacios
+        public LinkedList<string> LinkedPolish = new LinkedList<string>();
         public List<string> Polish = new List<string>();
 
-        //Index de apuntadores BRF/BRI
         int PunteroCount = 0;
 
         public Intermedio(Queue<Tokens> tokens)
@@ -191,14 +180,14 @@ namespace AutomataCSharp
             p = p.Next;
             p = Block(p.Next);
 
-            //BRI del IF
-            PunteroCount++; int indexBRI = PunteroCount;
-            LinkedPolish.AddLast("BRI>" + indexBRI.ToString());
-            Polish.Add("BRI>" + indexBRI.ToString());
-
             p = p.Next;
             if (p.Value.Lexema == "else")
             {
+                //BRI del IF
+                PunteroCount++; int indexBRI = PunteroCount;
+                LinkedPolish.AddLast("BRI>" + indexBRI.ToString());
+                Polish.Add("BRI>" + indexBRI.ToString());
+
                 //Se añade nombre del apuntador al BNF del IF
                 LinkedPolish.AddLast(">" + indexBRF.ToString());
                 Polish.Add(">" + indexBRF.ToString() + "  ");

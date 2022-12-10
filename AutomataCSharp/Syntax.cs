@@ -12,7 +12,7 @@ namespace AutomataCSharp
         #region Inicio
         private Types sistematipos = new Types();
         private LinkedList<Tokens> TokenList = new LinkedList<Tokens>();
-        private LinkedList<Variable> variableList = new LinkedList<Variable>();
+        public LinkedList<Variable> variableList = new LinkedList<Variable>();
 
         private int currentline = 0;
         private string Posfijo = string.Empty;
@@ -186,7 +186,7 @@ namespace AutomataCSharp
                     }
                     else
                     {
-                        Variable varx = new Variable(variabletipo, nombre.Lexema, null, currentline);
+                        Variable varx = new Variable(variabletipo, nombre.Lexema, null);
                         variableList.AddLast(varx);
                     }
                     return p;
@@ -205,8 +205,7 @@ namespace AutomataCSharp
                         }
                         else
                         {
-                            Variable varx = new Variable(variabletipo, nombre.Lexema, null, currentline);
-
+                            Variable varx = new Variable(variabletipo, nombre.Lexema, null);
                             p = Assignment(p);
 
                             bool valido = sistematipos.EvaluarTipos(asignado, varx.Type, sistematipos.Tipo);
@@ -581,7 +580,12 @@ namespace AutomataCSharp
                 {
                     if(p.Value.Valor == -1)
                     {
-                        if (GetVariable(p.Value) == null) AddError(701, p.Value.Lexema);
+                        Variable actual = GetVariable(p.Value);
+                        if (actual == null) AddError(701, p.Value.Lexema);
+                        else
+                        {
+                            if (actual.Type == "bool") AddError(703, p.Value.Lexema);
+                        }
                     }
 
                     p = p.Next;

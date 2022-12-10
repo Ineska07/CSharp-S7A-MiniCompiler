@@ -6,21 +6,19 @@ namespace CompiladorCSharp
     {
         static void Main(string[] args)
         {
-            string x = "Hola Mundo!";
             int i;
-            Console.WriteLine(x);
 
             while(i < 5)
             {
-                if (i == 4 || i < 6)
+                if (i == 4)
                 {
-                    Console.WriteLine("Ya casi!");
-                    int y = 5 + 2;
+                    Console.WriteLine("Ya casi! - Valor de i = " + i);
                 }
                 else
                 {
-                    Console.WriteLine("Aun no");
+                    Console.WriteLine("Valor de i = " + i);
                 }
+
                 i++;
             }
         }

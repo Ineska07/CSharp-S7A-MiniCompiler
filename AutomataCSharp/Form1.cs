@@ -113,7 +113,6 @@ namespace AutomataCSharp
             lblError.Visible = true;
             Analizador.AnalisisLexico(tbxCodigo.Text + " ");
 
-            //Inicia análisis sintáctico
             if (Analizador.ErrorL.Count == 0) Analizador.AnalizadorSintactico();
 
             int TotalErrores = Analizador.ErrorL.Count + Analizador.ErrorS.Count;
@@ -128,6 +127,10 @@ namespace AutomataCSharp
                 {
                     dgvPolish.Rows.Add(polishline);
                 }
+
+                Ensamblador assembly = new Ensamblador(code.LinkedPolish, Analizador.variableList);
+                //MessageBox.Show("Se ha generado el archivo ensamblador");
+
             }
         }
 
