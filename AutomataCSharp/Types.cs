@@ -75,44 +75,46 @@ namespace AutomataCSharp
             set { tipo = value; }
         }
 
-        public bool EvaluarTipos(Tokens operador, string type1, string type2)
+        public bool EvaluarTipos(string operador, string type1, string type2)
         {
-            switch (operador.Valor)
+            switch (operador)
             {
-                case -6: //suma
+                case "+": //suma
                     GetEstado(sum, type1, type2);
                     break;
-                case -7: //resta
+                case "-": //resta
                     GetEstado(res, type1, type2);
                     break;
-                case -8: //multiplicacion
+                case "*": //multiplicacion
                     GetEstado(mul, type1, type2);
                     break;
-                case -9: //division
+                case "/": //division
                     GetEstado(div, type1, type2);
                     break;
 
-                case -17: //<
+                case "<": //<
                     GetEstado(than, type1, type2);
                     break;
-                case -18: //>
+                case ">": //>
                     GetEstado(than, type1, type2);
                     break;
-                case -20: //>=
+                case ">=": //>=
                     GetEstado(than, type1, type2);
                     break;
-                case -21: // <=
+                case "<=": // <=
                     GetEstado(than, type1, type2);
                     break;
-                case -22: // ==
+                case "==": // ==
                     GetEstado(equals, type1, type2);
                     break;
-                case -24: //!=
+                case "!=": //!=
                     GetEstado(equals, type1, type2);
                     break;
-
-                default: // =
+                case "=": //=
                     GetEstado(final, type1, type2);
+                    break;
+                default: // =
+                    this.tipo = "string";
                     break;
             }
 

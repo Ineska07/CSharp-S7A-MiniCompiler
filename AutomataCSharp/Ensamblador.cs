@@ -28,14 +28,16 @@ namespace AutomataCSharp
         public LinkedList<Cuadruplo> TablaCuadruplos = new LinkedList<Cuadruplo>();
         public LinkedList<Variable> Variables = new LinkedList<Variable>();
 
+        Types SistemaTipos = new Types();
+
         int tempvarcount = 0;
 
         public Ensamblador(LinkedList<string> Polish, LinkedList<Variable> VariablesDeclaradas)
         {
-            Cuadruplos(Polish);
+            Cuadruplos(Polish, VariablesDeclaradas);
             Variables = VariabLesTemporales(VariablesDeclaradas);
         }
-        private void Cuadruplos(LinkedList<string> Polish)
+        private void Cuadruplos(LinkedList<string> Polish, LinkedList<Variable> VariablesDeclaradas)
         {
             Stack<string> vars = new Stack<string>();
             string apuntador = string.Empty;
@@ -114,9 +116,13 @@ namespace AutomataCSharp
 
                         //Meter la variable TX a la pila de variables
                         string newVar = c.variabletemporal;
-                        Variable var = new Variable(null, c.variabletemporal, null);
 
-                        Variables.AddLast(var);
+                        if(newVar != null)
+                        {
+                            string newVarType = SetVariableType(c, VariablesDeclaradas);
+                            Variable var = new Variable(newVarType, c.variabletemporal, null);
+                            Variables.AddLast(var);
+                        }
                         vars.Push(newVar);
                     }
                 }
@@ -131,6 +137,53 @@ namespace AutomataCSharp
                 TablaCuadruplos.AddLast(c);
                 restantes--;
             }
+        }
+
+        private string SetVariableType(Cuadruplo cu, LinkedList<Variable> VariablesDeclaradas)
+        {
+            string type = string.Empty;
+            string VarOP1 = string.Empty;
+            string VarOP2 = string.Empty;
+
+            if (cu.OP1 != null) VarOP1 = GetVarType(cu.OP1, VariablesDeclaradas);
+            if (cu.OP2 != null) VarOP2 = GetVarType(cu.OP2, VariablesDeclaradas);
+
+            if (VarOP1 != string.Empty || VarOP2 != string.Empty)
+            {
+                SistemaTipos.EvaluarTipos(cu.OP, VarOP1, VarOP2);
+                type = SistemaTipos.Tipo;
+            }
+            else if (VarOP1 == string.Empty) type = VarOP2;
+            else if (VarOP2 == string.Empty) type = VarOP1;
+
+            return type;
+        }
+        private string GetVarType(string op, LinkedList<Variable> VariablesDeclaradas)
+        {
+            string OPtype = string.Empty;
+            Lexico A = new Lexico();
+
+            if(op == "WriteLine" || op == "ReadLine")
+            {
+                OPtype = "string";
+            }
+            else
+            {
+                A.AnalisisLexico(op + " ");
+                string temptipo = A.tokensGenerados.Peek().Tipo;
+
+                if (temptipo == "Identificador")
+                {
+                    foreach (Variable var in VariablesDeclaradas)
+                    {
+                        if (var.Name == op)
+                        {
+                            OPtype = var.Type;
+                        }
+                    }
+                }
+            }
+            return OPtype;
         }
 
         private LinkedList<Variable> VariabLesTemporales(LinkedList<Variable> variablesDeclaradas)

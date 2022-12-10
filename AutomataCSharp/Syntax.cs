@@ -208,7 +208,7 @@ namespace AutomataCSharp
                             Variable varx = new Variable(variabletipo, nombre.Lexema, null);
                             p = Assignment(p);
 
-                            bool valido = sistematipos.EvaluarTipos(asignado, varx.Type, sistematipos.Tipo);
+                            bool valido = sistematipos.EvaluarTipos(asignado.Lexema, varx.Type, sistematipos.Tipo);
                             if (valido == false && !semError) AddError(703, string.Empty);
                             else variableList.AddLast(varx);
                         }
@@ -255,7 +255,7 @@ namespace AutomataCSharp
                     else
                     {
                         p = Assignment(p);
-                        bool valido = sistematipos.EvaluarTipos(asignado, currentVar.Type, sistematipos.Tipo);
+                        bool valido = sistematipos.EvaluarTipos(asignado.Lexema, currentVar.Type, sistematipos.Tipo);
                         if (valido == false && !semError) AddError(703, string.Empty);
                     }
                 }
@@ -840,7 +840,7 @@ namespace AutomataCSharp
 
                 if (!semError)
                 {
-                    bool valido = sistematipos.EvaluarTipos(relacion, var1type, var2type);
+                    bool valido = sistematipos.EvaluarTipos(relacion.Lexema, var1type, var2type);
                     if (valido == false) AddError(703, string.Empty);
                 }
             }
