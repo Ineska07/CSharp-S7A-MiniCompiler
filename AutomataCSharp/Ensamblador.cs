@@ -35,8 +35,17 @@ namespace AutomataCSharp
         public Ensamblador(LinkedList<string> Polish, LinkedList<Variable> VariablesDeclaradas)
         {
             Cuadruplos(Polish, VariablesDeclaradas);
-            Variables = VariabLesTemporales(VariablesDeclaradas);
+
+            foreach (Variable var in VariablesDeclaradas)
+            {
+                Variables.AddFirst(var);
+            }
+
+            CrearEnsamblador();
+
         }
+
+        #region Cuadruplos
         private void Cuadruplos(LinkedList<string> Polish, LinkedList<Variable> VariablesDeclaradas)
         {
             Stack<string> vars = new Stack<string>();
@@ -81,7 +90,6 @@ namespace AutomataCSharp
                         //Tomar operador
                         string operador = item;
 
-                        
                         if (operador == "WriteLine")
                         {
                             string Var1 = vars.Pop();
@@ -139,6 +147,7 @@ namespace AutomataCSharp
             }
         }
 
+        #region TipoVariableTemporal
         private string SetVariableType(Cuadruplo cu, LinkedList<Variable> VariablesDeclaradas)
         {
             string type = string.Empty;
@@ -185,13 +194,9 @@ namespace AutomataCSharp
             }
             return OPtype;
         }
+        #endregion
 
-        private LinkedList<Variable> VariabLesTemporales(LinkedList<Variable> variablesDeclaradas)
-        {
-            LinkedList<Variable> tempVariabes = new LinkedList<Variable>();
-
-            return tempVariabes;
-        }
+        #endregion
 
         public void CrearEnsamblador()
         {
