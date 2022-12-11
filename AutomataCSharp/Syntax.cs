@@ -167,15 +167,15 @@ namespace AutomataCSharp
         #region Statements
         private LinkedListNode<Tokens> VartypeDeclaration(LinkedListNode<Tokens> p)
         {
-            //entrada int / double / string
+            //entrada int / double / string / bool
             string variabletipo = p.Value.Lexema;
             currentline = p.Value.Linea;
-            string variablename;
 
             p = p.Next;
             if (p != null && p.Value.Valor == -1)
             {
                 Tokens nombre = p.Value;
+
                 p = p.Next;
                 if (p != null && p.Value.Lexema == ";")
                 {
