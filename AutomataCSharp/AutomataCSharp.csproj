@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="Intermedio.cs" />
     <Compile Include="Lexico.cs" />
+    <Compile Include="Macros.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Syntax.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Types.cs" />
     <Compile Include="Variable.cs" />
     <None Include="packages.config" />
+    <None Include="Resources\MACROS.MAC" />
     <None Include="Resources\template.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

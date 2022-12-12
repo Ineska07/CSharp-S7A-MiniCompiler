@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,6 +35,8 @@ namespace AutomataCSharp
 
         public Ensamblador(LinkedList<string> Polish, LinkedList<Variable> VariablesDeclaradas)
         {
+            //Poner valor a las variables ya declaradas
+
             Cuadruplos(Polish, VariablesDeclaradas);
 
             foreach (Variable var in VariablesDeclaradas)
@@ -41,8 +44,18 @@ namespace AutomataCSharp
                 Variables.AddFirst(var);
             }
 
-            CrearEnsamblador();
+            foreach(Cuadruplo C in TablaCuadruplos)
+            {
+                if(C.OP == "=")
+                {
+                    foreach (Variable var in VariablesDeclaradas)
+                    {
+                        if (var.Name == C.OP1) var.Value = C.OP2;
+                    }
+                }
+            }
 
+            CrearEnsamblador();
         }
 
         #region Cuadruplos
@@ -53,7 +66,7 @@ namespace AutomataCSharp
 
             foreach (string item in Polish)
             {
-                Cuadruplo c = new Cuadruplo(null, null, null, null, null);
+                Cuadruplo c = new Cuadruplo(apuntador, null, null, null, null);
 
                 if (item.StartsWith("BRI")) //BRI
                 {
@@ -101,7 +114,6 @@ namespace AutomataCSharp
                             string Var2 = vars.Pop();
                             string Var1 = vars.Pop();
 
-                            c.AP = apuntador;
                             c.OP = operador;
                             c.OP1 = Var1;
                             c.OP2 = Var2;
@@ -128,7 +140,7 @@ namespace AutomataCSharp
                         if(newVar != null)
                         {
                             string newVarType = SetVariableType(c, VariablesDeclaradas);
-                            Variable var = new Variable(newVarType, c.variabletemporal, null);
+                            Variable var = new Variable(newVarType, c.variabletemporal, c.OP1);
                             Variables.AddLast(var);
                         }
                         vars.Push(newVar);
@@ -138,12 +150,15 @@ namespace AutomataCSharp
                 apuntador = string.Empty;
             }
 
-            int restantes = Int32.Parse(apuntador);
-            while (restantes > 0)
+            if (apuntador != string.Empty)
             {
-                Cuadruplo c = new Cuadruplo(restantes.ToString(), null, null, null, null);
-                TablaCuadruplos.AddLast(c);
-                restantes--;
+                int restantes = Int32.Parse(apuntador);
+                while (Int32.Parse(apuntador) > 0)
+                {
+                    Cuadruplo c = new Cuadruplo(restantes.ToString(), null, null, null, null);
+                    TablaCuadruplos.AddLast(c);
+                    restantes--;
+                }
             }
         }
 
@@ -170,27 +185,39 @@ namespace AutomataCSharp
         private string GetVarType(string op, LinkedList<Variable> VariablesDeclaradas)
         {
             string OPtype = string.Empty;
-            Lexico A = new Lexico();
 
             if(op == "WriteLine" || op == "ReadLine")
             {
                 OPtype = "string";
+                return OPtype;
             }
-            else
-            {
-                A.AnalisisLexico(op + " ");
-                string temptipo = A.tokensGenerados.Peek().Tipo;
 
-                if (temptipo == "Identificador")
-                {
+            Lexico A = new Lexico();
+            A.AnalisisLexico(op + " ");
+            switch (A.tokensGenerados.Peek().Valor)
+            {
+                case -1:
                     foreach (Variable var in VariablesDeclaradas)
                     {
                         if (var.Name == op)
                         {
                             OPtype = var.Type;
+                            break;
                         }
                     }
-                }
+                    break;
+                case -2:
+                    OPtype = "int";
+                    break;
+                case -3:
+                    OPtype = "double";
+                    break;
+                case -4:
+                    OPtype = "string";
+                    break;
+                case -5:
+                    OPtype = "string";
+                    break;
             }
             return OPtype;
         }
@@ -200,7 +227,32 @@ namespace AutomataCSharp
 
         public void CrearEnsamblador()
         {
+            Macros MAC = new Macros();
 
+            //Crear archivo .txt par escribir la traduccion
+            string filepath = @"D:\Compilador_V02\PROYECTO.txt";
+
+            using (StreamWriter tw = new StreamWriter(filepath, false)) 
+            {
+                tw.WriteLine("; Bienvenido al Proyecto\n");
+
+                //Hacer Pila de Variables
+                MAC.Stack(Variables);
+
+                //Insertar MACRO en el archivo de texto
+                tw.Write(MAC.Macro + "\n");
+                MAC.Macro = string.Empty;
+
+                //Insertar Inicio del código
+                tw.Write(MAC.Macro + "\n");
+
+                tw.Close();
+
+                foreach (Cuadruplo C in TablaCuadruplos)
+                {
+
+                }
+            }
         }
     }
 }

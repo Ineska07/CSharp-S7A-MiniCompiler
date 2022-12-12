@@ -1,0 +1,584 @@
+; LIBRERIA DE MACROS UTILIZADAS EN EL COMPILADOR
+
+; 								
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+; ллллллллллллл WRITE, WRITELN, READ Y READLNлллллллллллллллллллллллллллллл
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+WRITE 	MACRO MESSAGE
+		PUSH AX	;EXTRA
+		MOV AH, 09H
+		LEA DX, MESSAGE
+		INT 21H
+		POP AX	;EXTRA
+	ENDM
+
+WRITELN	MACRO
+		MOV AH, 2
+		MOV DL, 0AH
+		INT 21H
+
+		MOV AH, 2
+		MOV DL, 0DH
+		INT 21H
+	ENDM
+
+READ	MACRO
+		MOV AH, 0AH
+		LEA DX, LISTAPAR
+		INT 21H
+	ENDM
+
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+; ллллллллллллл OPERACIONES ARITMETICAS ллллллллллллллллллллллллллллллллллл
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+S_ASIGNAR MACRO OPERANDO1, OPERANDO2
+	LOCAL LABELX
+	LOCAL EXIT
+		PUSH AX
+		LEA SI, OPERANDO2
+		LEA DI, OPERANDO1
+	LABELX:
+		MOV AL, [SI]
+		MOV AH, [DI]
+		CMP AH, AL
+		JE EXIT
+		MOV AL, [SI]
+		MOV [DI],AL
+		INC DI
+		INC SI
+		JMP LABELX
+	EXIT:
+		POP AX
+	ENDM
+
+CONCATENAR MACRO OPERANDO1, OPERANDO2, RESULTADO
+	LOCAL LABELX
+	LOCAL EXIT
+	LOCAL LABELX1
+	LOCAL EXIT1
+		PUSH AX
+		LEA SI, OPERANDO1
+		LEA DI, RESULTADO
+	LABELX:
+		MOV AL, [SI]
+		MOV AH, [DI]
+		CMP AH, AL
+		JE EXIT
+		MOV AL, [SI]
+		MOV [DI], AL
+		INC DI
+		INC SI
+		JMP LABELX
+	EXIT:
+		LEA SI, OPERANDO2
+	LABELX1:
+		MOV AL, [SI]
+		MOV AH, [DI]
+		CMP AH, AL
+		JE EXIT1
+		MOV AL, [SI]
+		MOV [DI], AL
+		INC DI
+		INC SI
+		JMP LABELX1
+	EXIT1:
+		POP AX
+	ENDM
+
+I_ASIGNAR MACRO OPERANDO1, OPERANDO2
+		PUSH AX
+	 	MOV AX, OPERANDO2
+		MOV OPERANDO1, AX
+		POP AX
+	ENDM
+
+SUMAR	MACRO OPERANDO1, OPERANDO2, RESULTADO
+		PUSH AX
+        		MOV AX, OPERANDO1
+		ADD AX, OPERANDO2
+		MOV RESULTADO, AX
+		POP AX
+	ENDM
+
+RESTA	MACRO OPERANDO1, OPERANDO2, RESULTADO
+		PUSH AX
+		MOV AX, OPERANDO1
+		SUB AX, OPERANDO2
+		MOV RESULTADO, AX
+		POP AX
+	ENDM
+
+MULTI	MACRO OPERANDO1, OPERANDO2, RESULTADO
+		PUSH AX
+		PUSH BX
+		MOV AX, OPERANDO1
+		MOV BX, OPERANDO2
+		IMUL BX
+		MOV RESULTADO, AX
+		POP BX
+		POP AX
+	ENDM
+
+DIVIDE	MACRO OPERANDO1, OPERANDO2, RESULTADO
+		PUSH AX
+		PUSH BX
+		MOV DX, 0
+		MOV AX, OPERANDO1
+		MOV BX, OPERANDO2
+		IDIV BX
+		MOV RESULTADO, AX
+	    POP BX
+	    POP AX
+	ENDM
+
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+; ллллллллл MACROS DE OPERADORES RELACIONALES ллллллллллллллллллллллллллллл
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+I_MENOR	MACRO OPERANDO1, OPERANDO2, RESULTADO
+	LOCAL LABEL1
+	LOCAL SALIR
+		PUSH AX
+		MOV AX, OPERANDO1
+		CMP AX, OPERANDO2
+		JGE LABEL1
+		MOV RESULTADO, 1
+		JMP SALIR
+	LABEL1:
+		MOV RESULTADO, 0
+	SALIR:
+		POP AX
+	ENDM
+
+I_MENORIGUAL	MACRO OPERANDO1, OPERANDO2, RESULTADO
+	LOCAL LABEL1
+	LOCAL SALIR
+		PUSH AX
+		MOV AX, OPERANDO1
+		CMP AX, OPERANDO2
+		JG	LABEL1
+		MOV RESULTADO, 1
+		JMP SALIR
+	LABEL1:
+		MOV RESULTADO, 0
+	SALIR:
+		POP AX
+	ENDM
+
+I_IGUAL	MACRO OPERANDO1, OPERANDO2, RESULTADO
+	LOCAL LABEL1
+	LOCAL SALIR
+		PUSH AX
+		MOV AX, OPERANDO1
+		CMP AX, OPERANDO2
+		JNE LABEL1
+		MOV RESULTADO, 1
+		JMP SALIR
+	LABEL1:
+		MOV RESULTADO, 0
+	SALIR:
+		POP AX
+	ENDM
+
+I_DIFERENTES	MACRO OPERANDO1, OPERANDO2, RESULTADO
+	LOCAL LABEL1
+	LOCAL SALIR
+		PUSH AX
+		MOV AX, OPERANDO1
+		CMP AX, OPERANDO2
+		JE	LABEL1
+		MOV RESULTADO, 1
+		JMP SALIR
+	LABEL1:
+		MOV RESULTADO, 0
+	SALIR:
+		POP AX
+	ENDM
+
+I_MAYOR MACRO OPERANDO1, OPERANDO2, RESULTADO
+	LOCAL LABEL1
+	LOCAL SALIR
+		PUSH AX
+		MOV AX, OPERANDO1
+	    CMP AX, OPERANDO2
+	    JLE	LABEL1
+	    MOV RESULTADO, 1
+		JMP SALIR
+	LABEL1:
+		MOV RESULTADO, 0
+	SALIR:
+		POP AX
+	ENDM
+
+I_MAYORIGUAL MACRO OPERANDO1, OPERANDO2, RESULTADO
+	LOCAL LABEL1
+	LOCAL SALIR
+		PUSH AX
+		MOV AX, OPERANDO1
+		CMP AX, OPERANDO2
+		JL	LABEL1
+		MOV RESULTADO, 1
+		JMP SALIR
+	LABEL1:
+		MOV RESULTADO, 0
+	SALIR:
+		POP AX
+	ENDM
+
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+; ллллллллллллллллллллллллллллл MACROS PARA LOS JUMP лллллллллллллллллллллл
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+JMAY	MACRO VALOR1,DESTINO
+   	MOV AX,VALOR1
+   	CMP AX,1
+   	JE  DESTINO
+
+	ENDM
+
+JF	MACRO VALOR1,DESTINO
+   	MOV AX,VALOR1
+   	CMP AX,1                   
+   	JNE  DESTINO
+
+	ENDM
+
+;***************************************************************************
+;MACRO		: readinteger@
+;PROPOSITO	: Obtiene valores numВricos desde el teclado
+;***************************************************************************
+
+readinteger@ MACRO VALOR1@
+LOCAL POS,LISTO
+   readstring@ TEMPO@RAL
+   ESPACIO@S
+   MOV DX,0
+   MOV VALOR1@,DX
+   MOV CH,TEMPO@RAL[1]
+   INC CH
+   CMP TEMPO@RAL[2],"-"
+   JNE POS
+   MOV BX,3
+   JMP @F
+POS:
+   MOV BX,2
+@B:
+   MOV AL,TEMPO@RAL[BX]
+   AND AX,000FH
+   ADD AX,VALOR1@
+   CMP BL,CH
+   JE  @F
+   MUL CONVER@T
+   INC BX
+   MOV VALOR1@,AX
+   JMP @B
+@F:
+   MOV VALOR1@,AX
+   CMP TEMPO@RAL[2],"-"
+   JNE LISTO
+   MOV AX, VALOR1@
+   NEG AX
+   MOV VALOR1@,AX
+
+LISTO:
+   MOV VALOR1@,AX
+ENDM
+
+;***************************************************************************
+;MACRO		: readstring@
+;PROPOSITO	: Obtine informaciвn de la pantalla
+;***************************************************************************
+
+readstring@ MACRO VA@LOR
+     LEA DX,VA@LOR
+     MOV AH,0AH
+     INT 21H
+     MOV BH,0
+     MOV BL,VA@LOR[1]
+     MOV AL,"$"
+     MOV VA@LOR[2+BX],AL 
+ENDM
+
+;****************************************************************************
+;MACRO		: clrscr
+;PROPOSITO	: Limpiar pantalla
+;PARAMETROS	: Ninguno
+;REGRESA	: Nada
+;****************************************************************************
+
+clrscr MACRO
+   MOV AH,0FH
+   INT 10H
+   MOV AH,0
+   INT 10H
+ENDM
+
+
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+; ллллллллллллллллл BORRADO DE CADENAS DE CARACTERES лллллллллллллллллллллл
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+BORRAR	MACRO BUFFER1, CLR
+	LOCAL KTERCLR1
+		MOV BL, 8
+		LEA SI, BUFFER1
+		MOV AL, CLR
+	KTERCLR1:
+		MOV [SI], AL
+		INC SI
+		DEC BL
+		CMP BL, 0
+		JNE KTERCLR1
+		;MOV [SI], AL
+	ENDM
+
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+; ллллллллл CONVERSION DECIMAL-ASCII , ASCII-DECIMAL лллллллллллллллллллллл
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+ITOA	MACRO BUFFER, NUMERO
+	LOCAL C1
+	LOCAL C2
+	LOCAL C3
+	LOCAL C4
+		PUSH CX
+		PUSH AX	;EXTRA
+		BORRAR BUFFER, BLANCOS
+		BORRAR BUFFERTEMP, BLANCOS
+		MOV COUNT, 0
+		MOV CX, 0010		;FACTOR DE DIVISION
+	    LEA SI, BUFFER		;DIRECCION DE NUEVA CADENA ASCII
+		MOV AX, NUMERO		;NUMERO A CONVERTIR A ASCII
+		CMP AX, 0
+		JNS C1				;SI NO SIGNO
+		NOT AX
+		INC AX
+ 		MOV NEGATIVO, 1
+	C1:
+		CMP AX, CX			;EL NUMERO ES MENOR A 10
+        JB C2				; SI, ENTONCES SALIR
+        XOR DX, DX			;LIMPIAR EL COCIENTE SUPERIOR
+        DIV CX				;DIVIDE ENTRE 10
+        OR  DL, 30H			;
+        MOV [SI], DL		;ALMACENTA EL CARACTER ASCII
+        INC SI
+		INC COUNT
+		JMP C1
+    C2:
+        OR AL, 30H			;ALMACENA EL ULTIMO COCIENTE
+        MOV [SI], AL		; COMO CARACTER ASCII
+
+	;EL NUMERO ESTA CONVERTIDO A ASCII PERO EN ORDEN INVERSO
+	; HAY QUE VOLTEARLOS PARA IMPRIMIRLOS
+		LEA SI, BUFFER
+		LEA DI, BUFFERTEMP
+		MOV BX, COUNT
+		PUSH BX
+	C3:
+		MOV AL, [SI]
+		MOV [BX+DI], AL
+		INC SI
+		CMP BX, 0
+		DEC BX
+		JG C3
+		MOV AL, [SI]
+		MOV [BX+DI], AL
+
+		CMP NEGATIVO, 0
+		JE	C4
+		WRITE MENOS
+	C4:
+		POP BX
+		MOV AL, BLANCOS
+		MOV [BX+DI+1], AL
+
+		POP CX
+		POP AX	;EXTRA
+	ENDM
+
+ATOI	MACRO NUMERO
+	LOCAL LABELX
+	LOCAL LABELX1
+	LOCAL NUMPOSITIVO
+	LOCAL EXIT
+  		PUSH AX
+  		PUSH BX
+  		SUB BX, BX
+  		LEA SI, INTRODUCIDOS
+  		MOV AL, [SI]
+  		CMP AL, 2DH
+  		JNE NUMPOSITIVO
+  		MOV NEGATIVO, 1
+  		MOV AL, 32
+  		MOV [SI], AL
+  	;------------------------------------
+  		MOV BX, 0
+		MOV BL, TOTCAR
+  		MOV AL, 23H
+  		MOV INTRODUCIDOS[BX],AL
+  	LABELX1:
+ 		MOV AL, [SI+1]
+  		MOV [SI],AL
+  		INC SI
+		DEC BL
+  		CMP BL, 0
+  		JNZ LABELX1
+  		DEC TOTCAR
+		;JMP EXIT
+	;-----------------------------------
+	NUMPOSITIVO:
+		MOV BL, TOTCAR
+  		DEC BX
+  		LEA SI, INTRODUCIDOS[BX]
+        MOV CX, 0
+        MOV BX, 10
+	    MOV CL, TOTCAR
+	LABELX:
+		MOV AL, [SI]
+		AND AX, 00FH
+		MUL MULT10
+		ADD NUMERO, AX
+		MOV AX, MULT10
+		MUL BX
+		MOV MULT10, AX
+		DEC SI
+		LOOP LABELX
+		CMP NEGATIVO, 0
+		JE EXIT
+		NEG NUMERO
+	EXIT:
+		MOV NEGATIVO, 0
+		POP BX
+		POP AX
+	ENDM
+
+
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+; ллллллллллллллллллллллл MACROS ARREGLOS лллллллллллллллллллллллллллллллллл
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+ARRAVAL MACRO NOMBRE, DIRECCION, VALOR
+    	PUSH BX
+    	PUSH AX
+    	MOV BX, DIRECCION
+    	MOV AX, VALOR
+    	MOV NOMBRE[BX], AX
+    	POP AX
+    	POP BX
+	ENDM
+
+ARROVAL	MACRO NOMBRE, DIRECCION, RESULTADO
+		PUSH BX
+		MOV BX, DIRECCION
+		MOV AX, NOMBRE[BX]
+		MOV RESULTADO, AX
+		POP BX
+	ENDM
+
+
+LEE		MACRO MESSAGE
+		MOV AH,3Fh
+		MOV BX,0000h
+		MOV CX,0100h
+		LEA DX,MESSAGE
+		INT 21h
+                LEA SI,MESSAGE
+                MOV DL,13
+       L1:
+                CMP [SI],DL
+                INC SI
+                JNE L1
+                DEC SI
+                DEC SI
+                MOV [SI],DL
+ENDM
+
+LEELN		MACRO MESSAGE
+		MOV AH,3Fh
+		MOV BX,0000h
+		MOV CX,0100h
+		LEA DX,MESSAGE
+		
+		INT 21h
+ENDM
+
+;*************************************************************************
+;MACRO		: ESPACIOS@S
+;PROPOSITO	: Imprimir espacios
+;**************************************************************************
+
+ESPACIO@S MACRO
+   MOV BX,2
+   MOV SI,2
+   .WHILE (TEMPO@RAL[SI] != "$")
+     MOV AL,TEMPO@RAL[SI]
+     .IF AL != " "
+       MOV TEMPO@RAL[BX],AL
+       INC BX
+     .ELSE
+       DEC TEMPO@RAL[1]
+     .ENDIF
+     INC SI
+   .ENDW
+ENDM
+
+ASCTODEC	    	MACRO NUM,CADNUM
+        LOCAL D1
+        LOCAL D2
+        LOCAL D3
+        LOCAL D4
+        LOCAL D5
+                PUSH CX
+                MOV NEGATIVO,0
+                MOV NUM,0
+                MOV COUNT,0
+                MOV BX,0
+                LEA SI,CADNUM
+                MOV AL,[SI]
+                MOV CX,SI
+                CMP AL,45
+                JNE D1
+               	INC CX
+                INC SI
+                MOV NEGATIVO,1
+        D1:
+                MOV DL,48
+                CMP [SI],DL
+                JB D2
+                MOV DL,57
+                CMP [SI],DL
+                JA D2
+                INC BX
+                INC SI
+                JMP D1
+        D2:
+                DEC BX
+                MOV SI,CX
+                MOV CX,1
+        D3:
+                MOV AL,[BX+SI]
+                XOR AL,30h
+                MOV AH,0
+                MUL CX
+                ADD NUM,AX
+                CMP BX,0
+                JE D4
+                DEC BX
+                MOV AX,CX
+                MUL BUF
+                MOV CX,AX
+                JMP D3
+        D4:
+                CMP NEGATIVO,0
+                JE D5
+                NOT NUM
+                INC NUM
+        D5:
+                POP CX
+ENDM
+
+PRINTKS@ MACRO VA@LOR
+	LEA DX,VA@LOR[2]
+        MOV AH,09H
+        INT 21H
+        ENDM
