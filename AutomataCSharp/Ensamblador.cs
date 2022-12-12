@@ -115,8 +115,7 @@ namespace AutomataCSharp
                             string Var1 = vars.Pop();
 
                             c.OP = operador;
-                            c.OP1 = Var1;
-                            c.OP2 = Var2;
+                            c.OP1 = Var2;
                             c.RES = Var1;
                         }
                         else
@@ -229,7 +228,7 @@ namespace AutomataCSharp
         {
             Macros MAC = new Macros();
 
-            //Crear archivo .txt par escribir la traduccion
+            //Crear archivo .txt para escribir la traduccion
             string filepath = @"D:\Compilador_V02\PROYECTO.txt";
 
             using (StreamWriter tw = new StreamWriter(filepath, false)) 
@@ -244,14 +243,75 @@ namespace AutomataCSharp
                 MAC.Macro = string.Empty;
 
                 //Insertar Inicio del código
+                MAC.Start();
                 tw.Write(MAC.Macro + "\n");
-
-                tw.Close();
+                MAC.Macro = string.Empty;
 
                 foreach (Cuadruplo C in TablaCuadruplos)
                 {
+                    switch (C.OP)
+                    {
+                        //Asignación
+                        case "=":
+                            MAC.Asignacion(C);
+                            break;
+                        //Aritméticos
+                        case "+":
+                            MAC.SumaResta(C);
+                            break;
+                        case "-":
+                            MAC.SumaResta(C);
+                            break;
+                        case "*":
+                            MAC.MultDiv(C);
+                            break;
+                        case "/":
+                            MAC.MultDiv(C);
+                            break;
+                        //Relacionales
+                        case "<":
+                            MAC.Relacional(C);
+                            break;
+                        case "<=":
+                            MAC.Relacional(C);
+                            break;
+                        case ">":
+                            MAC.Relacional(C);
+                            break;
+                        case ">=":
+                            MAC.Relacional(C);
+                            break;
+                        case "==":
+                            MAC.Relacional(C);
+                            break;
+                        case "!=":
+                            MAC.Relacional(C);
+                            break;
+                        //Consola
+                        case "WriteLine":
+                            MAC.WriteLine(C);
+                            break;
+                        case "ReadLine":
+                            MAC.ReadLine(C);
+                            break;
+                        //Salto
+                        case "BRI":
+                            MAC.ReadLine(C);
+                            break;
+                        case "BRF":
+                            MAC.ReadLine(C);
+                            break;
+                        default: 
+                            break;
+                    }
 
+                    tw.Write(MAC.Macro + "\n");
+                    MAC.Macro = string.Empty;
                 }
+
+                MAC.End();
+                tw.Write(MAC.Macro + "\n");
+                MAC.Macro = string.Empty;
             }
         }
     }

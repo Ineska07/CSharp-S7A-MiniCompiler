@@ -69,6 +69,7 @@
     <Compile Include="Types.cs" />
     <Compile Include="Variable.cs" />
     <None Include="packages.config" />
+    <None Include="Resources\MACROS-CORREGIDAS.MAC" />
     <None Include="Resources\MACROS.MAC" />
     <None Include="Resources\template.cs" />
     <EmbeddedResource Include="Form1.resx">

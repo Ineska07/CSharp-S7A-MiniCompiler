@@ -1,16 +1,31 @@
 ; LIBRERIA DE MACROS UTILIZADAS EN EL COMPILADOR
 
 ; 								
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
-; ллллллллллллл WRITE, WRITELN, READ Y READLNлллллллллллллллллллллллллллллл
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+;                                                                          
+;               WRITE, WRITELN, READ Y READLN                              
+;                                                                          
+
 
 WRITE 	MACRO MESSAGE
-		PUSH AX	;EXTRA
+			mov CL, MESSAGE
+			add CL, 48
+        	mov Provisional, CL
+        	mov AH, 2h
+        	mov DL, Provisional
+        	int 21h
+			
+			mov ah,02h
+            mov dl,0ah ;salto de l├нnea
+            int 21h
+            mov ah,02h
+            mov dl,0dh ;retorno de carro
+            int 21h
+	ENDM
+
+WRITECADENA 	MACRO MESSAGE
 		MOV AH, 09H
-		LEA DX, MESSAGE
+		LEA DL, MESSAGE
 		INT 21H
-		POP AX	;EXTRA
 	ENDM
 
 WRITELN	MACRO
@@ -29,13 +44,12 @@ READ	MACRO
 		INT 21H
 	ENDM
 
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
-; ллллллллллллл OPERACIONES ARITMETICAS ллллллллллллллллллллллллллллллллллл
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+;                                                                          
+;               OPERACIONES ARITMETICAS                                    
+;                                                                          
 S_ASIGNAR MACRO OPERANDO1, OPERANDO2
 	LOCAL LABELX
 	LOCAL EXIT
-		PUSH AX
 		LEA SI, OPERANDO2
 		LEA DI, OPERANDO1
 	LABELX:
@@ -49,7 +63,7 @@ S_ASIGNAR MACRO OPERANDO1, OPERANDO2
 		INC SI
 		JMP LABELX
 	EXIT:
-		POP AX
+
 	ENDM
 
 CONCATENAR MACRO OPERANDO1, OPERANDO2, RESULTADO
@@ -57,7 +71,6 @@ CONCATENAR MACRO OPERANDO1, OPERANDO2, RESULTADO
 	LOCAL EXIT
 	LOCAL LABELX1
 	LOCAL EXIT1
-		PUSH AX
 		LEA SI, OPERANDO1
 		LEA DI, RESULTADO
 	LABELX:
@@ -83,170 +96,149 @@ CONCATENAR MACRO OPERANDO1, OPERANDO2, RESULTADO
 		INC SI
 		JMP LABELX1
 	EXIT1:
-		POP AX
 	ENDM
 
 I_ASIGNAR MACRO OPERANDO1, OPERANDO2
-		PUSH AX
-	 	MOV AX, OPERANDO2
-		MOV OPERANDO1, AX
-		POP AX
+	 	MOV AL, OPERANDO2
+		MOV OPERANDO1, AL
 	ENDM
 
 SUMAR	MACRO OPERANDO1, OPERANDO2, RESULTADO
-		PUSH AX
-        MOV AX, OPERANDO1
-		ADD AX, OPERANDO2
-		MOV RESULTADO, AX
-		POP AX
+        MOV AL, OPERANDO1
+		ADD AL, OPERANDO2
+		MOV RESULTADO, AL
 	ENDM
 
 RESTA	MACRO OPERANDO1, OPERANDO2, RESULTADO
-		PUSH AX
-		MOV AX, OPERANDO1
-		SUB AX, OPERANDO2
-		MOV RESULTADO, AX
-		POP AX
+		MOV AL, OPERANDO1
+		SUB AL, OPERANDO2
+		MOV RESULTADO, AL
 	ENDM
 
 MULTI	MACRO OPERANDO1, OPERANDO2, RESULTADO
-		PUSH AX
-		PUSH BX
-		MOV AX, OPERANDO1
-		MOV BX, OPERANDO2
-		IMUL BX
-		MOV RESULTADO, AX
-		POP BX
-		POP AX
+		MOV AL, OPERANDO1
+		MOV BL, OPERANDO2
+		IMUL BL
+		MOV RESULTADO, AL
 	ENDM
 
 DIVIDE	MACRO OPERANDO1, OPERANDO2, RESULTADO
-		PUSH AX
-		PUSH BX
 		MOV DX, 0
-		MOV AX, OPERANDO1
-		MOV BX, OPERANDO2
-		IDIV BX
-		MOV RESULTADO, AX
-	    POP BX
-	    POP AX
+		MOV AL, OPERANDO1
+		MOV BL, OPERANDO2
+		IDIV BL
+		MOV RESULTADO, AL
 	ENDM
 
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
-; ллллллллл MACROS DE OPERADORES RELACIONALES ллллллллллллллллллллллллллллл
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+;                                                                          
+;           MACROS DE OPERADORES RELACIONALES                              
+;                                                                          
 
 I_MENOR	MACRO OPERANDO1, OPERANDO2, RESULTADO
 	LOCAL LABEL1
 	LOCAL SALIR
-		PUSH AX
-		MOV AX, OPERANDO1
-		CMP AX, OPERANDO2
+		MOV AL, OPERANDO1
+		CMP AL, OPERANDO2
 		JGE LABEL1
 		MOV RESULTADO, 1
 		JMP SALIR
 	LABEL1:
 		MOV RESULTADO, 0
 	SALIR:
-		POP AX
+
 	ENDM
 
 I_MENORIGUAL	MACRO OPERANDO1, OPERANDO2, RESULTADO
 	LOCAL LABEL1
 	LOCAL SALIR
-		PUSH AX
-		MOV AX, OPERANDO1
-		CMP AX, OPERANDO2
+		MOV AL, OPERANDO1
+		CMP AL, OPERANDO2
 		JG	LABEL1
 		MOV RESULTADO, 1
 		JMP SALIR
 	LABEL1:
 		MOV RESULTADO, 0
 	SALIR:
-		POP AX
+
 	ENDM
 
 I_IGUAL	MACRO OPERANDO1, OPERANDO2, RESULTADO
 	LOCAL LABEL1
 	LOCAL SALIR
-		PUSH AX
-		MOV AX, OPERANDO1
-		CMP AX, OPERANDO2
+		MOV AL, OPERANDO1
+		CMP AL, OPERANDO2
 		JNE LABEL1
 		MOV RESULTADO, 1
 		JMP SALIR
 	LABEL1:
 		MOV RESULTADO, 0
 	SALIR:
-		POP AX
+
 	ENDM
 
 I_DIFERENTES	MACRO OPERANDO1, OPERANDO2, RESULTADO
 	LOCAL LABEL1
 	LOCAL SALIR
-		PUSH AX
-		MOV AX, OPERANDO1
-		CMP AX, OPERANDO2
+		MOV AL, OPERANDO1
+		CMP AL, OPERANDO2
 		JE	LABEL1
 		MOV RESULTADO, 1
 		JMP SALIR
 	LABEL1:
 		MOV RESULTADO, 0
 	SALIR:
-		POP AX
+
 	ENDM
 
 I_MAYOR MACRO OPERANDO1, OPERANDO2, RESULTADO
 	LOCAL LABEL1
 	LOCAL SALIR
-		PUSH AX
-		MOV AX, OPERANDO1
-	    CMP AX, OPERANDO2
+		MOV AL, OPERANDO1
+	    CMP AL, OPERANDO2
 	    JLE	LABEL1
 	    MOV RESULTADO, 1
 		JMP SALIR
 	LABEL1:
 		MOV RESULTADO, 0
 	SALIR:
-		POP AX
+
 	ENDM
 
 I_MAYORIGUAL MACRO OPERANDO1, OPERANDO2, RESULTADO
 	LOCAL LABEL1
 	LOCAL SALIR
-		PUSH AX
-		MOV AX, OPERANDO1
-		CMP AX, OPERANDO2
+		MOV AL, OPERANDO1
+		CMP AL, OPERANDO2
 		JL	LABEL1
 		MOV RESULTADO, 1
 		JMP SALIR
 	LABEL1:
 		MOV RESULTADO, 0
 	SALIR:
-		POP AX
+
 	ENDM
 
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
-; ллллллллллллллллллллллллллллл MACROS PARA LOS JUMP лллллллллллллллллллллл
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+;                                                                          
+;                               MACROS PARA LOS JUMP                       
+;                                                                          
 
 JMAY	MACRO VALOR1,DESTINO
-   	MOV AX,VALOR1
-   	CMP AX,1
+   	MOV AL,VALOR1
+   	CMP AL,1
    	JE  DESTINO
 
 	ENDM
 
 JF	MACRO VALOR1,DESTINO
-   	MOV AX,VALOR1
-   	CMP AX,1                   
+   	MOV AL,VALOR1
+   	CMP AL,1                   
    	JNE  DESTINO
 
 	ENDM
 
 ;***************************************************************************
 ;MACRO		: readinteger@
-;PROPOSITO	: Obtiene valores numВricos desde el teclado
+;PROPOSITO	: Obtiene valores num ricos desde el teclado
 ;***************************************************************************
 
 readinteger@ MACRO VALOR1@
@@ -287,7 +279,7 @@ ENDM
 
 ;***************************************************************************
 ;MACRO		: readstring@
-;PROPOSITO	: Obtine informaciвn de la pantalla
+;PROPOSITO	: Obtine informaci n de la pantalla
 ;***************************************************************************
 
 readstring@ MACRO VA@LOR
@@ -315,9 +307,9 @@ clrscr MACRO
 ENDM
 
 
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
-; ллллллллллллллллл BORRADO DE CADENAS DE CARACTERES лллллллллллллллллллллл
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+;                                                                          
+;                   BORRADO DE CADENAS DE CARACTERES                       
+;                                                                          
 
 BORRAR	MACRO BUFFER1, CLR
 	LOCAL KTERCLR1
@@ -333,9 +325,9 @@ BORRAR	MACRO BUFFER1, CLR
 		;MOV [SI], AL
 	ENDM
 
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
-; ллллллллл CONVERSION DECIMAL-ASCII , ASCII-DECIMAL лллллллллллллллллллллл
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+;                                                                          
+;           CONVERSION DECIMAL-ASCII , ASCII-DECIMAL                       
+;                                                                          
 
 ITOA	MACRO BUFFER, NUMERO
 	LOCAL C1
@@ -370,7 +362,7 @@ ITOA	MACRO BUFFER, NUMERO
         MOV [SI], AL		; COMO CARACTER ASCII
 
 	;EL NUMERO ESTA CONVERTIDO A ASCII PERO EN ORDEN INVERSO
-	; HAY QUE VOLTEARLOS PARA IMPRIMIRLOS
+	; HAY QUE VOLTEARLOS PARA ProvisionalLOS
 		LEA SI, BUFFER
 		LEA DI, BUFFERTEMP
 		MOV BX, COUNT
@@ -454,9 +446,9 @@ ATOI	MACRO NUMERO
 	ENDM
 
 
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
-; ллллллллллллллллллллллл MACROS ARREGLOS лллллллллллллллллллллллллллллллллл
-; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+;                                                                          
+;                         MACROS ARREGLOS                                   
+;                                                                          
 ARRAVAL MACRO NOMBRE, DIRECCION, VALOR
     	PUSH BX
     	PUSH AX
@@ -482,29 +474,17 @@ LEE		MACRO MESSAGE
 		MOV CX,0100h
 		LEA DX,MESSAGE
 		INT 21h
-                LEA SI,MESSAGE
-                MOV DL,13
-       L1:
-                CMP [SI],DL
-                INC SI
-                JNE L1
-                DEC SI
-                DEC SI
-                MOV [SI],DL
 ENDM
 
-LEELN		MACRO MESSAGE
-		MOV AH,3Fh
-		MOV BX,0000h
-		MOV CX,0100h
-		LEA DX,MESSAGE
-		
+WRITESTRING		MACRO MESSAGE
+		MOV AH,09
+		LEA DX,OFFSET MESSAGE
 		INT 21h
 ENDM
 
 ;*************************************************************************
 ;MACRO		: ESPACIOS@S
-;PROPOSITO	: Imprimir espacios
+;PROPOSITO	: Provisional espacios
 ;**************************************************************************
 
 ESPACIO@S MACRO
