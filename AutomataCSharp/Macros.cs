@@ -17,13 +17,18 @@ namespace AutomataCSharp
             set { TextoMacro = value; }
         }
 
-        public void Stack(LinkedList<Variable> V)
+        public void Stack(LinkedList<Variable> VS, LinkedList<Variable> V)
         {
             /* .MODEL SMALL
                 STACK 100h
                 .DATA */
 
             this.TextoMacro = "\n.MODEL SMALL\nSTACK 100h\n.DATA\n";
+
+            foreach (Variable String in VS)
+            {
+                V.AddLast(String);
+            }
 
             foreach (Variable var in V)
             {
@@ -77,8 +82,18 @@ namespace AutomataCSharp
             this.Macro = Line;
         }
 
-        public void SumaResta(Cuadruplo C)
+        public void SumaResta(Cuadruplo C, LinkedList<Variable> V)
         {
+            string variable = C.OP1;
+            foreach (Variable String in V)
+            {
+                if (String.Value == variable)
+                {
+                    variable = String.Name;
+                    break;
+                }
+            }
+
             string Line;
             string operador = string.Empty;
             switch (C.OP)
@@ -88,7 +103,7 @@ namespace AutomataCSharp
             }
 
             Line =  codetabs +  "PUSH AX\n";
-            Line += codetabs +  "MOV AX, " + C.OP1 +"\n";
+            Line += codetabs +  "MOV AX, " + variable +"\n";
             Line += codetabs +  operador + " " + C.OP2 + "\n";
             Line += codetabs +  "MOV " + C.RES + ", AX\n";
             Line += codetabs +  "POP AX\n";
@@ -149,17 +164,28 @@ namespace AutomataCSharp
             this.Macro = Line;
         }
 
-        public void Asignacion(Cuadruplo C)
+        public void Asignacion(Cuadruplo C, LinkedList<Variable> V)
         {
+            string variable = C.OP1;
+
+            foreach (Variable String in V)
+            {
+                if (String.Value == variable)
+                {
+                    variable = String.Name;
+                    break;
+                }
+            }
+
             string Line;
             Line =  codetabs + "PUSH AX\n";
-            Line += codetabs + "MOV AX, " + C.OP1 + "\n";
+            Line += codetabs + "MOV AX, " + variable + "\n";
             Line += codetabs + "MOV "+ C.RES + ", AX\n";
             Line += codetabs + "OP AX\n";
 
             this.Macro = Line;
         }
-        public void WriteLine(Cuadruplo C)
+        public void WriteLine(Cuadruplo C, LinkedList<Variable> V)
         {
             /*
             MOV AH, 09H
@@ -167,10 +193,20 @@ namespace AutomataCSharp
 		    INT 21H
              */
 
+            string variable = C.OP1;
+            foreach (Variable String in V)
+            {
+                if (String.Value == variable)
+                {
+                    variable = String.Name;
+                    break;
+                }
+            }
+
             string Line;
             Line = codetabs + "MOV AH, 09H\n";
-            Line = codetabs + "LEA DL, " + C.OP1 + "\n";
-            Line = codetabs + "INT 21H\n";
+            Line += codetabs + "LEA DL, " + variable + "\n";
+            Line += codetabs + "INT 21H\n";
 
             this.Macro = Line;
         }
@@ -185,6 +221,17 @@ namespace AutomataCSharp
              MOV AL,"$"
              MOV VA@LOR[2+BX],AL 
              */
+
+            string Line;
+            Line =  codetabs + "LEA DX, " + C.OP1 + "\n";
+            Line += codetabs + "MOV AH, 0AH\n";
+            Line += codetabs + "INT 21H\n";
+            Line += codetabs + "MOV BH, 0\n";
+            Line += codetabs + "MOV BL, " + C.OP1 + "[1]\n";
+            Line += codetabs + "MOV AL, '$'\n";
+            Line += codetabs + "MOV  " + C.OP1 + "[2+BX], AL\n";
+
+            this.Macro = Line;
         }
 
         public void Salto(Cuadruplo C)
@@ -195,8 +242,8 @@ namespace AutomataCSharp
 
             string Line;
             Line = codetabs + "MOV AL " + C.OP1 +"\n";
-            Line = codetabs + "CMP AL, 1\n";
-            Line = codetabs + "JE " + C.RES + "\n";
+            Line += codetabs + "CMP AL, 1\n";
+            Line += codetabs + "JE " + C.RES + "\n";
 
             this.Macro = Line;
         }

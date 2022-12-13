@@ -28,6 +28,7 @@ namespace AutomataCSharp
         };
         public LinkedList<Cuadruplo> TablaCuadruplos = new LinkedList<Cuadruplo>();
         public LinkedList<Variable> Variables = new LinkedList<Variable>();
+        public LinkedList<Variable> VariablesString = new LinkedList<Variable>();
 
         Types SistemaTipos = new Types();
 
@@ -44,17 +45,6 @@ namespace AutomataCSharp
                 Variables.AddFirst(var);
             }
 
-            foreach(Cuadruplo C in TablaCuadruplos)
-            {
-                if(C.OP == "=")
-                {
-                    foreach (Variable var in VariablesDeclaradas)
-                    {
-                        if (var.Name == C.OP1) var.Value = C.OP2;
-                    }
-                }
-            }
-
             CrearEnsamblador();
         }
 
@@ -63,6 +53,7 @@ namespace AutomataCSharp
         {
             Stack<string> vars = new Stack<string>();
             string apuntador = string.Empty;
+            int msgcount = 0;
 
             foreach (string item in Polish)
             {
@@ -96,6 +87,13 @@ namespace AutomataCSharp
                     if (!Operadores.ContainsKey(item))
                     {
                         vars.Push(item);
+
+                        if (item.StartsWith(('"'.ToString())))
+                        {
+                            Variable var = new Variable("string", "Message" + msgcount.ToString(), item);
+                            msgcount++;
+                            VariablesString.AddLast(var);
+                        }
                         continue;
                     }
                     else
@@ -139,7 +137,7 @@ namespace AutomataCSharp
                         if(newVar != null)
                         {
                             string newVarType = SetVariableType(c, VariablesDeclaradas);
-                            Variable var = new Variable(newVarType, c.variabletemporal, c.OP1);
+                            Variable var = new Variable(newVarType, c.variabletemporal, null);
                             Variables.AddLast(var);
                         }
                         vars.Push(newVar);
@@ -236,7 +234,7 @@ namespace AutomataCSharp
                 tw.WriteLine("; Bienvenido al Proyecto\n");
 
                 //Hacer Pila de Variables
-                MAC.Stack(Variables);
+                MAC.Stack(VariablesString, Variables);
 
                 //Insertar MACRO en el archivo de texto
                 tw.Write(MAC.Macro + "\n");
@@ -253,14 +251,14 @@ namespace AutomataCSharp
                     {
                         //Asignación
                         case "=":
-                            MAC.Asignacion(C);
+                            MAC.Asignacion(C, VariablesString);
                             break;
                         //Aritméticos
                         case "+":
-                            MAC.SumaResta(C);
+                            MAC.SumaResta(C, VariablesString);
                             break;
                         case "-":
-                            MAC.SumaResta(C);
+                            MAC.SumaResta(C, VariablesString);
                             break;
                         case "*":
                             MAC.MultDiv(C);
@@ -289,17 +287,17 @@ namespace AutomataCSharp
                             break;
                         //Consola
                         case "WriteLine":
-                            MAC.WriteLine(C);
+                            MAC.WriteLine(C, VariablesString);
                             break;
                         case "ReadLine":
                             MAC.ReadLine(C);
                             break;
                         //Salto
                         case "BRI":
-                            MAC.ReadLine(C);
+                            //MAC.Salto(C);
                             break;
                         case "BRF":
-                            MAC.ReadLine(C);
+                            //MAC.Salto(C);
                             break;
                         default: 
                             break;
