@@ -138,7 +138,8 @@ namespace AutomataCSharp
                 {
                     dgvCuadruplos.Rows.Add(cuadruplo.AP, cuadruplo.OP, cuadruplo.OP1, cuadruplo.OP2, cuadruplo.RES);
                 }
-                //MessageBox.Show("Se ha generado el archivo ensamblador");
+
+                MessageBox.Show("Se ha generado el archivo ensamblador");
 
             }
         }

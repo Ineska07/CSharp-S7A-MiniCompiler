@@ -5,7 +5,6 @@
 ;               WRITE, WRITELN, READ Y READLN                              
 ;                                                                          
 
-
 WRITE 	MACRO MESSAGE
 			mov CL, MESSAGE
 			add CL, 48
@@ -305,7 +304,6 @@ clrscr MACRO
    MOV AH,0
    INT 10H
 ENDM
-
 
 ;                                                                          
 ;                   BORRADO DE CADENAS DE CARACTERES                       

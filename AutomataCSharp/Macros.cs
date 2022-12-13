@@ -36,7 +36,7 @@ namespace AutomataCSharp
                 switch (var.Type)
                 {
                     case "int":
-                        Line = "DB '" + var.Name + "'";
+                        Line = var.Name + " DW '0'";
                         this.TextoMacro += codetabs + Line + '\n';
                         break;
                     case "double":
@@ -133,7 +133,7 @@ namespace AutomataCSharp
             this.Macro = Line;
         }
 
-        public void Relacional(Cuadruplo C)
+        public void Relacional(Cuadruplo C, Cuadruplo BNF)
         {
             string operador = string.Empty;
             switch (C.OP)
@@ -147,19 +147,30 @@ namespace AutomataCSharp
             }
 
             string Line;
-            Line = codetabs + "LOCAL LABEL1\n";
+            Line = codetabs + "LOCAL A" + BNF.RES +"\n";
             Line += codetabs + "LOCAL SALIR\n";
             Line += codetabs + "PUSH AX\n";
             Line += codetabs + "MOV AX, " + C.OP1 + "\n";
             Line += codetabs + "CMP AX, " + C.OP2 + "\n";
-            Line += codetabs + operador + " LABEL1\n";
+            Line += codetabs + operador + " A" + BNF.RES +"\n";
             Line += codetabs + "MOV " + C.RES + ", 1\n\n";
 
-            Line += codetabs + "JMP SALIR\n";
-            Line += codetabs + "LABEL1:\n";
+            Line += codetabs + "JMP " + BNF.RES + ":\n";
             Line += codetabs + "\tMOV " + C.RES + ", 1\n";
             Line += codetabs + "SALIR:\n";
             Line += codetabs + "\tPOP AX\n";
+
+            this.Macro = Line;
+        }
+
+        public void Salto(Cuadruplo C)
+        {
+            /*MOV AL,VALOR1
+   	        CMP AL,1
+   	        JE  DESTINO*/
+
+            string Line;
+            Line = codetabs + "MOV AL " + C.OP1 + "\n";
 
             this.Macro = Line;
         }
@@ -234,18 +245,68 @@ namespace AutomataCSharp
             this.Macro = Line;
         }
 
-        public void Salto(Cuadruplo C)
+       
+
+        public void ASCIIDecimal()
         {
-            /*MOV AL,VALOR1
-   	        CMP AL,1
-   	        JE  DESTINO*/
 
-            string Line;
-            Line = codetabs + "MOV AL " + C.OP1 +"\n";
-            Line += codetabs + "CMP AL, 1\n";
-            Line += codetabs + "JE " + C.RES + "\n";
-
-            this.Macro = Line;
         }
     }
+
+    /*
+     ASCTODEC	    	MACRO NUM,CADNUM
+        LOCAL D1
+        LOCAL D2
+        LOCAL D3
+        LOCAL D4
+        LOCAL D5
+                PUSH CX
+                MOV NEGATIVO,0
+                MOV NUM,0
+                MOV COUNT,0
+                MOV BX,0
+                LEA SI,CADNUM
+                MOV AL,[SI]
+                MOV CX,SI
+                CMP AL,45
+                JNE D1
+               	INC CX
+                INC SI
+                MOV NEGATIVO,1
+        D1:
+                MOV DL,48
+                CMP [SI],DL
+                JB D2
+                MOV DL,57
+                CMP [SI],DL
+                JA D2
+                INC BX
+                INC SI
+                JMP D1
+        D2:
+                DEC BX
+                MOV SI,CX
+                MOV CX,1
+        D3:
+                MOV AL,[BX+SI]
+                XOR AL,30h
+                MOV AH,0
+                MUL CX
+                ADD NUM,AX
+                CMP BX,0
+                JE D4
+                DEC BX
+                MOV AX,CX
+                MUL BUF
+                MOV CX,AX
+                JMP D3
+        D4:
+                CMP NEGATIVO,0
+                JE D5
+                NOT NUM
+                INC NUM
+        D5:
+                POP CX
+    ENDM
+     */
 }

@@ -245,8 +245,16 @@ namespace AutomataCSharp
                 tw.Write(MAC.Macro + "\n");
                 MAC.Macro = string.Empty;
 
+                int Currentindex = 0;
+                Cuadruplo next = new Cuadruplo(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+
                 foreach (Cuadruplo C in TablaCuadruplos)
                 {
+                    if (Currentindex < TablaCuadruplos.Count - 1)
+                    {
+                       next = TablaCuadruplos.ElementAt(Currentindex + 1);
+                    }
+
                     switch (C.OP)
                     {
                         //Asignación
@@ -268,22 +276,23 @@ namespace AutomataCSharp
                             break;
                         //Relacionales
                         case "<":
-                            MAC.Relacional(C);
+                            //Incluir BRF
+                            MAC.Relacional(C, next);
                             break;
                         case "<=":
-                            MAC.Relacional(C);
+                            MAC.Relacional(C, next);
                             break;
                         case ">":
-                            MAC.Relacional(C);
+                            MAC.Relacional(C, next);
                             break;
                         case ">=":
-                            MAC.Relacional(C);
+                            MAC.Relacional(C, next);
                             break;
                         case "==":
-                            MAC.Relacional(C);
+                            MAC.Relacional(C, next);
                             break;
                         case "!=":
-                            MAC.Relacional(C);
+                            MAC.Relacional(C, next);
                             break;
                         //Consola
                         case "WriteLine":
@@ -294,10 +303,8 @@ namespace AutomataCSharp
                             break;
                         //Salto
                         case "BRI":
-                            //MAC.Salto(C);
                             break;
                         case "BRF":
-                            //MAC.Salto(C);
                             break;
                         default: 
                             break;
@@ -305,6 +312,7 @@ namespace AutomataCSharp
 
                     tw.Write(MAC.Macro + "\n");
                     MAC.Macro = string.Empty;
+                    Currentindex++;
                 }
 
                 MAC.End();
