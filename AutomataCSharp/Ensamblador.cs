@@ -227,11 +227,12 @@ namespace AutomataCSharp
             Macros MAC = new Macros();
 
             //Crear archivo .txt para escribir la traduccion
-            string filepath = @"D:\Compilador_V02\PROYECTO.txt";
+            string filepath = @"D:\Compilador_V02\asm\PROYECTO.asm";
 
             using (StreamWriter tw = new StreamWriter(filepath, false)) 
             {
-                tw.WriteLine("; Bienvenido al Proyecto\n");
+                tw.WriteLine("COMMENT !\nBienvenido al Proyecto\n" +
+                    "Autora: María Inés Biebrich Contreras\n!\nINCLUDE MACROS.mac\nDOSSEG\n");
 
                 //Hacer Pila de Variables
                 MAC.Stack(VariablesString, Variables);
@@ -276,7 +277,6 @@ namespace AutomataCSharp
                             break;
                         //Relacionales
                         case "<":
-                            //Incluir BRF
                             MAC.Relacional(C, next);
                             break;
                         case "<=":
@@ -303,8 +303,7 @@ namespace AutomataCSharp
                             break;
                         //Salto
                         case "BRI":
-                            break;
-                        case "BRF":
+                            MAC.BRI(C);
                             break;
                         default: 
                             break;

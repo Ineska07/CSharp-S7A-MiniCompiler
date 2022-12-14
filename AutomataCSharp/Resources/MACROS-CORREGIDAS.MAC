@@ -560,3 +560,90 @@ PRINTKS@ MACRO VA@LOR
         MOV AH,09H
         INT 21H
         ENDM
+
+
+COMMENT ! 
+        Autor: David Solis Hurtado!
+
+
+		BEGIN:
+    ;ESTO SE OCUPA PARA INICIAR, NO BORRAR
+    MOV AX, @DATA
+    MOV DS, AX
+
+    ;esto imprime
+    LEA DX, read_a
+    MOV AH, 09
+    INT 21H
+
+    ;esto lee
+    mov ah, 1
+    int 21h
+    mov a, al
+
+    ;salto de linea, el unico macro que funciona hasta ahora
+    WRITELN
+
+    ;esto imprime
+    LEA DX, read_sum
+    MOV AH, 09
+    INT 21H
+
+    ;esto lee
+    mov ah, 1
+    int 21h
+    mov sum, al
+
+    ;salto de linea, el unico macro que funciona hasta ahora
+    WRITELN
+
+salto2:
+    ;esto es lo del BRF, mueve el valor de newint a al, compara a y al y si a es menor que al salta hacia donde este salto22 terminando el programa
+    mov al, newInt1
+    cmp a, al
+    jl salto22
+
+    LEA DX, newString1
+    MOV AH, 09
+    INT 21H
+
+salto5:
+    mov al, newInt2
+    cmp a, al
+    jge salto17
+
+    LEA DX, newString2
+    MOV AH, 09
+    INT 21H
+
+salto8:
+    mov al, newInt3
+    cmp a, al
+    jle salto15
+
+    ;esto es lo del BRI, saltos incondifcionales
+    jmp salto8
+salto15:
+    LEA DX, sum
+    MOV AH, 09
+    INT 21H
+
+    jmp salto20
+salto17:
+    LEA DX, newString3
+    MOV AH, 09
+    INT 21H
+
+salto20:
+    LEA DX, newString4
+    MOV AH, 09
+    INT 21H
+
+    jmp salto2
+salto22:
+    ;ESTO SE OCUPA PARA FINALIZAR, NO BORRAR
+    MOV AX, 4C00H
+    INT 21H
+END BEGIN
+
+!
