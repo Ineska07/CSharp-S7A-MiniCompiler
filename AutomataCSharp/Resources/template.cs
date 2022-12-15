@@ -6,21 +6,27 @@ namespace CompiladorCSharp
     {
         static void Main(string[] args)
         {
-            int i;
+            int i = 0;
+            int x = 4
 
-            while(i < 5)
+            while(i != 5)
             {
+                Console.WriteLine("Inserte un numero: ");
+                Console.ReadLine(i);
+
                 if (i == 4)
                 {
-                    Console.WriteLine("Ya casi! - Valor de i = " + i);
+                    Console.WriteLine("Casi pero no");
+                    x++;
                 }
                 else
                 {
-                    Console.WriteLine("Valor de i = " + i);
+                    Console.WriteLine(i + " no es correcto");
+                    x--;
                 }
-                i++;
+                Console.WriteLine(x);
             }
-            Console.WriteLine("Programa Finalizado");
+            Console.WriteLine("Programa Finalizado. Felicidades! :D");
         }
     }
 }

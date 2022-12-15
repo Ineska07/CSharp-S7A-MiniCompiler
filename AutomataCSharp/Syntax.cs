@@ -245,23 +245,27 @@ namespace AutomataCSharp
                 p = p.Next;
                 if (p != null && valuetypes.ContainsKey(p.Value.Valor))
                 {
-                    Variable currentVar = GetVariable(nombre);
-                    if (currentVar == null)
+                    if (p.Value.Lexema == "Console")
                     {
-                        AddError(701, nombre.Lexema);
-                        //ERROR 701: VARIABLE NO DECLARADA
-                        p = Assignment(p); 
+                        AddError(600, string.Empty);
+                        return p;
                     }
                     else
                     {
-                        p = Assignment(p);
-                        bool valido = sistematipos.EvaluarTipos(asignado.Lexema, currentVar.Type, sistematipos.Tipo);
-                        if (valido == false && !semError) AddError(703, string.Empty);
+                        Variable currentVar = GetVariable(nombre);
+                        if (currentVar == null)
+                        {
+                            AddError(701, nombre.Lexema);
+                            //ERROR 701: VARIABLE NO DECLARADA
+                            p = Assignment(p);
+                        }
+                        else
+                        {
+                            p = Assignment(p);
+                            bool valido = sistematipos.EvaluarTipos(asignado.Lexema, currentVar.Type, sistematipos.Tipo);
+                            if (valido == false && !semError) AddError(703, string.Empty);
+                        }
                     }
-                }
-                else if(p.Value.Lexema == "Console")
-                {
-                    p = ConsoleSentence(p);
                 }
                 else AddError(602, string.Empty);
             }
@@ -303,16 +307,24 @@ namespace AutomataCSharp
                     if (p != null && p.Value.Lexema == "(")
                     {
                         p = p.Next;
-                        if (p != null && p.Value.Lexema == ")")
+                        if (p != null && valuetypes.ContainsKey(p.Value.Valor) && p.Value.Lexema != "Console")
                         {
                             p = p.Next;
-                            if (p != null && p.Value.Lexema == ";")
+                            if (p != null && p.Value.Lexema == ")")
                             {
-                                return p;
+                                p = p.Next;
+                                if (p != null && p.Value.Lexema == ";")
+                                {
+                                    return p;
+                                }
+                                else AddError(603, ";");
                             }
-                            else AddError(603, ";");
+                            else AddError(603, ")");
                         }
-                        else AddError(603, ")");
+                        else
+                        {
+                            AddError(603, "(");
+                        }
                     }
                     else AddError(603, "(");
                 }

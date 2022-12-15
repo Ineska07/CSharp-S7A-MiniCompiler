@@ -12,7 +12,7 @@ namespace AutomataCSharp
         private Dictionary<string, int> Operadores = new Dictionary<string, int>()
         {
             //Otros
-            {"WriteLine", 3}, {"ReadLine", 3}, 
+            {"WriteLine", 3},{"ReadLine", 3},
 
             //Lógicos
             {"&&", 2},  {"||", 2},
@@ -106,6 +106,13 @@ namespace AutomataCSharp
                             string Var1 = vars.Pop();
                             c.OP = operador;
                             c.OP1 = Var1;
+                        }
+                        else if (operador == "ReadLine")
+                        {
+                            string Var1 = vars.Pop();
+                            c.OP = operador;
+                            c.OP1 = Var1;
+                            c.RES = Var1;
                         }
                         else if (operador == "=")
                         {
@@ -299,7 +306,7 @@ namespace AutomataCSharp
                             MAC.WriteLine(C, VariablesString);
                             break;
                         case "ReadLine":
-                            MAC.ReadLine(C);
+                            MAC.ReadLine(C, VariablesString);
                             break;
                         //Salto
                         case "BRI":

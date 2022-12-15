@@ -81,7 +81,7 @@ namespace AutomataCSharp
         public void Asignacion(Cuadruplo C, LinkedList<Variable> V)
         {
             string Line = string.Empty;
-            if (C.AP != null || C.AP != string.Empty || C.AP != "")
+            if (!C.AP.Equals(""))
             {
                 Line = "\tSALTO" + C.AP + ":\n";
             }
@@ -106,7 +106,7 @@ namespace AutomataCSharp
         public void SumaResta(Cuadruplo C, LinkedList<Variable> V)
         {
             string Line = string.Empty;
-            if (C.AP != null || C.AP != string.Empty || C.AP != "")
+            if (!C.AP.Equals(""))
             {
                 Line = "\tSALTO" + C.AP + ":\n";
             }
@@ -129,7 +129,7 @@ namespace AutomataCSharp
             }
 
             Line +=  codetabs +  "MOV AL, " + variable +"\n";
-            Line += codetabs +  operador + " " + C.OP2 + "\n";
+            Line += codetabs +  operador + " AL, " + C.OP2 + "\n";
             Line += codetabs +  "MOV " + C.RES + ", AL\n";
 
             this.Macro = Line;
@@ -138,7 +138,7 @@ namespace AutomataCSharp
         public void MultDiv(Cuadruplo C)
         {
             string Line = string.Empty;
-            if (C.AP != null || C.AP != string.Empty || C.AP != "")
+            if (!C.AP.Equals(""))
             {
                 Line = "SALTO\t" + C.AP + ":\n";
             }
@@ -163,7 +163,7 @@ namespace AutomataCSharp
         public void Relacional(Cuadruplo C, Cuadruplo BRF)
         {
             string Line = string.Empty;
-            if (C.AP != null || (C.AP != string.Empty || C.AP != ""))
+            if (!C.AP.Equals(""))
             {
                 Line = "\tSALTO" + C.AP + ":\n";
             }
@@ -188,6 +188,12 @@ namespace AutomataCSharp
 
         public void WriteLine(Cuadruplo C, LinkedList<Variable> V)
         {
+            string Line = string.Empty;
+            if (!C.AP.Equals(""))
+            {
+                Line = "\tSALTO" + C.AP + ":\n";
+            }
+
             string variable = C.OP1;
             foreach (Variable String in V)
             {
@@ -198,25 +204,49 @@ namespace AutomataCSharp
                 }
             }
 
-            //Imprimir
-            string Line;
-            Line = codetabs + "MOV AH, 09H\n";
+            Line += codetabs + "MOV AH, 09H\n";
             Line += codetabs + "LEA DL, " + variable + "\n";
             Line += codetabs + "INT 21H\n\n";
 
             //Salto de Línea
-            Line += codetabs + "MOV AH, 2\n";
-            Line += codetabs + "MOV DL, 0AH\n";
-            Line += codetabs + "INT 21H\n\n";
-
             Line += codetabs + "WRITELN\n";
 
             this.Macro = Line;
         }
 
-        public void ReadLine(Cuadruplo C)
+        public void ReadLine(Cuadruplo C, LinkedList<Variable> V)
         {
+            string Line = string.Empty;
+            if (!C.AP.Equals(""))
+            {
+                Line = "\tSALTO" + C.AP + ":\n";
+            }
 
+            string variable = C.OP1;
+            foreach (Variable String in V)
+            {
+                if (String.Value == variable)
+                {
+                    variable = String.Name;
+                    break;
+                }
+            }
+
+            /*
+             ;esto lee
+                mov ah, 1
+                int 21h
+                mov DESTINO, al
+            */
+
+            Line += codetabs + "MOV AH, 1\n";
+            Line += codetabs + "INT 21H\n";
+            Line += codetabs + "MOV " + C.RES + ", AL\n";
+
+            //Salto de Línea
+            Line += codetabs + "WRITELN\n";
+
+            this.Macro = Line;
         }
 
         public void BRI(Cuadruplo C)
@@ -229,61 +259,4 @@ namespace AutomataCSharp
 
         }
     }
-
-    /*
-     ASCTODEC	    	MACRO NUM,CADNUM
-        LOCAL D1
-        LOCAL D2
-        LOCAL D3
-        LOCAL D4
-        LOCAL D5
-                PUSH CX
-                MOV NEGATIVO,0
-                MOV NUM,0
-                MOV COUNT,0
-                MOV BX,0
-                LEA SI,CADNUM
-                MOV AL,[SI]
-                MOV CX,SI
-                CMP AL,45
-                JNE D1
-               	INC CX
-                INC SI
-                MOV NEGATIVO,1
-        D1:
-                MOV DL,48
-                CMP [SI],DL
-                JB D2
-                MOV DL,57
-                CMP [SI],DL
-                JA D2
-                INC BX
-                INC SI
-                JMP D1
-        D2:
-                DEC BX
-                MOV SI,CX
-                MOV CX,1
-        D3:
-                MOV AL,[BX+SI]
-                XOR AL,30h
-                MOV AH,0
-                MUL CX
-                ADD NUM,AX
-                CMP BX,0
-                JE D4
-                DEC BX
-                MOV AX,CX
-                MUL BUF
-                MOV CX,AX
-                JMP D3
-        D4:
-                CMP NEGATIVO,0
-                JE D5
-                NOT NUM
-                INC NUM
-        D5:
-                POP CX
-    ENDM
-     */
 }
