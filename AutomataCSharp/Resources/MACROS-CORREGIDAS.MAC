@@ -623,6 +623,7 @@ salto8:
 
     ;esto es lo del BRI, saltos incondifcionales
     jmp salto8
+
 salto15:
     LEA DX, sum
     MOV AH, 09

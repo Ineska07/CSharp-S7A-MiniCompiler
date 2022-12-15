@@ -25,7 +25,7 @@ namespace AutomataCSharp
 
         public void Stack(LinkedList<Variable> VS, LinkedList<Variable> V)
         {
-            this.TextoMacro = "\n.MODEL SMALL\nSTACK 100h\n.DATA\n";
+            this.TextoMacro = "\nINCLUDE MACROS.MAC\n\n.MODEL SMALL\n.STACK 100h\n.DATA\n";
 
             foreach (Variable String in VS)
             {
@@ -38,15 +38,25 @@ namespace AutomataCSharp
                 switch (var.Type)
                 {
                     case "int":
-                        Line = var.Name + " DB, 0";
+                        if(var.Value != null)
+                        {
+                            Line = var.Name + " DB, '" + var.Value + "'";
+                        }
+                        else
+                        {
+                            Line = var.Name + " DB, '0'";
+                        }
                         this.TextoMacro += codetabs + Line + '\n';
                         break;
                     case "double":
-                        Line = var.Name + " DB, 0";
+                        Line = var.Name + " DB, '0'";
                         this.TextoMacro += codetabs + Line + '\n';
                         break;
                     case "string":
-                        Line = var.Name + " DB " + var.Value + ",'$'"; //cadena db 'Hola Mundo','$'
+
+                        string tempvalue = var.Value.Substring(1, var.Value.Length - 2);
+
+                        Line = var.Name + " DB '" + tempvalue + "','$'"; //cadena db 'Hola Mundo','$'
                         this.TextoMacro += codetabs + Line + '\n';
                         break;
                     case "bool":
@@ -160,7 +170,7 @@ namespace AutomataCSharp
             this.Macro = Line;
         }
 
-        public void Relacional(Cuadruplo C, Cuadruplo BRF)
+        public void Relacional(Cuadruplo C, Cuadruplo BRF, LinkedList<Variable> V)
         {
             string Line = string.Empty;
             if (!C.AP.Equals(""))
@@ -168,19 +178,29 @@ namespace AutomataCSharp
                 Line = "\tSALTO" + C.AP + ":\n";
             }
 
+            string variable = C.OP2;
+            foreach (Variable String in V)
+            {
+                if (String.Value == variable)
+                {
+                    variable = String.Name;
+                    break;
+                }
+            }
+
             string operador = string.Empty;
             switch (C.OP)
             {
-                case "<": operador = "JL"; break;   //Lower
-                case "<=": operador = "JLE"; break; //Lower-Equal
-                case ">": operador = "JG"; break;   //Greater
-                case ">=": operador = "JGE"; break; //Greater-Equal
-                case "==": operador = "JE"; break;  //Equal
-                case "!=": operador = "JNE"; break; //Not-Equal
+                case "<": operador = "JGE"; break;      //Lower
+                case "<=": operador = "JG"; break;      //Lower-Equal
+                case ">": operador = "JLE"; break;      //Greater
+                case ">=": operador = "JL"; break;      //Greater-Equal
+                case "==": operador = "JNE"; break;     //Equal
+                case "!=": operador = "JE"; break;      //Not-Equal
             }
             
-            Line += codetabs + "MOV AL " + C.OP1 + "\n";
-            Line += codetabs + "CMP " + C.OP2 + ", AL\n";
+            Line += codetabs + "MOV AL, " + C.OP1 + "\n";
+            Line += codetabs + "CMP " + variable + ", AL\n";
             Line += codetabs + operador + " SALTO" + BRF.RES + "\n";
 
             this.Macro = Line;
@@ -205,7 +225,7 @@ namespace AutomataCSharp
             }
 
             Line += codetabs + "MOV AH, 09H\n";
-            Line += codetabs + "LEA DL, " + variable + "\n";
+            Line += codetabs + "LEA DX, " + variable + "\n";
             Line += codetabs + "INT 21H\n\n";
 
             //Salto de Línea
@@ -232,15 +252,13 @@ namespace AutomataCSharp
                 }
             }
 
-            /*
-             ;esto lee
-                mov ah, 1
-                int 21h
-                mov DESTINO, al
-            */
-
-            Line += codetabs + "MOV AH, 1\n";
+            //Captura
+            Line += codetabs + "MOV AX, 01H\n";
             Line += codetabs + "INT 21H\n";
+            //Line += codetabs + "MOV " + C.RES + ", AL\n";
+
+            //Asignación
+            Line += codetabs + "MOV AL, " + C.RES + "\n";
             Line += codetabs + "MOV " + C.RES + ", AL\n";
 
             //Salto de Línea

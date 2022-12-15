@@ -28,7 +28,7 @@ namespace AutomataCSharp
         };
         public LinkedList<Cuadruplo> TablaCuadruplos = new LinkedList<Cuadruplo>();
         public LinkedList<Variable> Variables = new LinkedList<Variable>();
-        public LinkedList<Variable> VariablesString = new LinkedList<Variable>();
+        public LinkedList<Variable> VariablesExtra = new LinkedList<Variable>();
 
         Types SistemaTipos = new Types();
 
@@ -54,6 +54,7 @@ namespace AutomataCSharp
             Stack<string> vars = new Stack<string>();
             string apuntador = string.Empty;
             int msgcount = 0;
+            int intcount = 0;
 
             foreach (string item in Polish)
             {
@@ -92,7 +93,7 @@ namespace AutomataCSharp
                         {
                             Variable var = new Variable("string", "Message" + msgcount.ToString(), item);
                             msgcount++;
-                            VariablesString.AddLast(var);
+                            VariablesExtra.AddLast(var);
                         }
                         continue;
                     }
@@ -128,6 +129,13 @@ namespace AutomataCSharp
                             //Toma los elementros de la pila
                             string Var2 = vars.Pop();
                             string Var1 = vars.Pop();
+
+                            if (operador == "<=" || operador == "<" || operador == ">" || operador == ">=" || operador == "==" || operador == "!=")
+                            {
+                                string VarType2 = GetVarType(Var2, VariablesDeclaradas);
+                                Variable var = new Variable(VarType2, "VAR"+intcount.ToString() , Var2); intcount++;
+                                VariablesExtra.AddLast(var);
+                            }
 
                             //Hacer la linea del cuadruplo
                             c.AP = apuntador;
@@ -238,11 +246,13 @@ namespace AutomataCSharp
 
             using (StreamWriter tw = new StreamWriter(filepath, false)) 
             {
-                tw.WriteLine("COMMENT !\nBienvenido al Proyecto\n" +
-                    "Autora: María Inés Biebrich Contreras\n!\nINCLUDE MACROS.mac\nDOSSEG\n");
+                tw.WriteLine("COMMENT ! \tPROYECTO LEYAU2\n" +
+                    "\tS7A BIEBRICH CONTRERAS MARÍA INÉS\n" +
+                    "\tLENGUAJE C# - 16/12/2022\n" +
+                    "\t!");
 
                 //Hacer Pila de Variables
-                MAC.Stack(VariablesString, Variables);
+                MAC.Stack(VariablesExtra, Variables);
 
                 //Insertar MACRO en el archivo de texto
                 tw.Write(MAC.Macro + "\n");
@@ -267,14 +277,14 @@ namespace AutomataCSharp
                     {
                         //Asignación
                         case "=":
-                            MAC.Asignacion(C, VariablesString);
+                            MAC.Asignacion(C, VariablesExtra);
                             break;
                         //Aritméticos
                         case "+":
-                            MAC.SumaResta(C, VariablesString);
+                            MAC.SumaResta(C, VariablesExtra);
                             break;
                         case "-":
-                            MAC.SumaResta(C, VariablesString);
+                            MAC.SumaResta(C, VariablesExtra);
                             break;
                         case "*":
                             MAC.MultDiv(C);
@@ -284,29 +294,29 @@ namespace AutomataCSharp
                             break;
                         //Relacionales
                         case "<":
-                            MAC.Relacional(C, next);
+                            MAC.Relacional(C, next, VariablesExtra);
                             break;
                         case "<=":
-                            MAC.Relacional(C, next);
+                            MAC.Relacional(C, next, VariablesExtra);
                             break;
                         case ">":
-                            MAC.Relacional(C, next);
+                            MAC.Relacional(C, next, VariablesExtra);
                             break;
                         case ">=":
-                            MAC.Relacional(C, next);
+                            MAC.Relacional(C, next, VariablesExtra);
                             break;
                         case "==":
-                            MAC.Relacional(C, next);
+                            MAC.Relacional(C, next, VariablesExtra);
                             break;
                         case "!=":
-                            MAC.Relacional(C, next);
+                            MAC.Relacional(C, next, VariablesExtra);
                             break;
                         //Consola
                         case "WriteLine":
-                            MAC.WriteLine(C, VariablesString);
+                            MAC.WriteLine(C, VariablesExtra);
                             break;
                         case "ReadLine":
-                            MAC.ReadLine(C, VariablesString);
+                            MAC.ReadLine(C, VariablesExtra);
                             break;
                         //Salto
                         case "BRI":
@@ -324,6 +334,8 @@ namespace AutomataCSharp
                 MAC.End();
                 tw.Write(MAC.Macro + "\n");
                 MAC.Macro = string.Empty;
+
+                tw.Close();
             }
         }
     }

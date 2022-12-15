@@ -7,21 +7,21 @@ namespace CompiladorCSharp
         static void Main(string[] args)
         {
             int i = 0;
-            int x = 4
+            int x = 4;
 
             while(i != 5)
             {
                 Console.WriteLine("Inserte un numero: ");
                 Console.ReadLine(i);
 
-                if (i == 4)
+                if (i == 5)
                 {
-                    Console.WriteLine("Casi pero no");
+                    Console.WriteLine("Correcto!");
                     x++;
                 }
                 else
                 {
-                    Console.WriteLine(i + " no es correcto");
+                    Console.WriteLine("Numero Incorrecto!");
                     x--;
                 }
                 Console.WriteLine(x);
