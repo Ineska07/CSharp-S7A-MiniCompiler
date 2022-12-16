@@ -43,7 +43,7 @@ namespace AutomataCSharp
                 Variables.AddFirst(var);
             }
 
-            //CrearEnsamblador();
+            CrearEnsamblador();
         }
 
         #region Cuadruplos
@@ -239,7 +239,7 @@ namespace AutomataCSharp
         {
             Macros MAC = new Macros();
 
-            string filepath = @"D:\Compilador_V02\asm\PROYECTO.asm";
+            string filepath = @"D:\Compilador_V02\asm\prueba.asm";
 
             using (StreamWriter tw = new StreamWriter(filepath, false)) 
             {

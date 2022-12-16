@@ -1,6 +1,6 @@
 using System;
 
-namespace CompiladorCSharp 
+namespace CompiladorCSharp
 {
     class Programa
     {
@@ -10,20 +10,19 @@ namespace CompiladorCSharp
 
             int i = 0;
 
-            Console.WriteLine(">>>Inserte un número: 1  2  3  4  5  6  7");
+            Console.WriteLine("Inserte un numero: 2  1  ");
             Console.ReadLine(i);
 
-            int x = i + 2;
-
-            if(i == 1)
+            if (i == 2)
             {
-                Console.WriteLine("jaja cheatin't");
+                Console.WriteLine("Es un lindo numero");
             }
             else
             {
-                Console.WriteLine(">>Sumando dos, son 4  >>Uno mas dos son tres");
+                Console.WriteLine("Buen numero   Es un lindo numero");
             }
-            Console.WriteLine(">>Programa Finalizado. Felicidades! :D");
+            Console.WriteLine("<<Programa Finalizado. Felicidades! :D");
         }
     }
 }
+

@@ -251,12 +251,8 @@ namespace AutomataCSharp
             }
 
             //Captura
-            Line += codetabs + "MOV AX, 01H\n";
+            Line += codetabs + "MOV AH, 01H\n";
             Line += codetabs + "INT 21H\n";
-            //Line += codetabs + "MOV " + C.RES + ", AL\n";
-
-            //Asignación
-            Line += codetabs + "MOV AL, " + C.RES + "\n";
             Line += codetabs + "MOV " + C.RES + ", AL\n";
 
             //Salto de Línea
