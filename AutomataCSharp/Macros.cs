@@ -53,9 +53,7 @@ namespace AutomataCSharp
                         this.TextoMacro += codetabs + Line + '\n';
                         break;
                     case "string":
-
                         string tempvalue = var.Value.Substring(1, var.Value.Length - 2);
-
                         Line = var.Name + " DB '" + tempvalue + "','$'"; //cadena db 'Hola Mundo','$'
                         this.TextoMacro += codetabs + Line + '\n';
                         break;

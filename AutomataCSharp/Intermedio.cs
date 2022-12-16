@@ -96,9 +96,7 @@ namespace AutomataCSharp
                 else
                 {
                     if (IGNORE.ContainsKey(p.Value.Lexema))
-                    {
-                        p = p.Next;
-                    }
+                    { p = p.Next; }
                     else
                     {
                         infijo.AddLast(p.Value);

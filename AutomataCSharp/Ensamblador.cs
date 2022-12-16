@@ -36,8 +36,6 @@ namespace AutomataCSharp
 
         public Ensamblador(LinkedList<string> Polish, LinkedList<Variable> VariablesDeclaradas)
         {
-            //Poner valor a las variables ya declaradas
-
             Cuadruplos(Polish, VariablesDeclaradas);
 
             foreach (Variable var in VariablesDeclaradas)
@@ -45,7 +43,7 @@ namespace AutomataCSharp
                 Variables.AddFirst(var);
             }
 
-            CrearEnsamblador();
+            //CrearEnsamblador();
         }
 
         #region Cuadruplos
@@ -241,7 +239,6 @@ namespace AutomataCSharp
         {
             Macros MAC = new Macros();
 
-            //Crear archivo .txt para escribir la traduccion
             string filepath = @"D:\Compilador_V02\asm\PROYECTO.asm";
 
             using (StreamWriter tw = new StreamWriter(filepath, false)) 

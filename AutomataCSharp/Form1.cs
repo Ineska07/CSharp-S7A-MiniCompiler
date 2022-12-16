@@ -132,8 +132,8 @@ namespace AutomataCSharp
                     dgvPolish.Rows.Add(polishline);
                 }
 
+                
                 Ensamblador assembly = new Ensamblador(code.LinkedPolish, Analizador.variableList);
-
                 foreach (Cuadruplo cuadruplo in assembly.TablaCuadruplos)
                 {
                     dgvCuadruplos.Rows.Add(cuadruplo.AP, cuadruplo.OP, cuadruplo.OP1, cuadruplo.OP2, cuadruplo.RES);
